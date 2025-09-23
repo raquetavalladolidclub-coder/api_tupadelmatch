@@ -40,6 +40,23 @@ return function (App $app) {
         
     $app->put('/auth/profile', [AuthController::class, 'updateProfile'])
         ->add(new AuthMiddleware());
+
+    // Agrega esta ruta temporal en routes.php
+    $app->get('/debug-headers', function (Request $request, Response $response) {
+        $headers = $request->getHeaders();
+        
+        $response->getBody()->write(json_encode([
+            'success' => true,
+            'headers' => $headers,
+            'authorization_header' => $request->getHeaderLine('Authorization'),
+            'server_vars' => [
+                'HTTP_AUTHORIZATION' => $_SERVER['HTTP_AUTHORIZATION'] ?? 'No definido',
+                'REDIRECT_HTTP_AUTHORIZATION' => $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? 'No definido'
+            ]
+        ], JSON_PRETTY_PRINT));
+        
+        return $response->withHeader('Content-Type', 'application/json');
+    });
         
     // Ruta de bienvenida
     $app->get('/', function ($request, $response) {
