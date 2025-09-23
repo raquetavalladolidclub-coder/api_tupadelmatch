@@ -2,6 +2,8 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 use Slim\Factory\AppFactory;
+use Slim\Psr7\Request; // ← Agregar esta línea
+use Slim\Psr7\Response; // ← Agregar esta línea
 use Dotenv\Dotenv;
 
 // Cargar variables de entorno

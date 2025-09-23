@@ -1,5 +1,7 @@
 <?php
 use Slim\App;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use PadelClub\Controllers\AuthController;
 use PadelClub\Controllers\SystemController;
 use PadelClub\Controllers\PartidoController;
@@ -9,6 +11,23 @@ return function (App $app) {
     // Rutas del sistema (públicas)
     $app->get('/version', [SystemController::class, 'getVersion']);
     $app->get('/health', [SystemController::class, 'healthCheck']);
+    
+    // Endpoint de debug temporal
+    $app->get('/debug-headers', function (Request $request, Response $response) {
+        $headers = $request->getHeaders();
+        
+        $response->getBody()->write(json_encode([
+            'success' => true,
+            'headers' => $headers,
+            'authorization_header' => $request->getHeaderLine('Authorization'),
+            'server_vars' => [
+                'HTTP_AUTHORIZATION' => $_SERVER['HTTP_AUTHORIZATION'] ?? 'No definido',
+                'REDIRECT_HTTP_AUTHORIZATION' => $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? 'No definido'
+            ]
+        ], JSON_PRETTY_PRINT));
+        
+        return $response->withHeader('Content-Type', 'application/json');
+    });
     
     // Rutas de autenticación (públicas)
     $app->post('/auth/google', [AuthController::class, 'loginWithGoogle']);
@@ -40,37 +59,22 @@ return function (App $app) {
         
     $app->put('/auth/profile', [AuthController::class, 'updateProfile'])
         ->add(new AuthMiddleware());
-
-    // Agrega esta ruta temporal en routes.php
-    $app->get('/debug-headers', function (Request $request, Response $response) {
-        $headers = $request->getHeaders();
         
-        $response->getBody()->write(json_encode([
-            'success' => true,
-            'headers' => $headers,
-            'authorization_header' => $request->getHeaderLine('Authorization'),
-            'server_vars' => [
-                'HTTP_AUTHORIZATION' => $_SERVER['HTTP_AUTHORIZATION'] ?? 'No definido',
-                'REDIRECT_HTTP_AUTHORIZATION' => $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? 'No definido'
-            ]
-        ], JSON_PRETTY_PRINT));
-        
-        return $response->withHeader('Content-Type', 'application/json');
-    });
-        
-    // Ruta de bienvenida
-    $app->get('/', function ($request, $response) {
+    // Ruta de bienvenida (CORREGIDA)
+    $app->get('/', function (Request $request, Response $response) {
         $response->getBody()->write(json_encode([
             'message' => 'Bienvenido a la API del Club de Pádel',
             'version' => '1.0.0',
             'endpoints' => [
                 'system' => [
                     'GET /version' => 'Información de la versión',
-                    'GET /health' => 'Estado del sistema'
+                    'GET /health' => 'Estado del sistema',
+                    'GET /debug-headers' => 'Debug headers'
                 ],
                 'auth' => [
                     'POST /auth/google' => 'Login con Google',
                     'POST /auth/register' => 'Registro tradicional',
+                    'POST /auth/login' => 'Login tradicional',
                     'GET /auth/profile' => 'Obtener perfil (protegido)',
                     'PUT /auth/profile' => 'Actualizar perfil (protegido)'
                 ],
