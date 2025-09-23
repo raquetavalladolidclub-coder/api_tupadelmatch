@@ -2,6 +2,7 @@
 namespace PadelClub\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Model
 {
@@ -22,4 +23,14 @@ class User extends Model
     protected $hidden = [
         'google_id'
     ];
+
+    public function inscripciones(): HasMany
+    {
+        return $this->hasMany(InscripcionPartido::class, 'user_id');
+    }
+    
+    public function partidosCreados(): HasMany
+    {
+        return $this->hasMany(Partido::class, 'creador_id');
+    }
 }
