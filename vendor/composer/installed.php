@@ -3,7 +3,7 @@
         'name' => 'padel-club/api',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '60c8deb25b5adc5e878b11ac666e10bd78fc66c8',
+        'reference' => 'ea3905f6afff7be783c43f3cc473d8d8388b8e55',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -148,7 +148,7 @@
         'padel-club/api' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '60c8deb25b5adc5e878b11ac666e10bd78fc66c8',
+            'reference' => 'ea3905f6afff7be783c43f3cc473d8d8388b8e55',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
