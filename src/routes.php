@@ -13,6 +13,7 @@ return function (App $app) {
     // Rutas de autenticación (públicas)
     $app->post('/auth/google', [AuthController::class, 'loginWithGoogle']);
     $app->post('/auth/register', [AuthController::class, 'register']);
+    $app->post('/auth/login', [AuthController::class, 'login']);
     
     // Rutas protegidas - Partidos
     $app->get('/partidos', [PartidoController::class, 'listarPartidos'])

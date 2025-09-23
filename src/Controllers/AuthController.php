@@ -9,6 +9,54 @@ use Google_Client;
 
 class AuthController
 {
+    public function login(Request $request, Response $response)
+    {
+        $data     = $request->getParsedBody();
+        $email    = $data['email'] ?? null;
+        $password = $data['password'] ?? null;
+        
+        if (!$email || !$password) {
+            return $this->errorResponse($response, 'Email y password son requeridos');
+        }
+        
+        try {
+            // Buscar usuario por email
+            $user = User::where('email', $email)->first();
+            
+            if (!$user) {
+                return $this->errorResponse($response, 'Credenciales incorrectas', 401);
+            }
+            
+            // Verificar si el usuario está activo
+            if (!$user->is_active) {
+                return $this->errorResponse($response, 'Cuenta desactivada', 401);
+            }
+            
+            // Verificar password
+            if (!$user->verifyPassword($password)) {
+                return $this->errorResponse($response, 'Credenciales incorrectas', 401);
+            }
+            
+            // Generar JWT
+            $jwtToken = JWTUtils::generateToken($user->id, $user->email);
+            
+            return $this->successResponse($response, [
+                'token' => $jwtToken,
+                'user' => [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                    'name' => $user->name,
+                    'avatar' => $user->avatar,
+                    'level' => $user->level,
+                    'phone' => $user->phone
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error en el login: ' . $e->getMessage());
+        }
+    }
+
     public function loginWithGoogle(Request $request, Response $response)
     {
         $data = $request->getParsedBody();
@@ -80,7 +128,7 @@ class AuthController
         $data = $request->getParsedBody();
         
         // Validar datos requeridos
-        $required = ['email', 'name', 'password'];
+        $required = ['email', 'name', 'password']; // ← Agregar password
         foreach ($required as $field) {
             if (empty($data[$field])) {
                 return $this->errorResponse($response, "El campo $field es requerido");
@@ -96,6 +144,7 @@ class AuthController
             $user = User::create([
                 'email' => $data['email'],
                 'name' => $data['name'],
+                'password' => $data['password'], // ← Guardar password
                 'phone' => $data['phone'] ?? null,
                 'level' => $data['level'] ?? 'principiante',
                 'is_active' => true
