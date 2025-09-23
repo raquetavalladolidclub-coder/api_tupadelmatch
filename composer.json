@@ -6,6 +6,7 @@
         "slim/slim": "^4.0",
         "slim/psr7": "^1.6",
         "firebase/php-jwt": "^6.8",
+        "illuminate/database": "^10.0",
         "vlucas/phpdotenv": "^5.5"
     },
     "autoload": {

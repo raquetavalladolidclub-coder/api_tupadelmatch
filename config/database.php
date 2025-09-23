@@ -1,31 +1,18 @@
 <?php
-    class Database {
-        private $host;
-        private $db_name;
-        private $username;
-        private $password;
-        public $conn;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
-        public function __construct() {
-            $this->host = $_ENV['DB_HOST'];
-            $this->db_name = $_ENV['DB_NAME'];
-            $this->username = $_ENV['DB_USER'];
-            $this->password = $_ENV['DB_PASS'];
-        }
+$capsule = new Capsule;
 
-        public function getConnection() {
-            $this->conn = null;
-            try {
-                $this->conn = new PDO(
-                    "mysql:host=" . $this->host . ";dbname=" . $this->db_name, 
-                    $this->username, 
-                    $this->password
-                );
-                $this->conn->exec("set names utf8");
-            } catch(PDOException $exception) {
-                echo "Connection error: " . $exception->getMessage();
-            }
-            return $this->conn;
-        }
-    }
-?>
+$capsule->addConnection([
+    'driver'    => 'mysql',
+    'host'      => $_ENV['DB_HOST'],
+    'database'  => $_ENV['DB_NAME'],
+    'username'  => $_ENV['DB_USER'],
+    'password'  => $_ENV['DB_PASS'],
+    'charset'   => 'utf8',
+    'collation' => 'utf8_unicode_ci',
+    'prefix'    => '',
+]);
+
+$capsule->setAsGlobal();
+$capsule->bootEloquent();
