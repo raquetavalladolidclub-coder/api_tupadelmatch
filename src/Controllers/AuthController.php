@@ -43,12 +43,18 @@ class AuthController
             return $this->successResponse($response, [
                 'token' => $jwtToken,
                 'user' => [
-                    'id' => $user->id,
-                    'email' => $user->email,
-                    'name' => $user->name,
-                    'avatar' => $user->avatar,
-                    'level' => $user->level,
-                    'phone' => $user->phone
+                    'id'          => $user->id,
+                    'email'       => $user->email,
+                    'full_name'   => $user->full_name,
+                    'nombre'      => $user->nombre,
+                    'apellidos'   => $user->apellidos,
+                    'image_path'  => $user->image_path,
+                    'nivel'       => $user->nivel,
+                    'genero'      => $user->genero,
+                    'categoria'   => $user->categoria,
+                    'fiabilidad'  => $user->fiabilidad,
+                    'asistencias' => $user->asistencias,
+                    'ausencias'   => $user->ausencias
                 ]
             ]);
             
