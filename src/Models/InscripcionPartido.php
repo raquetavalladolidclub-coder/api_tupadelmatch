@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class InscripcionPartido extends Model
 {
-    protected $table = 'inscripcion_partidos';
+    protected $table = 'inscripciones_partidos';
     protected $primaryKey = 'id';
     public $timestamps = true;
     

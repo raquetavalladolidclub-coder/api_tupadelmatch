@@ -72,7 +72,7 @@ class PartidoController
     {
         try {
             $partidoId = $args['id'];
-            $userId = $request->getAttribute('user_id');
+            $userId    = $request->getAttribute('user_id');
             
             $partido = Partido::with(['creador', 'inscripciones.usuario'])
                             ->find($partidoId);
