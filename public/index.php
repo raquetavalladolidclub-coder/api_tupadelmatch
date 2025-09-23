@@ -29,6 +29,13 @@ $app->add(function ($request, $handler) {
         ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
 });
 
+// Middleware de logging (opcional)
+$app->add(function ($request, $handler) {
+    $response = $handler->handle($request);
+    error_log("[" . date('Y-m-d H:i:s') . "] " . $request->getMethod() . " " . $request->getUri()->getPath());
+    return $response;
+});
+
 // Cargar rutas
 $routes = require __DIR__ . '/../src/routes.php';
 $routes($app);
