@@ -61,6 +61,27 @@ $app->singleton(
 
 $app->configure('app');
 
+
+// Habilitar facades
+$app->withFacades();
+
+// Habilitar Eloquent
+$app->withEloquent();
+
+// Registrar providers
+$app->register(Illuminate\Hashing\HashServiceProvider::class);
+$app->register(Laravel\Sanctum\SanctumServiceProvider::class);
+
+// Middleware
+$app->routeMiddleware([
+    'auth' => App\Http\Middleware\Authenticate::class,
+]);
+
+$app->middleware([
+    App\Http\Middleware\CorsMiddleware::class,
+]);
+
+
 /*
 |--------------------------------------------------------------------------
 | Register Middleware

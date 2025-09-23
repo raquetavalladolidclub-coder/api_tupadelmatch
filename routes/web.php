@@ -1,18 +1,34 @@
 <?php
 
-/** @var \Laravel\Lumen\Routing\Router $router */
+use App\Http\Controllers\AuthController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Application Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register all of the routes for an application.
-| It is a breeze. Simply tell Lumen the URIs it should respond to
-| and give it the Closure to call when that URI is requested.
-|
-*/
+Route::get('/', function () {
+    return response()->json(['message' => 'Padel Club API']);
+});
 
-$router->get('/', function () use ($router) {
-    return $router->app->version();
+// Rutas públicas
+Route::prefix('auth')->group(function () {
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
+    Route::post('login/google', [AuthController::class, 'loginWithGoogle']);
+    Route::post('login/apple', [AuthController::class, 'loginWithApple']);
+    Route::post('validate-token', [AuthController::class, 'validateToken']);
+});
+
+// Rutas protegidas
+Route::middleware('auth')->group(function () {
+    Route::prefix('auth')->group(function () {
+        Route::get('user', [AuthController::class, 'user']);
+        Route::post('logout', [AuthController::class, 'logout']);
+    });
+
+    // Aquí irán las rutas protegidas de partidos, jugadores, etc.
+    Route::get('/protected', function (Request $request) {
+        return response()->json([
+            'message' => 'Acceso permitido',
+            'user' => $request->user()
+        ]);
+    });
 });
