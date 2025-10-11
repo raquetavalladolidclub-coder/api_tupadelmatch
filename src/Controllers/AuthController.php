@@ -153,7 +153,7 @@ class AuthController
             }
             
             // Opcional: Buscar el usuario para verificar que aún existe y está activo
-            $user = User::find($decoded->user_id);
+            $user = User::find($decoded->sub);
             
             if (!$user) {
                 return $this->errorResponse($response, 'Usuario no encontrado', 401);
@@ -166,7 +166,7 @@ class AuthController
             return $this->successResponse($response, [
                 'valid' => true,
                 'user' => [
-                    'id' => $user->id,
+                    'id'          => $user->id,
                     'email'       => $user->email,
                     'full_name'   => $user->full_name,
                     'nombre'      => $user->nombre,

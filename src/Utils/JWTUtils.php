@@ -21,9 +21,9 @@ class JWTUtils
         $expire = $issuedAt + $_ENV['JWT_EXPIRE'];
         
         $payload = [
-            'iat' => $issuedAt,
-            'exp' => $expire,
-            'sub' => $userId,
+            'iat'   => $issuedAt,
+            'exp'   => $expire,
+            'sub'   => $userId,
             'email' => $email
         ];
         
