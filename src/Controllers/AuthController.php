@@ -148,7 +148,7 @@ class AuthController
             // Validar el token usando JWTUtils
             $decoded = JWTUtils::validateToken($token);
 
-            print_r($decoded);
+            echo $decoded["sub"];
             
             if (!$decoded) {
                 return $this->errorResponse($response, 'Token inválido o expirado', 401);
