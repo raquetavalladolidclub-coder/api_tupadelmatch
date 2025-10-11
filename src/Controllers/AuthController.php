@@ -147,15 +147,13 @@ class AuthController
         try {
             // Validar el token usando JWTUtils
             $decoded = JWTUtils::validateToken($token);
-
-            echo $decoded["sub"];
             
             if (!$decoded) {
                 return $this->errorResponse($response, 'Token inválido o expirado', 401);
             }
             
             // Opcional: Buscar el usuario para verificar que aún existe y está activo
-            $user = User::find($decoded->sub);
+            $user = User::find($decoded["sub"]);
             
             if (!$user) {
                 return $this->errorResponse($response, 'Usuario no encontrado', 401);
