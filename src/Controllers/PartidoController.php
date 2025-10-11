@@ -168,8 +168,8 @@ class PartidoController
     {
         try {
             $partidoId = $args['id'];
-            $userId = $request->getAttribute('user_id');
-            $data = $request->getParsedBody();
+            $userId    = $request->getAttribute('user_id');
+            $data      = $request->getParsedBody();
             
             $partido = Partido::find($partidoId);
             
@@ -204,8 +204,8 @@ class PartidoController
             // Crear inscripción
             $inscripcion = InscripcionPartido::create([
                 'partido_id' => $partidoId,
-                'user_id' => $userId,
-                'estado' => 'pendiente',
+                'user_id'    => $userId,
+                'estado'     => 'pendiente',
                 'comentario' => $data['comentario'] ?? null
             ]);
             
@@ -220,8 +220,8 @@ class PartidoController
             return $this->successResponse($response, [
                 'message' => 'Inscripción realizada correctamente',
                 'inscripcion' => [
-                    'id' => $inscripcion->id,
-                    'estado' => $inscripcion->estado,
+                    'id'         => $inscripcion->id,
+                    'estado'     => $inscripcion->estado,
                     'partido_id' => $partido->id
                 ]
             ], 201);

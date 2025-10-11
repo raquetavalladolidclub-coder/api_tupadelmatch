@@ -128,6 +128,63 @@ class AuthController
             return $this->errorResponse($response, 'Error en la autenticación: ' . $e->getMessage());
         }
     }
+
+    public function validateToken(Request $request, Response $response)
+    {
+        $authHeader = $request->getHeader('Authorization');
+        
+        if (empty($authHeader)) {
+            return $this->errorResponse($response, 'Token no proporcionado', 401);
+        }
+        
+        // Extraer el token del header "Bearer {token}"
+        $token = str_replace('Bearer ', '', $authHeader[0] ?? '');
+        
+        if (empty($token)) {
+            return $this->errorResponse($response, 'Formato de token inválido', 401);
+        }
+        
+        try {
+            // Validar el token usando JWTUtils
+            $decoded = JWTUtils::validateToken($token);
+            
+            if (!$decoded) {
+                return $this->errorResponse($response, 'Token inválido o expirado', 401);
+            }
+            
+            // Opcional: Buscar el usuario para verificar que aún existe y está activo
+            $user = User::find($decoded->user_id);
+            
+            if (!$user) {
+                return $this->errorResponse($response, 'Usuario no encontrado', 401);
+            }
+            
+            if (!$user->is_active) {
+                return $this->errorResponse($response, 'Cuenta desactivada', 401);
+            }
+            
+            return $this->successResponse($response, [
+                'valid' => true,
+                'user' => [
+                    'id' => $user->id,
+                    'email'       => $user->email,
+                    'full_name'   => $user->full_name,
+                    'nombre'      => $user->nombre,
+                    'apellidos'   => $user->apellidos,
+                    'image_path'  => $user->image_path,
+                    'nivel'       => $user->nivel,
+                    'genero'      => $user->genero,
+                    'categoria'   => $user->categoria,
+                    'fiabilidad'  => $user->fiabilidad,
+                    'asistencias' => $user->asistencias,
+                    'ausencias'   => $user->ausencias
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error al validar el token: ' . $e->getMessage(), 401);
+        }
+    }
     
     public function register(Request $request, Response $response)
     {

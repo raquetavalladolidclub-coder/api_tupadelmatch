@@ -35,8 +35,8 @@ return function (App $app) {
     $app->post('/auth/login', [AuthController::class, 'login']);
     
     // Rutas protegidas - Partidos
-    $app->get('/partidos', [PartidoController::class, 'listarPartidos'])
-        ->add(new AuthMiddleware());
+    $app->get('/user', [PartidoController::class, 'listarPartidos'])->add(new AuthMiddleware());
+    $app->get('/partidos', [PartidoController::class, 'listarPartidos'])->add(new AuthMiddleware());
         
     $app->get('/partidos/{id}', [PartidoController::class, 'obtenerPartido'])
         ->add(new AuthMiddleware());
