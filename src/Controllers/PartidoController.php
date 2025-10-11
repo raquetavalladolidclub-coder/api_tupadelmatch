@@ -54,7 +54,7 @@ class PartidoController
             
             return $this->successResponse($response, [
                 'partidos' => $partidos,
-                'total' => $partidos->count()
+                'total'    => $partidos->count()
             ]);
             
         } catch (\Exception $e) {
