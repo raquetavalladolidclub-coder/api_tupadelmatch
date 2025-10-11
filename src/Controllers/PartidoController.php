@@ -311,33 +311,32 @@ class PartidoController
     private function formatearPartido($partido)
     {
         return [
-            'id' => $partido->id,
-            'fecha' => $partido->fecha->format('Y-m-d'),
-            'hora' => $partido->hora,
-            'duracion' => $partido->duracion,
-            'pista' => $partido->pista,
-            'tipo' => $partido->tipo,
-            'nivel_min' => $partido->nivel_min,
-            'nivel_max' => $partido->nivel_max,
-            'genero' => $partido->genero,
-            'estado' => $partido->estado,
+            'id'                 => $partido->id,
+            'fecha'              => $partido->fecha->format('Y-m-d'),
+            'hora'               => $partido->hora,
+            'duracion'           => $partido->duracion,
+            'pista'              => $partido->pista,
+            'tipo'               => $partido->tipo,
+            'categoria'          => $partido->categoria,
+            'genero'             => $partido->genero,
+            'estado'             => $partido->estado,
             'plazas_disponibles' => $partido->plazas_disponibles,
-            'esta_completo' => $partido->esta_completo,
+            'esta_completo'      => $partido->esta_completo,
             'creador' => [
-                'id' => $partido->creador->id,
-                'name' => $partido->creador->name,
+                'id'    => $partido->creador->id,
+                'name'  => $partido->creador->name,
                 'email' => $partido->creador->email
             ],
             'jugadores_confirmados' => $partido->jugadoresConfirmados->map(function($inscripcion) {
                 return [
-                    'id' => $inscripcion->usuario->id,
-                    'name' => $inscripcion->usuario->name,
+                    'id'    => $inscripcion->usuario->id,
+                    'name'  => $inscripcion->usuario->name,
                     'level' => $inscripcion->usuario->level
                 ];
             }),
             'total_jugadores' => $partido->jugadoresConfirmados->count(),
-            'max_jugadores' => $partido->tipo === 'individual' ? 2 : 4,
-            'created_at' => $partido->created_at
+            'max_jugadores'   => $partido->tipo === 'individual' ? 2 : 4,
+            'created_at'      => $partido->created_at
         ];
     }
     
