@@ -17,8 +17,7 @@ class Partido extends Model
         'duracion',
         'pista',
         'tipo',
-        'nivel_min',
-        'nivel_max',
+        'categoria',
         'genero',
         'estado',
         'creador_id'
@@ -27,8 +26,7 @@ class Partido extends Model
     protected $casts = [
         'fecha' => 'date',
         'hora' => 'string',
-        'nivel_min' => 'integer',
-        'nivel_max' => 'integer'
+        'categoria' => 'string'
     ];
     
     public function creador(): BelongsTo

@@ -36,12 +36,6 @@ class PartidoController
                 $query->where('tipo', $filters['tipo']);
             }
             
-            // Filtrar por nivel
-            if (isset($filters['nivel_min'])) {
-                $query->where('nivel_min', '<=', $filters['nivel_min'])
-                      ->where('nivel_max', '>=', $filters['nivel_min']);
-            }
-            
             // Filtrar por género
             if (isset($filters['genero'])) {
                 $query->where('genero', $filters['genero']);
