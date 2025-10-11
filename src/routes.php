@@ -35,7 +35,6 @@ return function (App $app) {
     $app->post('/auth/login', [AuthController::class, 'login']);
     
     // Rutas protegidas - Partidos
-    $app->get('/user', [PartidoController::class, 'listarPartidos'])->add(new AuthMiddleware());
     $app->get('/partidos', [PartidoController::class, 'listarPartidos'])->add(new AuthMiddleware());
         
     $app->get('/partidos/{id}', [PartidoController::class, 'obtenerPartido'])
@@ -54,8 +53,8 @@ return function (App $app) {
         ->add(new AuthMiddleware());
     
     // Rutas de perfil (protegidas)
-    $app->get('/auth/profile', [AuthController::class, 'getProfile'])
-        ->add(new AuthMiddleware());
+    $app->get('/auth/user', [AuthController::class, 'validateToken'])->add(new AuthMiddleware());
+    $app->get('/auth/profile', [AuthController::class, 'getProfile'])->add(new AuthMiddleware());
         
     $app->put('/auth/profile', [AuthController::class, 'updateProfile'])
         ->add(new AuthMiddleware());
