@@ -51,8 +51,6 @@ class PartidoController
             $partidos = $query->get()->map(function($partido) {
                 return $this->formatearPartido($partido);
             });
-
-            print_r($partidos);
             
             return $this->successResponse($response, [
                 'partidos' => $partidos,
