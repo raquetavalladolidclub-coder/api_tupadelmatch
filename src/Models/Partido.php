@@ -25,8 +25,7 @@ class Partido extends Model
     
     protected $casts = [
         'fecha' => 'date',
-        'hora' => 'string',
-        'categoria' => 'string'
+        'hora' => 'string'
     ];
     
     public function creador(): BelongsTo
