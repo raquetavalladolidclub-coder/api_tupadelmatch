@@ -35,7 +35,7 @@ class Partido extends Model
     
     public function inscripciones(): HasMany
     {
-        return $this->hasMany(InscripcionPartido::class, 'partido_id');
+        return $this->hasMany(InscripcionPartido::class, 'id');
     }
     
     public function jugadoresConfirmados(): HasMany
