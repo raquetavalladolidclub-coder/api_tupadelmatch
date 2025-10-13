@@ -329,9 +329,13 @@ class PartidoController
             ],
             'jugadores_confirmados' => $partido->jugadoresConfirmados->map(function($inscripcion) {
                 return [
-                    'id'    => $inscripcion->usuario->id,
-                    'name'  => $inscripcion->usuario->name,
-                    'level' => $inscripcion->usuario->level
+                    'id'         => $inscripcion->usuario->id,
+                    'username'   => $inscripcion->usuario->username,
+                    'nombre'     => $inscripcion->usuario->nombre,
+                    'apellidos'  => $inscripcion->usuario->apellidos,
+                    'categoria'  => $inscripcion->usuario->categoria,
+                    'imageUrl'   => $inscripcion->usuario->image_path,
+                    'fiabilidad' => $inscripcion->usuario->fiabilidad
                 ];
             }),
             'total_jugadores' => $partido->jugadoresConfirmados->count(),
