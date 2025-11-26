@@ -329,7 +329,7 @@ class PartidoController
             'precio_pista_completa' => number_format($partido->precio_pista_completa, 2),
             'creador' => [
                 'id'    => $partido->creador->id,
-                'name'  => $partido->creador->name,
+                'name'  => $partido->creador->name ?? "",
                 'email' => $partido->creador->email
             ],
             'jugadores_confirmados' => $partido->jugadoresConfirmados->map(function($inscripcion) {
@@ -340,7 +340,7 @@ class PartidoController
                     'apellidos'  => $inscripcion->usuario->apellidos,
                     'categoria'  => $inscripcion->usuario->categoria,
                     'imageUrl'   => $inscripcion->usuario->image_path,
-                    'fiabilidad' => $inscripcion->usuario->fiabilidad
+                    'fiabilidad' => $inscripcion->usuario->fiabilidad ?? 0
                 ];
             }),
             'total_jugadores' => $partido->jugadoresConfirmados->count(),
