@@ -53,7 +53,7 @@ class PartidoController
             });
             
             return $this->successResponse($response, [
-                'partidosSS' => $partidos,
+                'partidos' => $partidos,
                 'total'    => $partidos->count()
             ]);
             
@@ -312,17 +312,21 @@ class PartidoController
     private function formatearPartido($partido)
     {
         return [
-            'id'                 => $partido->id,
-            'fecha'              => $partido->fecha->format('Y-m-d'),
-            'hora'               => $partido->hora,
-            'duracion'           => $partido->duracion,
-            'pista'              => $partido->pista,
-            'tipo'               => $partido->tipo,
-            'categoria'          => $partido->categoria,
-            'genero'             => $partido->genero,
-            'estado'             => $partido->estado,
-            'plazas_disponibles' => $partido->plazas_disponibles,
-            'esta_completo'      => $partido->esta_completo,
+            'id'                    => $partido->id,
+            'idClub'                => $partido->idClub,
+            'nombre'                => $partido->nombre,
+            'fecha'                 => $partido->fecha->format('Y-m-d'),
+            'hora'                  => $partido->hora,
+            'duracion'              => $partido->duracion,
+            'pista'                 => $partido->pista,
+            'tipo'                  => $partido->tipo,
+            'categoria'             => $partido->categoria,
+            'genero'                => $partido->genero,
+            'estado'                => $partido->estado,
+            'plazas_disponibles'    => $partido->plazas_disponibles,
+            'esta_completo'         => $partido->esta_completo,
+            'precio_individual'     => $partido->precio_individual,
+            'precio_pista_completa' => $partido->precio_pista_completa,
             'creador' => [
                 'id'    => $partido->creador->id,
                 'name'  => $partido->creador->name,

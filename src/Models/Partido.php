@@ -12,6 +12,8 @@ class Partido extends Model
     public $timestamps = true;
     
     protected $fillable = [
+        'idClub',
+        'nombre',
         'fecha',
         'hora',
         'duracion',
@@ -20,8 +22,9 @@ class Partido extends Model
         'categoria',
         'genero',
         'estado',
-        'creador_id',
-        'precio_pista_completa'
+        'precio_individual',
+        'precio_pista_completa',
+        'creador_id'
     ];
     
     protected $casts = [
