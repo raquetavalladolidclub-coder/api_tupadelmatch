@@ -53,7 +53,7 @@ class PartidoController
             });
             
             return $this->successResponse($response, [
-                'partidos' => $partidos,
+                'partidosSS' => $partidos,
                 'total'    => $partidos->count()
             ]);
             
