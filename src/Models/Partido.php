@@ -20,7 +20,8 @@ class Partido extends Model
         'categoria',
         'genero',
         'estado',
-        'creador_id'
+        'creador_id',
+        'precio_pista_completa'
     ];
     
     protected $casts = [
