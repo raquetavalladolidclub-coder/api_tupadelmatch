@@ -325,8 +325,8 @@ class PartidoController
             'estado'                => $partido->estado,
             'plazas_disponibles'    => $partido->plazas_disponibles,
             'esta_completo'         => $partido->esta_completo,
-            'precio_individual'     => $partido->precio_individual,
-            'precio_pista_completa' => $partido->precio_pista_completa,
+            'precio_individual'     => number_format($partido->precio_individual, 2),
+            'precio_pista_completa' => number_format($partido->precio_pista_completa, 2),
             'creador' => [
                 'id'    => $partido->creador->id,
                 'name'  => $partido->creador->name,
