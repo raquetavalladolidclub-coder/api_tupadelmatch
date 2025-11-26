@@ -314,7 +314,7 @@ class PartidoController
         return [
             'id'                    => $partido->id,
             'idClub'                => $partido->idClub,
-            'nombre'                => $partido->nombre,
+            'nombre'                => $partido->nombre ?? "",
             'fecha'                 => $partido->fecha->format('Y-m-d'),
             'hora'                  => $partido->hora,
             'duracion'              => $partido->duracion,
