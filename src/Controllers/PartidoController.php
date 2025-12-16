@@ -187,8 +187,8 @@ class PartidoController
             }
             
             // Validar nivel del usuario
-            $usuario = User::find($userId);
-            $nivelUsuario = $usuario->categoria ?? 'promesas';
+            $usuario       = User::find($userId);
+            $nivelUsuario  = $usuario->categoria ?? 'promesas';
             $nivelNumerico = $this->convertirNivelANumero($nivelUsuario);
             $nivelPartido  = $this->convertirNivelANumero($partido->categoria);
             

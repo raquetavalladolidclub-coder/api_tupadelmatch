@@ -19,6 +19,7 @@ class Partido extends Model
         'duracion',
         'pista',
         'tipo',
+        'tipoReserva',
         'categoria',
         'genero',
         'estado',
