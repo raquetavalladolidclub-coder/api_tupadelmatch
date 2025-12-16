@@ -205,11 +205,11 @@ class AuthController
         
         try {
             $user = User::create([
-                'email' => $data['email'],
-                'name' => $data['full_name'],
-                'password' => $data['password'], // ← Guardar password
-                'phone' => $data['phone'] ?? null,
-                'level' => $data['level'] ?? 'principiante',
+                'email'     => $data['email'],
+                'full_name' => $data['full_name'],
+                'password'  => $data['password'], // ← Guardar password
+                'phone'     => $data['phone'] ?? null,
+                'level'     => $data['level'] ?? 'principiante',
                 'is_active' => true
             ]);
             
@@ -220,7 +220,7 @@ class AuthController
                 'user' => [
                     'id' => $user->id,
                     'email' => $user->email,
-                    'name' => $user->name,
+                    'name' => $user->full_name,
                     'level' => $user->level,
                     'phone' => $user->phone
                 ]
