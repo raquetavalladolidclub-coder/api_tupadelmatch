@@ -372,7 +372,7 @@ class PartidoController
         if ($partido->esta_completo) {
             $partido->update(['estado' => 'completo']);
         } else {
-            if($partido->jugadoresConfirmados->count() == 0){
+            if($partido->jugadoresConfirmados->count() == 1){
                 $partido->update(['categoria' => $categoria, 'estado' => 'disponible']);
             }else{
                 $partido->update(['estado' => 'disponible']);
