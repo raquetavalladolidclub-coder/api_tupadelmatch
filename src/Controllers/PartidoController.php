@@ -41,6 +41,7 @@ class PartidoController
                 $query->where('genero', $filters['genero']);
             }
             
+            
             // Filtrar por estado
             /*$estado = $filters['estado'] ?? 'disponible';
             $query->where('estado', $estado);*/
