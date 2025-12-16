@@ -320,6 +320,7 @@ class PartidoController
             'duracion'              => $partido->duracion,
             'pista'                 => $partido->pista,
             'tipo'                  => $partido->tipo,
+            'tipoReserva'           => $partido->tipoReserva,
             'categoria'             => $partido->categoria,
             'genero'                => $partido->genero,
             'estado'                => $partido->estado,
