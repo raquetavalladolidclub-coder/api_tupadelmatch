@@ -13,6 +13,7 @@ class InscripcionPartido extends Model
     protected $fillable = [
         'partido_id',
         'user_id',
+        'tipoReserva',
         'estado',
         'comentario'
     ];

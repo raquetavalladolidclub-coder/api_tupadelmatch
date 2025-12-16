@@ -198,10 +198,11 @@ class PartidoController
             
             // Crear inscripción
             $inscripcion = InscripcionPartido::create([
-                'partido_id' => $partidoId,
-                'user_id'    => $userId,
-                'estado'     => 'confirmado', // 'pendiente',
-                'comentario' => $data['comentario'] ?? null
+                'partido_id'  => $partidoId,
+                'user_id'     => $userId,
+                'tipoReserva' => $data['tipoReserva'],
+                'estado'      => 'confirmado', // 'pendiente',
+                'comentario'  => $data['comentario'] ?? null
             ]);
             
             // Si el partido es del creador, auto-confirmar
