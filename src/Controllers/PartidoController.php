@@ -42,8 +42,8 @@ class PartidoController
             }
             
             // Filtrar por estado
-            $estado = $filters['estado'] ?? 'disponible';
-            $query->where('estado', $estado);
+            /*$estado = $filters['estado'] ?? 'disponible';
+            $query->where('estado', $estado);*/
             
             // Ordenar por fecha y hora
             $query->orderBy('fecha', 'asc')->orderBy('hora', 'asc');
