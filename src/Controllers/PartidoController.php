@@ -202,7 +202,7 @@ class PartidoController
                 'user_id'     => $userId,
                 'tipoReserva' => strtoupper($data['tipoReserva']),
                 'estado'      => 'confirmado', // 'pendiente',
-                'comentario'  => $data['comentario'] ?? null
+                'comentario'  => $data['notas'] ?? null
             ]);
             
             // Si el partido es del creador, auto-confirmar
