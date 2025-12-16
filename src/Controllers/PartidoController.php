@@ -337,14 +337,14 @@ class PartidoController
             ],
             'jugadores_confirmados' => $partido->jugadoresConfirmados->map(function($inscripcion) {
                 return [
-                    'id'         => $inscripcion->usuario->id,
-                    'username'   => $inscripcion->usuario->username,
-                    'nombre'     => $inscripcion->usuario->nombre,
-                    'apellidos'  => $inscripcion->usuario->apellidos,
-                    'categoria'  => $inscripcion->usuario->categoria,
-                    'imageUrl'   => $inscripcion->usuario->image_path,
-                    'fiabilidad' => $inscripcion->usuario->fiabilidad ?? 0,
-                    'inscripcion' => $inscripcion
+                    'id'          => $inscripcion->usuario->id,
+                    'username'    => $inscripcion->usuario->username,
+                    'nombre'      => $inscripcion->usuario->nombre,
+                    'apellidos'   => $inscripcion->usuario->apellidos,
+                    'categoria'   => $inscripcion->usuario->categoria,
+                    'imageUrl'    => $inscripcion->usuario->image_path,
+                    'fiabilidad'  => $inscripcion->usuario->fiabilidad ?? 0,
+                    'tipoReserva' => $inscripcion->tipoReserva
                 ];
             }),
             'total_jugadores' => $partido->jugadoresConfirmados->count(),
