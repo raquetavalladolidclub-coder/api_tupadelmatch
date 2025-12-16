@@ -218,7 +218,8 @@ class PartidoController
                 'inscripcion' => [
                     'id'         => $inscripcion->id,
                     'estado'     => $inscripcion->estado,
-                    'partido_id' => $partido->id
+                    'partido_id' => $partido->id,
+                    'data'       => $data
                 ]
             ], 201);
             
