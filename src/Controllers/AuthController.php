@@ -217,10 +217,10 @@ class AuthController
             
             return $this->successResponse($response, [
                 'token' => $jwtToken,
-                'user' => [
-                    'id' => $user->id,
+                'user'  => [
+                    'id'    => $user->id,
                     'email' => $user->email,
-                    'name' => $user->full_name,
+                    'name'  => $user->full_name,
                     'level' => $user->level,
                     'phone' => $user->phone
                 ]
