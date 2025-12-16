@@ -191,7 +191,7 @@ class AuthController
         $data = $request->getParsedBody();
         
         // Validar datos requeridos
-        $required = ['email', 'name', 'password']; // ← Agregar password
+        $required = ['email', 'username', 'password']; // ← Agregar password
         foreach ($required as $field) {
             if (empty($data[$field])) {
                 return $this->errorResponse($response, "El campo $field es requerido");
