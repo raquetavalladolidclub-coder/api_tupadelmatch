@@ -200,7 +200,7 @@ class PartidoController
             $inscripcion = InscripcionPartido::create([
                 'partido_id'  => $partidoId,
                 'user_id'     => $userId,
-                'tipoReserva' => $data['tipoReserva'],
+                'tipoReserva' => strtoupper($data['tipoReserva']),
                 'estado'      => 'confirmado', // 'pendiente',
                 'comentario'  => $data['comentario'] ?? null
             ]);
