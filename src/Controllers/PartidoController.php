@@ -211,7 +211,7 @@ class PartidoController
             }
             
             // Verificar si el partido se completó
-            $this->actualizarEstadoPartido($partido);
+            $this->actualizarEstadoPartido($partido, $data['nivelPartido']);
             
             return $this->successResponse($response, [
                 'message' => 'Inscripción realizada correctamente',
@@ -367,12 +367,16 @@ class PartidoController
         return $niveles[$nivel] ?? 1;
     }
     
-    private function actualizarEstadoPartido($partido)
+    private function actualizarEstadoPartido($partido, $categoria="promesas")
     {
         if ($partido->esta_completo) {
             $partido->update(['estado' => 'completo']);
         } else {
-            $partido->update(['estado' => 'disponible']);
+            if($partido->jugadoresConfirmados->count() == 0){
+                $partido->update(['categoria' => $categoria, 'estado' => 'disponible']);
+            }else{
+                $partido->update(['estado' => 'disponible']);
+            }
         }
     }
     
