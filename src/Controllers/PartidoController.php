@@ -343,7 +343,8 @@ class PartidoController
                     'apellidos'  => $inscripcion->usuario->apellidos,
                     'categoria'  => $inscripcion->usuario->categoria,
                     'imageUrl'   => $inscripcion->usuario->image_path,
-                    'fiabilidad' => $inscripcion->usuario->fiabilidad ?? 0
+                    'fiabilidad' => $inscripcion->usuario->fiabilidad ?? 0,
+                    'inscripcion' => $inscripcion
                 ];
             }),
             'total_jugadores' => $partido->jugadoresConfirmados->count(),
