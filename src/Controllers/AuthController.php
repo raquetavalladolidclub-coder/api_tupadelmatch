@@ -205,6 +205,7 @@ class AuthController
         
         try {
             $user = User::create([
+                'username'  => $data['username'],
                 'email'     => $data['email'],
                 'full_name' => $data['full_name'],
                 'password'  => $data['password'], // ← Guardar password
