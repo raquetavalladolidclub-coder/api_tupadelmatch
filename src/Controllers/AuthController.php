@@ -213,7 +213,7 @@ class AuthController
             }
             
             if (!$user) {
-                return $this->errorResponse($response, 'Credenciales incorrectas 1', 401);
+                return $this->errorResponse($response, 'Credenciales incorrectas', 401);
             }
             
             // Verificar si el usuario está activo
@@ -223,7 +223,7 @@ class AuthController
             
             // Verificar password
             if (!$user->verifyPassword($password)) {
-                return $this->errorResponse($response, 'Credenciales incorrectas 2', 401);
+                return $this->errorResponse($response, 'Credenciales incorrectas', 401);
             }
             
             // Generar JWT

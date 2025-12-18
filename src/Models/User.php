@@ -33,19 +33,29 @@ class User extends Model
         'google_id',
         'password' // ← Ocultar password en respuestas
     ];
+
+    /**
+     * Mutator para password - IMPORTANTE: Si ya haces hash en el controlador,
+     * NO hagas hash aquí también, o estarás haciendo doble hash
+     */
+    public function setPasswordAttribute($value)
+    {
+        // SOLO hacer hash si el valor NO empieza con $2y$ (formato bcrypt)
+        if (!empty($value) && !preg_match('/^\$2[ayb]\$/', $value)) {
+            // Esto significa que viene en texto plano desde el formulario
+            $this->attributes['password'] = password_hash($value, PASSWORD_BCRYPT);
+        } else {
+            // Ya está hasheado (viene del controlador)
+            $this->attributes['password'] = $value;
+        }
+    }
     
-    // Verificar password
+    /**
+     * Verificar password
+     */
     public function verifyPassword($password)
     {
         return password_verify($password, $this->password);
-    }
-    
-    // Hash password antes de guardar
-    public function setPasswordAttribute($password)
-    {
-        if (!empty($password)) {
-            $this->attributes['password'] = password_hash($password, PASSWORD_DEFAULT);
-        }
     }
     
     public function inscripciones(): HasMany
