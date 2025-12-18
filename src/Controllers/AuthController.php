@@ -98,8 +98,8 @@ class AuthController
             
             $user = User::create([
                 'username'  => $data['username'] ?? null,
-                // 'email'     => $data['email'],
-                // 'full_name' => $data['full_name'] ?? null,
+                'email'     => $data['email'],
+                'full_name' => $data['full_name'] ?? null,
                 // 'nombre'    => $data['nombre'] ?? null,
                 // 'apellidos' => $data['apellidos'] ?? null,
                 // 'password'  => $hashedPassword,
