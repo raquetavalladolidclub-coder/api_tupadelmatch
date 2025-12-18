@@ -329,6 +329,7 @@ class PartidoController
             'estado'                => $partido->estado,
             'plazas_disponibles'    => $partido->plazas_disponibles,
             'esta_completo'         => $partido->esta_completo,
+            'codLiga'               => $partido->codLiga,
             'precio_individual'     => number_format($partido->precio_individual, 2),
             'precio_pista_completa' => number_format($partido->precio_pista_completa, 2),
             'creador' => [
