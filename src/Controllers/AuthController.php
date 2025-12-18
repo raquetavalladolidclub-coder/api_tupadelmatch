@@ -94,18 +94,18 @@ class AuthController
 
         try {
             // Usar PasswordHelper para hash consistente
-            $hashedPassword = 12; // \PadelClub\Utils\PasswordHelper::hash($data['password']);
+            $hashedPassword = \PadelClub\Utils\PasswordHelper::hash($data['password']);
             
             $user = User::create([
                 'username'  => $data['username'] ?? null,
-                'email'     => $data['email'],
-                'full_name' => $data['full_name'] ?? null,
-                'nombre'    => $data['nombre'] ?? null,
-                'apellidos' => $data['apellidos'] ?? null,
-                'password'  => $hashedPassword,
+                // 'email'     => $data['email'],
+                // 'full_name' => $data['full_name'] ?? null,
+                // 'nombre'    => $data['nombre'] ?? null,
+                // 'apellidos' => $data['apellidos'] ?? null,
+                // 'password'  => $hashedPassword,
                 // 'phone'     => $data['phone'] ?? null,
-                'nivel'     => $data['nivel'] ?? 'principiante',
-                'is_active' => true
+                // 'nivel'     => $data['nivel'] ?? 'principiante',
+                // 'is_active' => true
                 // 'email_verified' => false
             ]);
 
