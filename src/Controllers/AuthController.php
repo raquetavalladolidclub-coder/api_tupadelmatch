@@ -180,178 +180,6 @@ class AuthController
         }
     }
 
-
-
-    public function loginOLD(Request $request, Response $response)
-    {
-        $data = $request->getParsedBody();
-        
-        // Log para debug
-        error_log("=== LOGIN REQUEST ===");
-        error_log("Datos recibidos: " . json_encode($data));
-        
-        // Aceptar email o username
-        $login = $data['email'] ?? $data['username'] ?? null;
-        $password = $data['password'] ?? null;
-        
-        if (!$login || !$password) {
-            return $this->errorResponse($response, 'Email/Usuario y password son requeridos');
-        }
-        
-        try {
-            // Buscar usuario por email o username
-            $user = User::where('email', $login)
-                        ->orWhere('username', $login)
-                        ->first();
-            
-            error_log("Usuario encontrado: " . ($user ? 'Sí' : 'No'));
-            
-            if (!$user) {
-                error_log("Usuario NO existe: $login");
-                return $this->errorResponse($response, 'Credenciales incorrectas', 401);
-            }
-            
-            // DEBUG: Información del usuario
-            error_log("Usuario ID: " . $user->id);
-            error_log("Usuario email: " . $user->email);
-            error_log("Usuario activo: " . ($user->is_active ? 'Sí' : 'No'));
-            error_log("Password en BD (primeros 30 chars): " . substr($user->password, 0, 30) . "...");
-            error_log("Password recibido: $password");
-            
-            // Verificar si el usuario está activo
-            if (!$user->is_active) {
-                error_log("Usuario INACTIVO");
-                return $this->errorResponse($response, 'Cuenta desactivada', 401);
-            }
-            
-            // VERIFICACIÓN DE PASSWORD - Método correcto
-            $passwordValid = false;
-            
-            // Opción 1: Usar verifyPassword si existe
-            if (method_exists($user, 'verifyPassword')) {
-                error_log("Usando verifyPassword() del modelo");
-                $passwordValid = $user->verifyPassword($password);
-                error_log("verifyPassword resultado: " . ($passwordValid ? 'VÁLIDO' : 'INVÁLIDO'));
-            }
-            
-            // Opción 2: Si no funciona verifyPassword, usar password_verify directamente
-            if (!$passwordValid) {
-                error_log("Probando password_verify directamente...");
-                $passwordValid = password_verify($password, $user->password);
-                error_log("password_verify resultado: " . ($passwordValid ? 'VÁLIDO' : 'INVÁLIDO'));
-                
-                // DEBUG adicional
-                if (!$passwordValid) {
-                    error_log("=== DEBUG PASSWORD ===");
-                    error_log("Hash info: " . json_encode(password_get_info($user->password)));
-                    
-                    // Verificar si hay doble hash
-                    $testHash = password_hash($password, PASSWORD_BCRYPT);
-                    error_log("Hash nuevo del password: " . $testHash);
-                    error_log("Coincide con BD? " . ($user->password === $testHash ? 'SÍ' : 'NO'));
-                    
-                    // Verificar longitud
-                    error_log("Longitud hash BD: " . strlen($user->password));
-                    error_log("Longitud hash nuevo: " . strlen($testHash));
-                }
-            }
-            
-            if (!$passwordValid) {
-                error_log("PASSWORD INVÁLIDO - Login fallido");
-                return $this->errorResponse($response, 'Credenciales incorrectas', 401);
-            }
-            
-            error_log("Login EXITOSO para usuario ID: " . $user->id);
-            
-            // Generar JWT
-            $jwtToken = JWTUtils::generateToken($user->id, $user->email);
-            
-            return $this->successResponse($response, [
-                'token' => $jwtToken,
-                'user' => [
-                    'id'          => $user->id,
-                    'email'       => $user->email,
-                    'username'    => $user->username ?? null,
-                    'full_name'   => $user->full_name,
-                    'nombre'      => $user->nombre,
-                    'apellidos'   => $user->apellidos,
-                    'image_path'  => $user->image_path,
-                    'nivel'       => $user->nivel,
-                    'genero'      => $user->genero,
-                    'categoria'   => $user->categoria,
-                    'fiabilidad'  => $user->fiabilidad,
-                    'asistencias' => $user->asistencias,
-                    'ausencias'   => $user->ausencias
-                ]
-            ]);
-            
-        } catch (\Exception $e) {
-            error_log("EXCEPCIÓN en login: " . $e->getMessage());
-            error_log("Stack trace: " . $e->getTraceAsString());
-            return $this->errorResponse($response, 'Error en el login: ' . $e->getMessage());
-        }
-    }
-
-    public function registerOLD(Request $request, Response $response)
-    {
-        $data = $request->getParsedBody();
-
-        // Campos requeridos
-        $required = ['email', 'username', 'password'];
-        foreach ($required as $field) {
-            if (empty($data[$field])) {
-                return $this->errorResponse($response, "El campo $field es requerido");
-            }
-        }
-
-        // Validaciones previas
-        if (User::where('email', $data['email'])->exists()) {
-            return $this->errorResponse($response, 'El email ya está registrado');
-        }
-
-        if (User::where('username', $data['username'])->exists()) {
-            return $this->errorResponse($response, 'El nombre de usuario ya está en uso');
-        }
-
-        try {
-            $user = User::create([
-                'username'  => $data['username'],
-                'email'     => $data['email'],
-                'full_name' => $data['full_name'] ?? null,
-                'password'  => password_hash($data['password'], PASSWORD_BCRYPT),
-                'phone'     => $data['phone'] ?? null,
-                'level'     => $data['level'] ?? 'principiante',
-                'is_active' => true,
-                'email_verified' => false // Nuevo campo para verificación de email
-            ]);
-
-            // Generar JWT
-            $jwtToken = JWTUtils::generateToken($user->id, $user->email);
-
-            // Enviar email de bienvenida (en segundo plano para no bloquear la respuesta)
-            $this->sendWelcomeEmailAsync($user, $data['password']);
-
-            return $this->successResponse($response, [
-                'token' => $jwtToken,
-                'user' => [
-                    'id'    => $user->id,
-                    'email' => $user->email,
-                    'name'  => $user->full_name,
-                    'level' => $user->level,
-                    'phone' => $user->phone
-                ]
-            ], 201);
-
-        } catch (\PDOException $e) {
-            if ($e->errorInfo[1] === 1062) {
-                return $this->errorResponse($response, 'Usuario o email ya existente');
-            }
-            return $this->errorResponse($response, 'Error de base de datos');
-        } catch (\Exception $e) {
-            return $this->errorResponse($response, 'Error interno del servidor');
-        }
-    }
-
     /**
      * Enviar email de bienvenida en segundo plano
      */
@@ -566,7 +394,8 @@ class AuthController
                     'categoria'   => $user->categoria,
                     'fiabilidad'  => $user->fiabilidad,
                     'asistencias' => $user->asistencias,
-                    'ausencias'   => $user->ausencias
+                    'ausencias'   => $user->ausencias,
+                    'codLiga'     => $user->codLiga
                 ]
             ]);
             
@@ -587,12 +416,13 @@ class AuthController
         
         return $this->successResponse($response, [
             'user' => [
-                'id' => $user->id,
-                'email' => $user->email,
-                'name' => $user->name,
-                'avatar' => $user->avatar,
-                'level' => $user->level,
-                'phone' => $user->phone
+                'id'      => $user->id,
+                'email'   => $user->email,
+                'name'    => $user->name,
+                'avatar'  => $user->avatar,
+                'level'   => $user->level,
+                'phone'   => $user->phone,
+                'codLiga' => $user->codLiga
             ]
         ]);
     }
