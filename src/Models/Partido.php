@@ -4,7 +4,7 @@ namespace PadelClub\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use PadelClub\Models\ResultadoPartido;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Partido extends Model
 {
