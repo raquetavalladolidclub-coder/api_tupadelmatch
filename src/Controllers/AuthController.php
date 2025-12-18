@@ -112,7 +112,7 @@ class AuthController
             // Generar JWT
             $jwtToken = JWTUtils::generateToken($user->id, $user->email);
 
-            return $this->successResponse($response, [
+            /*return $this->successResponse($response, [
                 'token' => $jwtToken,
                 'user' => [
                     'id'          => $user->id,
@@ -124,7 +124,7 @@ class AuthController
                     'nivel'       => $user->nivel,
                     'is_active'   => $user->is_active
                 ]
-            ], 201);
+            ], 201);*/
 
         } catch (\PDOException $e) {
             if ($e->errorInfo[1] === 1062) {
