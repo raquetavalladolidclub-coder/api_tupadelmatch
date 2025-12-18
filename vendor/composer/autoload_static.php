@@ -43,6 +43,7 @@ class ComposerStaticInit93c9a2da07e0b5390e8e9b41962a72a5
             'Psr\\Clock\\' => 10,
             'PhpOption\\' => 10,
             'PadelClub\\' => 10,
+            'PHPMailer\\PHPMailer\\' => 20,
         ),
         'I' => 
         array (
@@ -143,6 +144,10 @@ class ComposerStaticInit93c9a2da07e0b5390e8e9b41962a72a5
         'PadelClub\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
+        ),
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
         'Illuminate\\Support\\' => 
         array (
