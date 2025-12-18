@@ -5,6 +5,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use PadelClub\Controllers\AuthController;
 use PadelClub\Controllers\SystemController;
 use PadelClub\Controllers\PartidoController;
+use PadelClub\Controllers\LigaController;
 use PadelClub\Middleware\AuthMiddleware;
 
 return function (App $app) {
