@@ -183,12 +183,80 @@ class AuthController
 
 
 
-
-
     public function login(Request $request, Response $response)
     {
         $data     = $request->getParsedBody();
-        echo $email    = $data['email'] ?? null;
+        $login    = $data['login'] ?? $data['email'] ?? $data['username'] ?? null;
+        $password = $data['password'] ?? null;
+        
+        if (!$login || !$password) {
+            return $this->errorResponse($response, 'Usuario/Email y password son requeridos');
+        }
+        
+        try {
+            // Determinar si el login es un email o username
+            $isEmail = filter_var($login, FILTER_VALIDATE_EMAIL);
+            
+            // Buscar usuario por email o username
+            if ($isEmail) {
+                // Buscar por email
+                $user = User::where('email', $login)->first();
+            } else {
+                // Buscar por username
+                $user = User::where('username', $login)->first();
+                
+                // Si no se encuentra por username, también podríamos buscar por email
+                // por si el usuario introduce su email pero olvida el @
+                if (!$user) {
+                    $user = User::where('email', $login)->first();
+                }
+            }
+            
+            if (!$user) {
+                return $this->errorResponse($response, 'Credenciales incorrectas', 401);
+            }
+            
+            // Verificar si el usuario está activo
+            if (!$user->is_active) {
+                return $this->errorResponse($response, 'Cuenta desactivada', 401);
+            }
+            
+            // Verificar password
+            if (!$user->verifyPassword($password)) {
+                return $this->errorResponse($response, 'Credenciales incorrectas', 401);
+            }
+            
+            // Generar JWT
+            $jwtToken = JWTUtils::generateToken($user->id, $user->email);
+            
+            return $this->successResponse($response, [
+                'token' => $jwtToken,
+                'user' => [
+                    'id'          => $user->id,
+                    'email'       => $user->email,
+                    'username'    => $user->username,
+                    'full_name'   => $user->full_name,
+                    'nombre'      => $user->nombre,
+                    'apellidos'   => $user->apellidos,
+                    'image_path'  => $user->image_path,
+                    'nivel'       => $user->nivel,
+                    'genero'      => $user->genero,
+                    'categoria'   => $user->categoria,
+                    'fiabilidad'  => $user->fiabilidad,
+                    'asistencias' => $user->asistencias,
+                    'ausencias'   => $user->ausencias
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error en el login: ' . $e->getMessage());
+        }
+    }
+
+    public function loginOLD(Request $request, Response $response)
+    {
+        $data     = $request->getParsedBody();
+        $email    = $data['email'] ?? null;
         $password = $data['password'] ?? null;
         
         if (!$email || !$password) {
