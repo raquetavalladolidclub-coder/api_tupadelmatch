@@ -110,7 +110,7 @@ class AuthController
             ]);
 
             // Generar JWT
-            $jwtToken = JWTUtils::generateToken($user->id, $user->email);
+            // $jwtToken = JWTUtils::generateToken($user->id, $user->email);
 
             /*return $this->successResponse($response, [
                 'token' => $jwtToken,
