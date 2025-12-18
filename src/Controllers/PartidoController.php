@@ -383,8 +383,8 @@ class PartidoController
             }
         }
 
-        if($tipoReserva == "completa"){
-            $partido->update(['estado' => 'completo']);
+        if($tipoReserva == "completo"){
+            $partido->update(['tipoReserva' => strtoupper('completo'), 'estado' => 'completo']);
         }
     }
     
