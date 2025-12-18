@@ -103,7 +103,7 @@ class AuthController
                 'nombre'    => $data['nombre'] ?? "",
                 'apellidos' => $data['apellidos'] ?? "",
                 'password'  => $hashedPassword,
-                'nivel'     => $data['categoria'] ?? 'promesas',
+                'categoria' => $data['categoria'] ?? 'promesas',
                 'is_active' => true
             ]);
 
