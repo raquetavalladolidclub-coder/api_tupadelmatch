@@ -100,7 +100,7 @@ class AuthController
                 'username'  => $data['username'] ?? null,
                 'email'     => $data['email'],
                 'full_name' => $data['full_name'] ?? null,
-                // 'nombre'    => $data['nombre'] ?? null,
+                'nombre'    => $data['nombre'] ?? null,
                 // 'apellidos' => $data['apellidos'] ?? null,
                 // 'password'  => $hashedPassword,
                 // 'phone'     => $data['phone'] ?? null,
