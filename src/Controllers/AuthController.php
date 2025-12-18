@@ -189,36 +189,40 @@ class AuthController
     public function register(Request $request, Response $response)
     {
         $data = $request->getParsedBody();
-        
-        // Validar datos requeridos
-        $required = ['email', 'username', 'password']; // ← Agregar password
+
+        // Campos requeridos
+        $required = ['email', 'username', 'password'];
         foreach ($required as $field) {
             if (empty($data[$field])) {
                 return $this->errorResponse($response, "El campo $field es requerido");
             }
         }
-        
-        // Verificar si el usuario ya existe
+
+        // Validaciones previas
         if (User::where('email', $data['email'])->exists()) {
-            return $this->errorResponse($response, 'El usuario ya existe');
+            return $this->errorResponse($response, 'El email ya está registrado');
         }
-        
+
+        if (User::where('username', $data['username'])->exists()) {
+            return $this->errorResponse($response, 'El nombre de usuario ya está en uso');
+        }
+
         try {
             $user = User::create([
                 'username'  => $data['username'],
                 'email'     => $data['email'],
-                'full_name' => $data['full_name'],
-                'password'  => $data['password'], // ← Guardar password
+                'full_name' => $data['full_name'] ?? null,
+                'password'  => password_hash($data['password'], PASSWORD_BCRYPT),
                 'phone'     => $data['phone'] ?? null,
                 'level'     => $data['level'] ?? 'principiante',
                 'is_active' => true
             ]);
-            
+
             $jwtToken = JWTUtils::generateToken($user->id, $user->email);
-            
+
             return $this->successResponse($response, [
                 'token' => $jwtToken,
-                'user'  => [
+                'user' => [
                     'id'    => $user->id,
                     'email' => $user->email,
                     'name'  => $user->full_name,
@@ -226,11 +230,20 @@ class AuthController
                     'phone' => $user->phone
                 ]
             ], 201);
-            
+
+        } catch (\PDOException $e) {
+
+            if ($e->errorInfo[1] === 1062) {
+                return $this->errorResponse($response, 'Usuario o email ya existente');
+            }
+
+            return $this->errorResponse($response, 'Error de base de datos');
         } catch (\Exception $e) {
-            return $this->errorResponse($response, 'Error en el registro: ' . $e->getMessage());
+
+            return $this->errorResponse($response, 'Error interno del servidor');
         }
     }
+
     
     public function getProfile(Request $request, Response $response)
     {
