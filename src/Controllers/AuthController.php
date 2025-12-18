@@ -186,7 +186,7 @@ class AuthController
     public function login(Request $request, Response $response)
     {
         $data     = $request->getParsedBody();
-        $login    = $data['username'] ?? null;
+        $login    = $data['email'] ?? null;
         $password = $data['password'] ?? null;
         
         if (!$login || !$password) {
