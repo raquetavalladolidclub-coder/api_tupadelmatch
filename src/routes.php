@@ -94,8 +94,8 @@ return function (App $app) {
 
 
     // Resultados de partidos
-    $app->post('/partidos/{id}/resultados', [LigaController::class, ':guardarResultados'])->add(new AuthMiddleware());
-    $app->get('/partidos/pendientes-resultados', [LigaController::class, ':obtenerPartidosPendientesResultados'])->add(new AuthMiddleware());
+    $app->post('/partidosLiga/{id}/resultados', [LigaController::class, ':guardarResultados'])->add(new AuthMiddleware());
+    $app->get('/partidosLiga/pendientes-resultados', [LigaController::class, ':obtenerPartidosPendientesResultados'])->add(new AuthMiddleware());
     
     // Ranking y estadísticas
     $app->get('/ligas/{codLiga}/ranking', [LigaController::class, ':obtenerRankingLiga'])->add(new AuthMiddleware());
