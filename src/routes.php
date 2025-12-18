@@ -91,4 +91,16 @@ return function (App $app) {
         
         return $response->withHeader('Content-Type', 'application/json');
     });
+
+
+    // Resultados de partidos
+    $app->post('/partidos/{id}/resultados', [LigaController::class, ':guardarResultados'])->add(new AuthMiddleware());
+    $app->get('/partidos/pendientes-resultados', [LigaController::class, ':obtenerPartidosPendientesResultados'])->add(new AuthMiddleware());
+    
+    // Ranking y estadísticas
+    $app->get('/ligas/{codLiga}/ranking', [LigaController::class, ':obtenerRankingLiga'])->add(new AuthMiddleware());
+    $app->get('/ligas/{codLiga}/estadisticas[/{usuarioId}]', [LigaController::class, ':obtenerEstadisticasJugador'])->add(new AuthMiddleware());
+    $app->get('/ligas/{codLiga}/ultimos-partidos', [LigaController::class, ':obtenerUltimosPartidosLiga'])->add(new AuthMiddleware());
+
+
 };
