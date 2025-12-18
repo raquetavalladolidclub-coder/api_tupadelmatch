@@ -2,6 +2,7 @@
 namespace PadelClub\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use PadelClub\Utils\PasswordHelper;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Model
@@ -33,30 +34,6 @@ class User extends Model
         'google_id',
         'password' // ← Ocultar password en respuestas
     ];
-
-    /**
-     * Mutator para password - IMPORTANTE: Si ya haces hash en el controlador,
-     * NO hagas hash aquí también, o estarás haciendo doble hash
-     */
-    public function setPasswordAttribute($value)
-    {
-        // SOLO hacer hash si el valor NO empieza con $2y$ (formato bcrypt)
-        if (!empty($value) && !preg_match('/^\$2[ayb]\$/', $value)) {
-            // Esto significa que viene en texto plano desde el formulario
-            $this->attributes['password'] = password_hash($value, PASSWORD_BCRYPT);
-        } else {
-            // Ya está hasheado (viene del controlador)
-            $this->attributes['password'] = $value;
-        }
-    }
-    
-    /**
-     * Verificar password
-     */
-    public function verifyPassword($password)
-    {
-        return password_verify($password, $this->password);
-    }
     
     public function inscripciones(): HasMany
     {
@@ -66,5 +43,23 @@ class User extends Model
     public function partidosCreados(): HasMany
     {
         return $this->hasMany(Partido::class, 'creador_id');
+    }
+
+    public function verifyPassword($password)
+    {
+        return PasswordHelper::verify($password, $this->password);
+    }
+    
+    /**
+     * Mutator para password
+     */
+    public function setPasswordAttribute($value)
+    {
+        if (!empty($value) && !preg_match('/^\$2[ayb]\$/', $value)) {
+            // Usar PasswordHelper para hash consistente
+            $this->attributes['password'] = PasswordHelper::hash($value);
+        } else {
+            $this->attributes['password'] = $value;
+        }
     }
 }

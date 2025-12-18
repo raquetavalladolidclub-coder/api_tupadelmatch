@@ -20,6 +20,111 @@ class AuthController
     public function login(Request $request, Response $response)
     {
         $data = $request->getParsedBody();
+        $email = $data['email'] ?? null;
+        $password = $data['password'] ?? null;
+        
+        if (!$email || !$password) {
+            return $this->errorResponse($response, 'Email y password son requeridos');
+        }
+        
+        try {
+            $user = User::where('email', $email)->first();
+            
+            if (!$user) {
+                return $this->errorResponse($response, 'Credenciales incorrectas', 401);
+            }
+            
+            if (!$user->is_active) {
+                return $this->errorResponse($response, 'Cuenta desactivada', 401);
+            }
+            
+            // INTENTO 1: Verificación normal
+            $passwordValid = password_verify($password, $user->password);
+            
+            // INTENTO 2: Si falla, intentar con password saneado
+            if (!$passwordValid) {
+                error_log("Primer intento falló. Probando saneamiento...");
+                
+                // Saneamiento igual que en registro
+                $sanitizedPassword = mb_convert_encoding($password, 'UTF-8', 'UTF-8');
+                
+                if ($password !== $sanitizedPassword) {
+                    error_log("Password diferente después de saneamiento");
+                    error_log("Original: '$password'");
+                    error_log("Saneado: '$sanitizedPassword'");
+                    
+                    $passwordValid = password_verify($sanitizedPassword, $user->password);
+                    error_log("Verificación con saneado: " . ($passwordValid ? 'OK' : 'FAIL'));
+                }
+            }
+            
+            // INTENTO 3: Si aún falla, podría ser problema de doble encoding
+            if (!$passwordValid) {
+                error_log("Probando con raw UTF8...");
+                $rawPassword = $password;
+                $passwordValid = password_verify($rawPassword, $user->password);
+            }
+            
+            if (!$passwordValid) {
+                return $this->errorResponse($response, 'Credenciales incorrectas', 401);
+            }
+            
+            // Generar JWT y respuesta...
+            
+        } catch (\Exception $e) {
+            error_log("Login error: " . $e->getMessage());
+            return $this->errorResponse($response, 'Error en el login');
+        }
+    }
+
+    public function register(Request $request, Response $response)
+    {
+        $data = $request->getParsedBody();
+
+        $required = ['email', 'password'];
+        foreach ($required as $field) {
+            if (empty($data[$field])) {
+                return $this->errorResponse($response, "El campo $field es requerido");
+            }
+        }
+
+        if (User::where('email', $data['email'])->exists()) {
+            return $this->errorResponse($response, 'El email ya está registrado');
+        }
+
+        try {
+            // SANEAR LA CONTRASEÑA ANTES DEL HASH
+            $password = $data['password'];
+            
+            // Crear hash del password saneado
+            $hashedPassword = \PadelClub\Utils\PasswordHelper::hash($data['password']);
+            
+            $user = User::create([
+                'email'     => $data['email'],
+                'full_name' => $data['full_name'] ?? null,
+                'nombre'    => $data['nombre'] ?? null,
+                'apellidos' => $data['apellidos'] ?? null,
+                'password'  => $hashedPassword,
+                'phone'     => $data['phone'] ?? null,
+                'nivel'     => $data['nivel'] ?? 'principiante',
+                'is_active' => true,
+                'email_verified' => false
+            ]);
+
+            return $this->successResponse($response, [
+                'token' => $jwtToken,
+                'user' => $userData
+            ], 201);
+
+        } catch (\Exception $e) {
+            error_log("Error registro: " . $e->getMessage());
+            return $this->errorResponse($response, 'Error en el registro');
+        }
+    }
+
+    public function loginOLD(Request $request, Response $response)
+    {
+        $data = $request->getParsedBody();
         
         // Log para debug
         error_log("=== LOGIN REQUEST ===");
@@ -127,7 +232,7 @@ class AuthController
         }
     }
 
-    public function register(Request $request, Response $response)
+    public function registerOLD(Request $request, Response $response)
     {
         $data = $request->getParsedBody();
 
@@ -409,66 +514,7 @@ class AuthController
             return $this->errorResponse($response, 'Error al validar el token: ' . $e->getMessage(), 401);
         }
     }
-    
-    public function registerOLD(Request $request, Response $response)
-    {
-        $data = $request->getParsedBody();
 
-        // Campos requeridos
-        $required = ['email', 'username', 'password'];
-        foreach ($required as $field) {
-            if (empty($data[$field])) {
-                return $this->errorResponse($response, "El campo $field es requerido");
-            }
-        }
-
-        // Validaciones previas
-        if (User::where('email', $data['email'])->exists()) {
-            return $this->errorResponse($response, 'El email ya está registrado');
-        }
-
-        if (User::where('username', $data['username'])->exists()) {
-            return $this->errorResponse($response, 'El nombre de usuario ya está en uso');
-        }
-
-        try {
-            $user = User::create([
-                'username'  => $data['username'],
-                'email'     => $data['email'],
-                'full_name' => $data['full_name'] ?? null,
-                'password'  => password_hash($data['password'], PASSWORD_BCRYPT),
-                'phone'     => $data['phone'] ?? null,
-                'level'     => $data['level'] ?? 'principiante',
-                'is_active' => true
-            ]);
-
-            $jwtToken = JWTUtils::generateToken($user->id, $user->email);
-
-            return $this->successResponse($response, [
-                'token' => $jwtToken,
-                'user' => [
-                    'id'    => $user->id,
-                    'email' => $user->email,
-                    'name'  => $user->full_name,
-                    'level' => $user->level,
-                    'phone' => $user->phone
-                ]
-            ], 201);
-
-        } catch (\PDOException $e) {
-
-            if ($e->errorInfo[1] === 1062) {
-                return $this->errorResponse($response, 'Usuario o email ya existente');
-            }
-
-            return $this->errorResponse($response, 'Error de base de datos');
-        } catch (\Exception $e) {
-
-            return $this->errorResponse($response, 'Error interno del servidor');
-        }
-    }
-
-    
     public function getProfile(Request $request, Response $response)
     {
         $userId = $request->getAttribute('user_id');
