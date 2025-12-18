@@ -94,7 +94,7 @@ class AuthController
 
         try {
             // Usar PasswordHelper para hash consistente
-            $hashedPassword = \PadelClub\Utils\PasswordHelper::hash($data['password']);
+            $hashedPassword = 12; // \PadelClub\Utils\PasswordHelper::hash($data['password']);
             
             $user = User::create([
                 'username'  => $data['username'] ?? null,
