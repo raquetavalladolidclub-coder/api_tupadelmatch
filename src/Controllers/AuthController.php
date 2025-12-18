@@ -103,7 +103,7 @@ class AuthController
                 'nombre'    => $data['nombre'] ?? "",
                 'apellidos' => $data['apellidos'] ?? "",
                 'password'  => $hashedPassword,
-                'nivel'     => $data['nivel'] ?? 'principiante',
+                'nivel'     => $data['categoria'] ?? 'promesas',
                 'is_active' => true
             ]);
 
@@ -119,7 +119,7 @@ class AuthController
                     'full_name'   => $user->full_name,
                     'nombre'      => $user->nombre,
                     'apellidos'   => $user->apellidos,
-                    'nivel'       => $user->nivel,
+                    'categoria'   => $user->categoria,
                     'is_active'   => $user->is_active
                 ]
             ], 201);
