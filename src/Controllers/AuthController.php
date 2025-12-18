@@ -9,6 +9,181 @@ use Google_Client;
 
 class AuthController
 {
+    private $notificationService;
+
+    public function __construct()
+    {
+        $this->notificationService = new NotificationService();
+    }
+
+    public function register(Request $request, Response $response)
+    {
+        $data = $request->getParsedBody();
+
+        // Campos requeridos
+        $required = ['email', 'username', 'password'];
+        foreach ($required as $field) {
+            if (empty($data[$field])) {
+                return $this->errorResponse($response, "El campo $field es requerido");
+            }
+        }
+
+        // Validaciones previas
+        if (User::where('email', $data['email'])->exists()) {
+            return $this->errorResponse($response, 'El email ya está registrado');
+        }
+
+        if (User::where('username', $data['username'])->exists()) {
+            return $this->errorResponse($response, 'El nombre de usuario ya está en uso');
+        }
+
+        try {
+            $user = User::create([
+                'username'  => $data['username'],
+                'email'     => $data['email'],
+                'full_name' => $data['full_name'] ?? null,
+                'password'  => password_hash($data['password'], PASSWORD_BCRYPT),
+                'phone'     => $data['phone'] ?? null,
+                'level'     => $data['level'] ?? 'principiante',
+                'is_active' => true,
+                'email_verified' => false // Nuevo campo para verificación de email
+            ]);
+
+            // Generar JWT
+            $jwtToken = JWTUtils::generateToken($user->id, $user->email);
+
+            // Enviar email de bienvenida (en segundo plano para no bloquear la respuesta)
+            $this->sendWelcomeEmailAsync($user, $data['password']);
+
+            return $this->successResponse($response, [
+                'token' => $jwtToken,
+                'user' => [
+                    'id'    => $user->id,
+                    'email' => $user->email,
+                    'name'  => $user->full_name,
+                    'level' => $user->level,
+                    'phone' => $user->phone
+                ]
+            ], 201);
+
+        } catch (\PDOException $e) {
+            if ($e->errorInfo[1] === 1062) {
+                return $this->errorResponse($response, 'Usuario o email ya existente');
+            }
+            return $this->errorResponse($response, 'Error de base de datos');
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error interno del servidor');
+        }
+    }
+
+    /**
+     * Enviar email de bienvenida en segundo plano
+     */
+    private function sendWelcomeEmailAsync(User $user, $plainPassword)
+    {
+        // Puedes usar diferentes estrategias para enviar en segundo plano:
+        // 1. Usar un queue system (Redis, RabbitMQ)
+        // 2. Usar procesos en background
+        // 3. Para desarrollo, enviar directamente
+        
+        try {
+            $this->notificationService->sendWelcomeEmail($user, $plainPassword);
+        } catch (\Exception $e) {
+            // Registrar error pero no fallar el registro
+            error_log('Error enviando email de bienvenida: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Nuevo endpoint para recuperación de contraseña
+     */
+    public function forgotPassword(Request $request, Response $response)
+    {
+        $data = $request->getParsedBody();
+        $email = $data['email'] ?? null;
+
+        if (!$email) {
+            return $this->errorResponse($response, 'Email es requerido');
+        }
+
+        try {
+            $user = User::where('email', $email)->first();
+
+            if (!$user) {
+                // Por seguridad, no revelamos si el email existe o no
+                return $this->successResponse($response, [
+                    'message' => 'Si el email existe, recibirás instrucciones para restablecer tu contraseña'
+                ]);
+            }
+
+            // Generar token de recuperación
+            $resetToken = bin2hex(random_bytes(32));
+            $expiresAt = date('Y-m-d H:i:s', strtotime('+24 hours'));
+
+            // Guardar token en la base de datos (necesitarás crear una tabla para esto)
+            // Por ahora, usaremos un campo temporal en el usuario
+            $user->password_reset_token = $resetToken;
+            $user->password_reset_expires = $expiresAt;
+            $user->save();
+
+            // Enviar email de recuperación
+            $this->notificationService->sendPasswordResetEmail($user, $resetToken);
+
+            return $this->successResponse($response, [
+                'message' => 'Si el email existe, recibirás instrucciones para restablecer tu contraseña'
+            ]);
+
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error al procesar la solicitud');
+        }
+    }
+
+    /**
+     * Verificar cuenta por email
+     */
+    public function sendVerificationEmail(Request $request, Response $response)
+    {
+        $userId = $request->getAttribute('user_id');
+        
+        try {
+            $user = User::find($userId);
+            
+            if (!$user) {
+                return $this->errorResponse($response, 'Usuario no encontrado');
+            }
+
+            if ($user->email_verified) {
+                return $this->errorResponse($response, 'La cuenta ya está verificada');
+            }
+
+            // Generar token de verificación
+            $verificationToken = bin2hex(random_bytes(32));
+            
+            // Guardar token (en un sistema real, usarías una tabla separada)
+            $user->verification_token = $verificationToken;
+            $user->verification_token_expires = date('Y-m-d H:i:s', strtotime('+48 hours'));
+            $user->save();
+
+            // Enviar email de verificación
+            $this->notificationService->sendAccountVerificationEmail($user, $verificationToken);
+
+            return $this->successResponse($response, [
+                'message' => 'Email de verificación enviado'
+            ]);
+
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error al enviar el email de verificación');
+        }
+    }
+
+
+
+
+
+
+
+
+
     public function login(Request $request, Response $response)
     {
         $data     = $request->getParsedBody();
@@ -186,7 +361,7 @@ class AuthController
         }
     }
     
-    public function register(Request $request, Response $response)
+    public function registerOLD(Request $request, Response $response)
     {
         $data = $request->getParsedBody();
 
