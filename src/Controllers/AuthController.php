@@ -5,6 +5,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use PadelClub\Models\User;
 use PadelClub\Utils\JWTUtils;
+use PadelClub\Services\NotificationService;
 use Google_Client;
 
 class AuthController
