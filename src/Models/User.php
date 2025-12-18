@@ -27,6 +27,7 @@
             'fiabilidad',
             'asistencias',
             'ausencias',
+            'codLiga',
             'is_active'
         ];
         
@@ -35,17 +36,11 @@
             'password'
         ];
         
-        /**
-         * Verificar contraseña
-         */
         public function verifyPassword($password)
         {
             return PasswordHelper::verify($password, $this->password);
         }
         
-        /**
-         * Mutator para password - usa PasswordHelper
-         */
         public function setPasswordAttribute($value)
         {
             if (!empty($value) && !preg_match('/^\$2[ayb]\$/', $value)) {

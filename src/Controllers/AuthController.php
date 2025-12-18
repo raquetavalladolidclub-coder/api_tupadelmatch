@@ -66,7 +66,8 @@ class AuthController
                     'categoria'   => $user->categoria,
                     'fiabilidad'  => $user->fiabilidad,
                     'asistencias' => $user->asistencias,
-                    'ausencias'   => $user->ausencias
+                    'ausencias'   => $user->ausencias,
+                    'codLiga'     => $user->codLiga
                 ]
             ]);
             
@@ -108,6 +109,7 @@ class AuthController
                 'apellidos' => $data['apellidos'] ?? "",
                 'password'  => $hashedPassword,
                 'categoria' => $data['categoria'] ?? 'promesas',
+                'codLiga'   => $data['codLiga'] ?? '',
                 'is_active' => true
             ]);
 
@@ -124,6 +126,7 @@ class AuthController
                     'nombre'      => $user->nombre,
                     'apellidos'   => $user->apellidos,
                     'categoria'   => $user->categoria,
+                    'codLiga'     => $user->codLiga,
                     'is_active'   => $user->is_active
                 ]
             ], 201);
