@@ -103,10 +103,8 @@ class AuthController
                 'nombre'    => $data['nombre'] ?? "",
                 'apellidos' => $data['apellidos'] ?? "",
                 'password'  => $hashedPassword,
-                // 'phone'     => $data['phone'] ?? null,
-                // 'nivel'     => $data['nivel'] ?? 'principiante',
-                // 'is_active' => true
-                // 'email_verified' => false
+                'nivel'     => $data['nivel'] ?? 'principiante',
+                'is_active' => true
             ]);
 
             // Generar JWT
