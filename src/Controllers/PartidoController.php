@@ -212,7 +212,7 @@ class PartidoController
             }
             
             // Verificar si el partido se completó
-            $this->actualizarEstadoPartido($partido, $data['nivelPartido']);
+            $this->actualizarEstadoPartido($partido, $nivelUsuario); //  $data['nivelPartido']
             
             return $this->successResponse($response, [
                 'message' => 'Inscripción realizada correctamente',
