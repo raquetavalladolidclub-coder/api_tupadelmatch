@@ -376,6 +376,8 @@ class PartidoController
         } else {
             if($partido->jugadoresConfirmados->count() == 1){
                 $partido->update(['categoria' => "$categoria", 'estado' => 'disponible']);
+            }elseif($partido->jugadoresConfirmados->count() >= 4){
+                $partido->update(['estado' => 'completo']);
             }else{
                 $partido->update(['estado' => 'disponible']);
             }
