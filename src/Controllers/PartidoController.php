@@ -212,7 +212,7 @@ class PartidoController
             }
             
             // Verificar si el partido se completó
-            $this->actualizarEstadoPartido($partido, $nivelUsuario); //  $data['nivelPartido']
+            $this->actualizarEstadoPartido($partido, $nivelUsuario, $data['tipoReserva']); //  $data['nivelPartido']
             
             return $this->successResponse($response, [
                 'message' => 'Inscripción realizada correctamente',
@@ -368,8 +368,8 @@ class PartidoController
         
         return $niveles[$nivel] ?? 1;
     }
-    
-    private function actualizarEstadoPartido($partido, $categoria="promesas")
+
+    private function actualizarEstadoPartido($partido, $categoria="promesas", $tipoReserva="individual")
     {
         if ($partido->esta_completo) {
             $partido->update(['estado' => 'completo']);
@@ -381,6 +381,10 @@ class PartidoController
             }else{
                 $partido->update(['estado' => 'disponible']);
             }
+        }
+
+        if($tipoReserva == "completa"){
+            $partido->update(['estado' => 'completo']);
         }
     }
     
