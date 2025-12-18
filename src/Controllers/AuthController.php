@@ -97,6 +97,7 @@ class AuthController
             $hashedPassword = \PadelClub\Utils\PasswordHelper::hash($data['password']);
             
             $user = User::create([
+                'username'  => $data['username'] ?? null,
                 'email'     => $data['email'],
                 'full_name' => $data['full_name'] ?? null,
                 'nombre'    => $data['nombre'] ?? null,
@@ -115,6 +116,7 @@ class AuthController
                 'token' => $jwtToken,
                 'user' => [
                     'id'          => $user->id,
+                    'username'    => $user->username,
                     'email'       => $user->email,
                     'full_name'   => $user->full_name,
                     'nombre'      => $user->nombre,
