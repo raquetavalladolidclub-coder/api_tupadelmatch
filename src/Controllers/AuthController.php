@@ -80,7 +80,7 @@ class AuthController
         $data = $request->getParsedBody();
 
         // Campos requeridos
-        $required = ['email', 'password'];
+        $required = ['email', 'username', 'password'];
         foreach ($required as $field) {
             if (empty($data[$field])) {
                 return $this->errorResponse($response, "El campo $field es requerido");
@@ -103,10 +103,10 @@ class AuthController
                 'nombre'    => $data['nombre'] ?? null,
                 'apellidos' => $data['apellidos'] ?? null,
                 'password'  => $hashedPassword,
-                'phone'     => $data['phone'] ?? null,
+                // 'phone'     => $data['phone'] ?? null,
                 'nivel'     => $data['nivel'] ?? 'principiante',
-                'is_active' => true,
-                'email_verified' => false
+                'is_active' => true
+                // 'email_verified' => false
             ]);
 
             // Generar JWT
