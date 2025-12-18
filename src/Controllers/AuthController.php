@@ -20,15 +20,20 @@ class AuthController
     public function login(Request $request, Response $response)
     {
         $data = $request->getParsedBody();
-        $email = $data['email'] ?? null;
+        
+        // Aceptar email o username
+        $login = $data['email'] ?? $data['username'] ?? null;
         $password = $data['password'] ?? null;
         
-        if (!$email || !$password) {
-            return $this->errorResponse($response, 'Email y password son requeridos');
+        if (!$login || !$password) {
+            return $this->errorResponse($response, 'Email/Usuario y password son requeridos');
         }
         
         try {
-            $user = User::where('email', $email)->first();
+            // Buscar usuario por email o username
+            $user = User::where('email', $login)
+                        ->orWhere('username', $login)
+                        ->first();
             
             if (!$user) {
                 return $this->errorResponse($response, 'Credenciales incorrectas', 401);
@@ -38,41 +43,34 @@ class AuthController
                 return $this->errorResponse($response, 'Cuenta desactivada', 401);
             }
             
-            // INTENTO 1: Verificación normal
-            $passwordValid = password_verify($password, $user->password);
-            
-            // INTENTO 2: Si falla, intentar con password saneado
-            if (!$passwordValid) {
-                error_log("Primer intento falló. Probando saneamiento...");
-                
-                // Saneamiento igual que en registro
-                $sanitizedPassword = mb_convert_encoding($password, 'UTF-8', 'UTF-8');
-                
-                if ($password !== $sanitizedPassword) {
-                    error_log("Password diferente después de saneamiento");
-                    error_log("Original: '$password'");
-                    error_log("Saneado: '$sanitizedPassword'");
-                    
-                    $passwordValid = password_verify($sanitizedPassword, $user->password);
-                    error_log("Verificación con saneado: " . ($passwordValid ? 'OK' : 'FAIL'));
-                }
-            }
-            
-            // INTENTO 3: Si aún falla, podría ser problema de doble encoding
-            if (!$passwordValid) {
-                error_log("Probando con raw UTF8...");
-                $rawPassword = $password;
-                $passwordValid = password_verify($rawPassword, $user->password);
-            }
-            
-            if (!$passwordValid) {
+            // Verificar contraseña usando el método del modelo
+            if (!$user->verifyPassword($password)) {
                 return $this->errorResponse($response, 'Credenciales incorrectas', 401);
             }
             
-            // Generar JWT y respuesta...
+            // Generar JWT
+            $jwtToken = JWTUtils::generateToken($user->id, $user->email);
+            
+            return $this->successResponse($response, [
+                'token' => $jwtToken,
+                'user' => [
+                    'id'          => $user->id,
+                    'email'       => $user->email,
+                    'username'    => $user->username ?? null,
+                    'full_name'   => $user->full_name,
+                    'nombre'      => $user->nombre,
+                    'apellidos'   => $user->apellidos,
+                    'image_path'  => $user->image_path,
+                    'nivel'       => $user->nivel,
+                    'genero'      => $user->genero,
+                    'categoria'   => $user->categoria,
+                    'fiabilidad'  => $user->fiabilidad,
+                    'asistencias' => $user->asistencias,
+                    'ausencias'   => $user->ausencias
+                ]
+            ]);
             
         } catch (\Exception $e) {
-            error_log("Login error: " . $e->getMessage());
             return $this->errorResponse($response, 'Error en el login');
         }
     }
@@ -81,6 +79,7 @@ class AuthController
     {
         $data = $request->getParsedBody();
 
+        // Campos requeridos
         $required = ['email', 'password'];
         foreach ($required as $field) {
             if (empty($data[$field])) {
@@ -88,15 +87,13 @@ class AuthController
             }
         }
 
+        // Validaciones previas
         if (User::where('email', $data['email'])->exists()) {
             return $this->errorResponse($response, 'El email ya está registrado');
         }
 
         try {
-            // SANEAR LA CONTRASEÑA ANTES DEL HASH
-            $password = $data['password'];
-            
-            // Crear hash del password saneado
+            // Usar PasswordHelper para hash consistente
             $hashedPassword = \PadelClub\Utils\PasswordHelper::hash($data['password']);
             
             $user = User::create([
@@ -111,16 +108,72 @@ class AuthController
                 'email_verified' => false
             ]);
 
+            // Generar JWT
+            $jwtToken = JWTUtils::generateToken($user->id, $user->email);
+
             return $this->successResponse($response, [
                 'token' => $jwtToken,
-                'user' => $userData
+                'user' => [
+                    'id'          => $user->id,
+                    'email'       => $user->email,
+                    'full_name'   => $user->full_name,
+                    'nombre'      => $user->nombre,
+                    'apellidos'   => $user->apellidos,
+                    'nivel'       => $user->nivel,
+                    'is_active'   => $user->is_active
+                ]
             ], 201);
 
+        } catch (\PDOException $e) {
+            if ($e->errorInfo[1] === 1062) {
+                return $this->errorResponse($response, 'Usuario o email ya existente');
+            }
+            return $this->errorResponse($response, 'Error de base de datos');
         } catch (\Exception $e) {
-            error_log("Error registro: " . $e->getMessage());
-            return $this->errorResponse($response, 'Error en el registro');
+            return $this->errorResponse($response, 'Error interno del servidor');
         }
     }
+
+    public function updatePassword(Request $request, Response $response)
+    {
+        $userId = $request->getAttribute('user_id');
+        $data = $request->getParsedBody();
+        
+        $currentPassword = $data['current_password'] ?? null;
+        $newPassword = $data['new_password'] ?? null;
+        
+        if (!$currentPassword || !$newPassword) {
+            return $this->errorResponse($response, 'Contraseña actual y nueva son requeridas');
+        }
+        
+        if (strlen($newPassword) < 6) {
+            return $this->errorResponse($response, 'La nueva contraseña debe tener al menos 6 caracteres');
+        }
+        
+        try {
+            $user = User::find($userId);
+            
+            if (!$user) {
+                return $this->errorResponse($response, 'Usuario no encontrado');
+            }
+            
+            if (!$user->verifyPassword($currentPassword)) {
+                return $this->errorResponse($response, 'Contraseña actual incorrecta', 401);
+            }
+            
+            $user->password = $newPassword; // El mutator hará el hash
+            $user->save();
+            
+            return $this->successResponse($response, [
+                'message' => 'Contraseña actualizada correctamente'
+            ]);
+            
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error al actualizar contraseña');
+        }
+    }
+
+
 
     public function loginOLD(Request $request, Response $response)
     {
