@@ -97,12 +97,12 @@ class AuthController
             $hashedPassword = \PadelClub\Utils\PasswordHelper::hash($data['password']);
             
             $user = User::create([
-                'username'  => $data['username'] ?? null,
+                'username'  => $data['username'],
                 'email'     => $data['email'],
-                'full_name' => $data['full_name'] ?? null,
-                'nombre'    => $data['nombre'] ?? null,
-                // 'apellidos' => $data['apellidos'] ?? null,
-                // 'password'  => $hashedPassword,
+                'full_name' => $data['full_name'] ?? "",
+                'nombre'    => $data['nombre'] ?? "",
+                'apellidos' => $data['apellidos'] ?? "",
+                'password'  => $hashedPassword,
                 // 'phone'     => $data['phone'] ?? null,
                 // 'nivel'     => $data['nivel'] ?? 'principiante',
                 // 'is_active' => true
