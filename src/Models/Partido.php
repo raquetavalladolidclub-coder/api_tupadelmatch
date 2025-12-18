@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Partido extends Model
 {
-    protected $table = 'partidos';
+    protected $table      = 'partidos';
     protected $primaryKey = 'id';
-    public $timestamps = true;
+    public $timestamps    = true;
     
     protected $fillable = [
         'idClub',
@@ -25,6 +25,7 @@ class Partido extends Model
         'estado',
         'precio_individual',
         'precio_pista_completa',
+        'codLiga',
         'creador_id'
     ];
     
