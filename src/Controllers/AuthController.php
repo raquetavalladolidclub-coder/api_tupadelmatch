@@ -88,6 +88,10 @@ class AuthController
         }
 
         // Validaciones previas
+        if (User::where('username', $data['username'])->exists()) {
+            return $this->errorResponse($response, 'El username ya está registrado');
+        }
+
         if (User::where('email', $data['email'])->exists()) {
             return $this->errorResponse($response, 'El email ya está registrado');
         }
