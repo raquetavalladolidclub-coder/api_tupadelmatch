@@ -68,4 +68,24 @@ class Partido extends Model
             ->whereIn('estado', ['pendiente', 'confirmado'])
             ->exists();
     }
+
+    public function resultados(): HasOne
+    {
+        return $this->hasOne(ResultadoPartido::class, 'partido_id');
+    }
+
+    public function estadisticasLiga(): HasMany
+    {
+        return $this->hasMany(EstadisticaLiga::class, 'cod_liga', 'codLiga');
+    }
+
+    public function getEsPartidoLigaAttribute(): bool
+    {
+        return !empty($this->codLiga);
+    }
+
+    public function getTieneResultadosAttribute(): bool
+    {
+        return $this->resultados()->exists();
+    }
 }
