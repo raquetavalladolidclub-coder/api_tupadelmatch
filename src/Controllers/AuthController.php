@@ -96,7 +96,7 @@ class AuthController
             // Usar PasswordHelper para hash consistente
             $hashedPassword = \PadelClub\Utils\PasswordHelper::hash($data['password']);
             
-            $user = User::create([
+            /*$user = User::create([
                 'username'  => $data['username'] ?? null,
                 'email'     => $data['email'],
                 'full_name' => $data['full_name'] ?? null,
@@ -107,7 +107,7 @@ class AuthController
                 'nivel'     => $data['nivel'] ?? 'principiante',
                 'is_active' => true
                 // 'email_verified' => false
-            ]);
+            ]);*/
 
             // Generar JWT
             // $jwtToken = JWTUtils::generateToken($user->id, $user->email);
