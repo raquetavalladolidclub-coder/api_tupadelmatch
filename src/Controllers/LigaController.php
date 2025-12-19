@@ -132,7 +132,7 @@ class LigaController
     }
     
     // GET /api/partidos/pendientes-resultados
-    public function obtenerPartidosPendientesResultados(Request $request, Response $response)
+    public function obtenerPartidosPendientesResultadosOLD(Request $request, Response $response)
     {
         try {
             $userId = $request->getAttribute('user_id');
@@ -342,7 +342,7 @@ class LigaController
         ];
     }
     
-    private function obtenerJugadoresPorEquipo($partido): array
+    private function obtenerJugadoresPorEquipoOLD($partido): array
     {
         $jugadores = $partido->inscripciones
             ->where('estado', 'confirmado')
@@ -610,7 +610,7 @@ class LigaController
     
     // ==================== MÉTODOS DE FORMATEO ====================
 
-    private function formatearPartidoParaResultados($partido): array
+    private function formatearPartidoParaResultadosOLD($partido): array
     {
         $jugadores = $this->obtenerJugadoresPorEquipo($partido);
         
@@ -639,33 +639,6 @@ class LigaController
             'codLiga' => $partido->codLiga,
             'equipo_a' => $equipoAArray, // <-- Usar el array
             'equipo_b' => $equipoBArray, // <-- Usar el array
-        ];
-    }
-    
-    private function formatearPartidoParaResultadosOLD($partido): array
-    {
-        $jugadores = $this->obtenerJugadoresPorEquipo($partido);
-        
-        return [
-            'id' => $partido->id,
-            'fecha' => $partido->fecha->format('Y-m-d'),
-            'hora' => $partido->hora,
-            'pista' => $partido->pista,
-            'codLiga' => $partido->codLiga,
-            'equipo_a' => $jugadores['equipoA']->map(function($jugador) {
-                return [
-                    'id' => $jugador->id,
-                    'nombre' => $jugador->nombre,
-                    'apellidos' => $jugador->apellidos
-                ];
-            }),
-            'equipo_b' => $jugadores['equipoB']->map(function($jugador) {
-                return [
-                    'id' => $jugador->id,
-                    'nombre' => $jugador->nombre,
-                    'apellidos' => $jugador->apellidos
-                ];
-            })
         ];
     }
     
@@ -824,5 +797,106 @@ class LigaController
         
         return $response->withStatus($statusCode)
             ->withHeader('Content-Type', 'application/json');
+    }
+
+
+
+
+
+
+    // GET /api/partidos/pendientes-resultados
+    public function obtenerPartidosPendientesResultados(Request $request, Response $response)
+    {
+        try {
+            $userId = $request->getAttribute('user_id');
+            
+            $partidos = Partido::where('creador_id', $userId)
+                ->where('estado', 'finalizado')
+                ->whereNotNull('codLiga')
+                ->whereDoesntHave('resultados')
+                ->with(['creador', 'inscripciones' => function($query) {
+                    $query->where('estado', 'confirmado')
+                          ->with('usuario');
+                }])
+                ->orderBy('fecha', 'desc')
+                ->get()
+                ->filter(function($partido) {
+                    return $partido->inscripciones->count() >= 2;
+                })
+                ->map(function($partido) {
+                    return $this->formatearPartidoParaResultados($partido);
+                })
+                ->values(); // <-- Añadir values() para reiniciar índices
+            
+            return $this->successResponse($response, [
+                'partidos' => $partidos,
+                'total' => $partidos->count()
+            ]);
+            
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error al obtener partidos pendientes: ' . $e->getMessage());
+        }
+    }
+
+    private function formatearPartidoParaResultados($partido): array
+    {
+        $jugadores = $this->obtenerJugadoresPorEquipo($partido);
+        
+        // Asegurar que convertimos las colecciones a arrays
+        $equipoA = $jugadores['equipoA'] instanceof \Illuminate\Support\Collection 
+            ? $jugadores['equipoA']->map(function($jugador) {
+                return [
+                    'id' => $jugador->id ?? $jugador['id'] ?? '',
+                    'nombre' => $jugador->nombre ?? $jugador['nombre'] ?? 'Jugador',
+                    'apellidos' => $jugador->apellidos ?? $jugador['apellidos'] ?? null
+                ];
+            })->toArray()
+            : (array) $jugadores['equipoA'];
+            
+        $equipoB = $jugadores['equipoB'] instanceof \Illuminate\Support\Collection
+            ? $jugadores['equipoB']->map(function($jugador) {
+                return [
+                    'id' => $jugador->id ?? $jugador['id'] ?? '',
+                    'nombre' => $jugador->nombre ?? $jugador['nombre'] ?? 'Jugador',
+                    'apellidos' => $jugador->apellidos ?? $jugador['apellidos'] ?? null
+                ];
+            })->toArray()
+            : (array) $jugadores['equipoB'];
+        
+        return [
+            'id' => $partido->id,
+            'fecha' => $partido->fecha->format('Y-m-d'),
+            'hora' => $partido->hora,
+            'pista' => $partido->pista,
+            'codLiga' => $partido->codLiga,
+            'equipo_a' => $equipoA,
+            'equipo_b' => $equipoB,
+        ];
+    }
+
+    private function obtenerJugadoresPorEquipo($partido): array
+    {
+        $jugadores = $partido->inscripciones
+            ->where('estado', 'confirmado')
+            ->sortBy('id')
+            ->values();
+        
+        $equipoA = collect();
+        $equipoB = collect();
+        
+        foreach ($jugadores as $index => $inscripcion) {
+            // Posiciones pares (0, 2) -> Equipo A
+            // Posiciones impares (1, 3) -> Equipo B
+            if ($index % 2 == 0) {
+                $equipoA->push($inscripcion->usuario);
+            } else {
+                $equipoB->push($inscripcion->usuario);
+            }
+        }
+        
+        return [
+            'equipoA' => $equipoA,
+            'equipoB' => $equipoB
+        ];
     }
 }
