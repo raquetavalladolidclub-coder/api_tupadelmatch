@@ -846,9 +846,9 @@ class LigaController
         $equipoA = $jugadores['equipoA'] instanceof \Illuminate\Support\Collection 
             ? $jugadores['equipoA']->map(function($jugador) {
                 return [
-                    'id' => $jugador->id ?? $jugador['id'] ?? '',
-                    'nombre' => $jugador->nombre ?? $jugador['nombre'] ?? 'Jugador',
-                    'apellidos' => $jugador->apellidos ?? $jugador['apellidos'] ?? null
+                    'id'        => $jugador->id ?? $jugador['id'] ?? '',
+                    'nombre'    => $jugador->nombre ?? $jugador['nombre'] ?? 'Jugador',
+                    'apellidos' => $jugador->apellidos ?? $jugador['apellidos'] ?? ''
                 ];
             })->toArray()
             : (array) $jugadores['equipoA'];
@@ -856,19 +856,19 @@ class LigaController
         $equipoB = $jugadores['equipoB'] instanceof \Illuminate\Support\Collection
             ? $jugadores['equipoB']->map(function($jugador) {
                 return [
-                    'id' => $jugador->id ?? $jugador['id'] ?? '',
-                    'nombre' => $jugador->nombre ?? $jugador['nombre'] ?? 'Jugador',
-                    'apellidos' => $jugador->apellidos ?? $jugador['apellidos'] ?? null
+                    'id'        => $jugador->id ?? $jugador['id'] ?? '',
+                    'nombre'    => $jugador->nombre ?? $jugador['nombre'] ?? 'Jugador',
+                    'apellidos' => $jugador->apellidos ?? $jugador['apellidos'] ?? ''
                 ];
             })->toArray()
             : (array) $jugadores['equipoB'];
         
         return [
-            'id' => $partido->id,
-            'fecha' => $partido->fecha->format('Y-m-d'),
-            'hora' => $partido->hora,
-            'pista' => $partido->pista,
-            'codLiga' => $partido->codLiga,
+            'id'       => $partido->id,
+            'fecha'    => $partido->fecha->format('Y-m-d'),
+            'hora'     => $partido->hora,
+            'pista'    => $partido->pista,
+            'codLiga'  => $partido->codLiga,
             'equipo_a' => $equipoA,
             'equipo_b' => $equipoB,
         ];
