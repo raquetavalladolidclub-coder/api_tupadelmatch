@@ -609,8 +609,40 @@ class LigaController
     }
     
     // ==================== MÉTODOS DE FORMATEO ====================
-    
+
     private function formatearPartidoParaResultados($partido): array
+    {
+        $jugadores = $this->obtenerJugadoresPorEquipo($partido);
+        
+        // Convertir las colecciones de jugadores a arrays
+        $equipoAArray = $jugadores['equipoA']->map(function($jugador) {
+            return [
+                'id' => $jugador->id,
+                'nombre' => $jugador->nombre,
+                'apellidos' => $jugador->apellidos
+            ];
+        })->toArray(); // <-- Añadir toArray() aquí
+        
+        $equipoBArray = $jugadores['equipoB']->map(function($jugador) {
+            return [
+                'id' => $jugador->id,
+                'nombre' => $jugador->nombre,
+                'apellidos' => $jugador->apellidos
+            ];
+        })->toArray(); // <-- Añadir toArray() aquí
+        
+        return [
+            'id' => $partido->id,
+            'fecha' => $partido->fecha->format('Y-m-d'),
+            'hora' => $partido->hora,
+            'pista' => $partido->pista,
+            'codLiga' => $partido->codLiga,
+            'equipo_a' => $equipoAArray, // <-- Usar el array
+            'equipo_b' => $equipoBArray, // <-- Usar el array
+        ];
+    }
+    
+    private function formatearPartidoParaResultadosOLD($partido): array
     {
         $jugadores = $this->obtenerJugadoresPorEquipo($partido);
         
