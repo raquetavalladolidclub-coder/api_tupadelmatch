@@ -6,6 +6,7 @@ use PadelClub\Controllers\AuthController;
 use PadelClub\Controllers\SystemController;
 use PadelClub\Controllers\PartidoController;
 use PadelClub\Controllers\LigaController;
+use PadelClub\Controllers\SurveyController;
 use PadelClub\Middleware\AuthMiddleware;
 
 return function (App $app) {
@@ -66,25 +67,12 @@ return function (App $app) {
             'message' => 'Bienvenido a la API del Club de Pádel',
             'version' => '1.0.0',
             'endpoints' => [
-                'system' => [
-                    'GET /version' => 'Información de la versión',
-                    'GET /health' => 'Estado del sistema',
-                    'GET /debug-headers' => 'Debug headers'
-                ],
-                'auth' => [
-                    'POST /auth/google' => 'Login con Google',
-                    'POST /auth/register' => 'Registro tradicional',
-                    'POST /auth/login' => 'Login tradicional',
-                    'GET /auth/profile' => 'Obtener perfil (protegido)',
-                    'PUT /auth/profile' => 'Actualizar perfil (protegido)'
-                ],
-                'partidos' => [
-                    'GET /partidos' => 'Listar partidos (protegido)',
-                    'GET /partidos/{id}' => 'Obtener partido (protegido)',
-                    'POST /partidos' => 'Crear partido (protegido)',
-                    'POST /partidos/{id}/inscribirse' => 'Inscribirse a partido (protegido)',
-                    'DELETE /partidos/{id}/inscripcion' => 'Cancelar inscripción (protegido)',
-                    'GET /mis-inscripciones' => 'Mis inscripciones (protegido)'
+                // ... endpoints existentes ...
+                'survey' => [
+                    'POST /api/leveling-survey' => 'Enviar encuesta de nivelación (protegido)',
+                    'GET /api/leveling-survey' => 'Obtener encuesta del usuario (protegido)',
+                    'POST /api/update-user-level' => 'Actualizar nivel del usuario (protegido)',
+                    'GET /api/leveling-stats' => 'Obtener estadísticas de nivelación (protegido)'
                 ]
             ],
             'timestamp' => date('Y-m-d H:i:s')
@@ -103,5 +91,11 @@ return function (App $app) {
     $app->get('/ligas/{codLiga}/estadisticas[/{usuarioId}]', [LigaController::class, 'obtenerEstadisticasJugador'])->add(new AuthMiddleware());
     $app->get('/ligas/{codLiga}/ultimos-partidos', [LigaController::class, 'obtenerUltimosPartidosLiga'])->add(new AuthMiddleware());
 
+
+    // Rutas de encuesta de nivelación (protegidas)
+    $app->post('/api/leveling-survey', [SurveyController::class, 'submitSurvey'])->add(new AuthMiddleware());
+    $app->get('/api/leveling-survey', [SurveyController::class, 'getUserSurvey'])->add(new AuthMiddleware());
+    $app->post('/api/update-user-level', [SurveyController::class, 'updateUserLevel'])->add(new AuthMiddleware());
+    $app->get('/api/leveling-stats', [SurveyController::class, 'getLevelingStats'])->add(new AuthMiddleware());
 
 };
