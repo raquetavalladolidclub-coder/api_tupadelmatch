@@ -66,37 +66,47 @@ class PartidoController
     public function listarPartidosProximos(Request $request, Response $response)
     {
         try {
-            $query = Partido::with(['creador', 'jugadoresConfirmados.usuario']);
-            
+            $userId = $request->getAttribute('user_id'); // o desde token / sesión
+
+            $query = Partido::with(['creador', 'jugadoresConfirmados.usuario'])
+                ->whereHas('inscripciones', function ($q) use ($userId) {
+                    $q->where('user_id', $userId);
+                });
+
             // Filtros
             $filters = $request->getQueryParams();
-            
+
             // Filtrar por fecha
             if (isset($filters['fecha'])) {
                 $query->where('fecha', $filters['fecha']);
             }
 
             // Ordenar por fecha y hora
-            $query->orderBy('fecha', 'asc')->orderBy('hora', 'asc');
+            $query->orderBy('fecha', 'asc')
+                ->orderBy('hora', 'asc');
 
-            // Limite
+            // Límite
             if (isset($filters['limite'])) {
-                $query->limit($filters['limite']);
+                $query->limit((int)$filters['limite']);
             }
-            
-            $partidos = $query->get()->map(function($partido) {
+
+            $partidos = $query->get()->map(function ($partido) {
                 return $this->formatearPartido($partido);
             });
-            
+
             return $this->successResponse($response, [
                 'partidos' => $partidos,
                 'total'    => $partidos->count()
             ]);
-            
+
         } catch (\Exception $e) {
-            return $this->errorResponse($response, 'Error al listar partidos: ' . $e->getMessage());
+            return $this->errorResponse(
+                $response,
+                'Error al listar partidos: ' . $e->getMessage()
+            );
         }
     }
+
     
     public function obtenerPartido(Request $request, Response $response, $args)
     {
