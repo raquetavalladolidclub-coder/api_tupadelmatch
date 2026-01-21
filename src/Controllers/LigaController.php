@@ -861,29 +861,33 @@ class LigaController
 
     private function formatearPartidoParaResultados($partido): array
     {
-        print_r($partido);
         $jugadores = $this->obtenerJugadoresPorEquipo($partido);
         
         // Asegurar que convertimos las colecciones a arrays
         $equipoA = $jugadores['equipoA']
-            ? $jugadores['equipoA']->map(function($jugador) {
+    ? $jugadores['equipoA']->map(function ($inscripcion) {
+                $usuario = $inscripcion->usuario;
+
                 return [
-                    'id'        => $jugador->id ?? $jugador['id'] ?? '',
-                    'nombre'    => $jugador->nombre ?? $jugador['nombre'] ?? 'Jugador',
-                    'apellidos' => $jugador->apellidos ?? $jugador['apellidos'] ?? ''
+                    'id'        => $usuario->id ?? '',
+                    'nombre'    => $usuario->nombre ?? 'Jugador',
+                    'apellidos' => $usuario->apellidos ?? ''
                 ];
             })->toArray()
-            : (array) $jugadores['equipoA'];
+            : [];
+
             
         $equipoB = $jugadores['equipoB']
-            ? $jugadores['equipoB']->map(function($jugador) {
+            ? $jugadores['equipoB']->map(function ($inscripcion) {
+                $usuario = $inscripcion->usuario;
+
                 return [
-                    'id'        => $jugador->id ?? $jugador['id'] ?? '',
-                    'nombre'    => $jugador->nombre ?? $jugador['nombre'] ?? 'Jugador',
-                    'apellidos' => $jugador->apellidos ?? $jugador['apellidos'] ?? ''
+                    'id'        => $usuario->id ?? '',
+                    'nombre'    => $usuario->nombre ?? 'Jugador',
+                    'apellidos' => $usuario->apellidos ?? ''
                 ];
             })->toArray()
-            : (array) $jugadores['equipoB'];
+            : [];
         
         return [
             'id'       => $partido->id,
