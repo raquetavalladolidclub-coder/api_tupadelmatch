@@ -864,7 +864,7 @@ class LigaController
         $jugadores = $this->obtenerJugadoresPorEquipo($partido);
         
         // Asegurar que convertimos las colecciones a arrays
-        $equipoA = $jugadores['equipoA'] instanceof \Illuminate\Support\Collection 
+        $equipoA = $jugadores['equipoA']
             ? $jugadores['equipoA']->map(function($jugador) {
                 return [
                     'id'        => $jugador->id ?? $jugador['id'] ?? '',
