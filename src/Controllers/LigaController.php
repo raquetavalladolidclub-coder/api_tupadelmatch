@@ -817,11 +817,10 @@ class LigaController
                 })
 
                 // Partido finalizado y de liga
-                /*->where('estado', 'finalizado')
-                ->whereNotNull('codLiga')
+                ->where('estado', 'finalizado')->whereNotNull('codLiga')
 
                 // Sin resultados aún
-                ->whereDoesntHave('resultados')
+                /*->whereDoesntHave('resultados')
 
                 // Mínimo 2 jugadores confirmados
                 // ->whereHas('inscripciones', function ($q) {
