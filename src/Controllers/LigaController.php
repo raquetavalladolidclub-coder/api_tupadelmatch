@@ -817,7 +817,7 @@ class LigaController
                 })
 
                 // Partido finalizado y de liga
-                ->where('estado', 'finalizado')
+                /*->where('estado', 'finalizado')
                 ->whereNotNull('codLiga')
 
                 // Sin resultados aún
@@ -835,7 +835,7 @@ class LigaController
                         $q->where('estado', 'confirmado')
                         ->with('usuario');
                     }
-                ])
+                ])*/
 
                 // Ordenar por fecha (más recientes primero)
                 ->orderBy('fecha', 'desc')
