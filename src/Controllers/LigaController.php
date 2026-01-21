@@ -825,9 +825,9 @@ class LigaController
                 ->whereDoesntHave('resultados')
 
                 // Mínimo 2 jugadores confirmados
-                ->whereHas('inscripciones', function ($q) {
-                    $q->where('estado', 'confirmado');
-                }, '>=', 2)
+                // ->whereHas('inscripciones', function ($q) {
+                //     $q->where('estado', 'confirmado');
+                // }, '>=', 2)
 
                 // Cargar relaciones necesarias
                 ->with([
