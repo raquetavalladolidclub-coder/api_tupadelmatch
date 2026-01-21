@@ -813,8 +813,8 @@ class LigaController
             $partidos = Partido::query()
                 // El usuario está inscrito en el partido
                 ->whereHas('inscripciones', function ($q) use ($userId) {
-                    $q->where('user_id', $userId)
-                    ->where('estado', 'confirmado');
+                    // $q->where('user_id', $userId)->where('estado', 'confirmado');
+                    $q->where('estado', 'confirmado');
                 })
 
                 // Partido finalizado y de liga
