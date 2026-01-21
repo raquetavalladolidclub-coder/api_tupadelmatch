@@ -216,7 +216,7 @@ class LigaController
         // Registrar en historial usando query builder directo
         $pdo = \PadelClub\Models\Partido::getConnectionResolver()->connection()->getPdo();
         
-        $sql = "INSERT INTO historial_ranking (usuario_id, cod_liga, puntos_anterior, puntos_nuevo, diferencia, motivo, created_at, updated_at) 
+        $sql = "INSERT INTO historial_ranking (user_id, codLiga, puntos_anterior, puntos_nuevo, diferencia, motivo, created_at, updated_at) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = $pdo->prepare($sql);
@@ -239,7 +239,7 @@ class LigaController
         $sql = "SELECT hr.puntos_anterior, hr.puntos_nuevo, hr.diferencia, hr.motivo, p.fecha, p.id as partido_id
                 FROM historial_ranking hr
                 LEFT JOIN partidos p ON hr.partido_id = p.id
-                WHERE hr.cod_liga = :codLiga AND hr.usuario_id = :usuarioId
+                WHERE hr.codLiga = :codLiga AND hr.user_id = :usuarioId
                 ORDER BY hr.created_at DESC
                 LIMIT 10";
         
@@ -279,11 +279,11 @@ class LigaController
                 FROM partidos p
                 JOIN inscripciones_partidos jp1 ON p.id = jp1.partido_id
                 JOIN inscripciones_partidos jp2 ON p.id = jp2.partido_id
-                JOIN users u ON jp2.usuario_id = u.id
+                JOIN users u ON jp2.user_id = u.id
                 JOIN resultados_partidos rp ON p.id = rp.partido_id
                 WHERE p.codLiga = :codLiga
-                AND jp1.usuario_id = :usuarioId1
-                AND jp2.usuario_id != :usuarioId2
+                AND jp1.user_id = :usuarioId1
+                AND jp2.user_id != :usuarioId2
                 AND p.estado = 'finalizado'
                 AND jp1.estado = 'confirmado'
                 AND jp2.estado = 'confirmado'
@@ -437,13 +437,13 @@ class LigaController
             
             // Verificar que el usuario pertenece a la liga
             $usuario = User::find($userId);
-            if ($usuario->cod_liga != $codLiga) {
+            if ($usuario->codLiga != $codLiga) {
                 return $this->errorResponse($response, 'No perteneces a esta liga', 403);
             }
             
             // Obtener ranking
             $ranking = EstadisticaLiga::with('usuario')
-                ->where('cod_liga', $codLiga)
+                ->where('codLiga', $codLiga)
                 ->orderBy('puntos_ranking', 'desc')
                 ->get()
                 ->map(function($estadistica, $index) {
@@ -476,8 +476,8 @@ class LigaController
             
             // Obtener estadísticas del jugador
             $estadistica = EstadisticaLiga::with('usuario')
-                ->where('cod_liga', $codLiga)
-                ->where('usuario_id', $usuarioId)
+                ->where('codLiga', $codLiga)
+                ->where('user_id', $usuarioId)
                 ->first();
             
             if (!$estadistica) {
@@ -672,8 +672,8 @@ class LigaController
         $puntosEnContra
     ): void {
         $estadistica = EstadisticaLiga::firstOrNew([
-            'usuario_id' => $usuarioId,
-            'cod_liga' => $codLiga
+            'user_id' => $usuarioId,
+            'codLiga' => $codLiga
         ]);
         
         // Si es nueva, inicializar con valores por defecto
@@ -712,8 +712,8 @@ class LigaController
         
         // Registrar en historial
         \DB::table('historial_ranking')->insert([
-            'usuario_id' => $usuarioId,
-            'cod_liga' => $codLiga,
+            'user_id' => $usuarioId,
+            'codLiga' => $codLiga,
             'puntos_anterior' => $estadistica->getOriginal('puntos_ranking'),
             'puntos_nuevo' => $nuevosPuntos,
             'diferencia' => $nuevosPuntos - $estadistica->getOriginal('puntos_ranking'),
@@ -754,9 +754,9 @@ class LigaController
             ->where('estado', 'finalizado')
             ->count();
         
-        $totalJugadores = EstadisticaLiga::where('cod_liga', $codLiga)
-            ->distinct('usuario_id')
-            ->count('usuario_id');
+        $totalJugadores = EstadisticaLiga::where('codLiga', $codLiga)
+            ->distinct('user_id')
+            ->count('user_id');
         
         $ultimoPartido = Partido::where('codLiga', $codLiga)
             ->where('estado', 'finalizado')
@@ -772,9 +772,9 @@ class LigaController
     
     private function obtenerPosicionUsuario($codLiga, $usuarioId): ?array
     {
-        $rankingCompleto = EstadisticaLiga::where('cod_liga', $codLiga)
+        $rankingCompleto = EstadisticaLiga::where('codLiga', $codLiga)
             ->orderBy('puntos_ranking', 'desc')
-            ->pluck('usuario_id')
+            ->pluck('user_id')
             ->toArray();
         
         $posicion = array_search($usuarioId, $rankingCompleto);
@@ -783,8 +783,8 @@ class LigaController
             return null;
         }
         
-        $estadistica = EstadisticaLiga::where('cod_liga', $codLiga)
-            ->where('usuario_id', $usuarioId)
+        $estadistica = EstadisticaLiga::where('codLiga', $codLiga)
+            ->where('user_id', $usuarioId)
             ->first();
         
         return [
@@ -798,8 +798,8 @@ class LigaController
     {
         return \DB::table('historial_ranking as hr')
             ->join('partidos as p', 'hr.partido_id', '=', 'p.id')
-            ->where('hr.cod_liga', $codLiga)
-            ->where('hr.usuario_id', $usuarioId)
+            ->where('hr.codLiga', $codLiga)
+            ->where('hr.user_id', $usuarioId)
             ->select(
                 'hr.puntos_anterior',
                 'hr.puntos_nuevo',
@@ -839,11 +839,11 @@ class LigaController
             FROM partidos p
             JOIN inscripciones_partidos jp1 ON p.id = jp1.partido_id
             JOIN inscripciones_partidos jp2 ON p.id = jp2.partido_id
-            JOIN users u ON jp2.usuario_id = u.id
+            JOIN users u ON jp2.user_id = u.id
             JOIN resultados_partidos rp ON p.id = rp.partido_id
             WHERE p.codLiga = ?
-            AND jp1.usuario_id = ?
-            AND jp2.usuario_id != ?
+            AND jp1.user_id = ?
+            AND jp2.user_id != ?
             AND p.estado = 'finalizado'
             AND jp1.estado = 'confirmado'
             AND jp2.estado = 'confirmado'
@@ -858,7 +858,7 @@ class LigaController
         return Partido::where('codLiga', $codLiga)
             ->where('estado', 'finalizado')
             ->whereHas('inscripciones', function($query) use ($usuarioId) {
-                $query->where('usuario_id', $usuarioId)
+                $query->where('user_id', $usuarioId)
                       ->where('estado', 'confirmado');
             })
             ->with(['resultados', 'creador'])
