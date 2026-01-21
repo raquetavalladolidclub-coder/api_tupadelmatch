@@ -862,8 +862,6 @@ class LigaController
     private function formatearPartidoParaResultados($partido): array
     {
         $jugadores = $this->obtenerJugadoresPorEquipo($partido);
-
-        print_r($jugadores);
         
         // Asegurar que convertimos las colecciones a arrays
         $equipoA = $jugadores['equipoA']
@@ -872,7 +870,7 @@ class LigaController
 
                         return [
                             'id'        => $usuario->id ?? '',
-                            'nombre'    => $usuario->nombre ?? 'Jugador',
+                            'nombre'    => $usuario->full_name ?? 'Jugador',
                             'apellidos' => $usuario->apellidos ?? ''
                         ];
                     })->toArray()
@@ -885,7 +883,7 @@ class LigaController
 
                 return [
                     'id'        => $usuario->id ?? '',
-                    'nombre'    => $usuario->nombre ?? 'Jugador',
+                    'nombre'    => $usuario->full_name ?? 'Jugador',
                     'apellidos' => $usuario->apellidos ?? ''
                 ];
             })->toArray()
