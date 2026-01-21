@@ -817,7 +817,8 @@ class LigaController
                 })
 
                 // Partido finalizado y de liga
-                ->where('estado', 'finalizado')->whereNotNull('codLiga')
+                ->where('estado', 'finalizado')
+                // ->whereNotNull('codLiga')
 
                 // Sin resultados aún
                 /*->whereDoesntHave('resultados')
