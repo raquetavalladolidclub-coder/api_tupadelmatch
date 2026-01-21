@@ -157,7 +157,7 @@ class LigaController
             
             return $this->successResponse($response, [
                 'partidos' => $partidos,
-                'total' => $partidos->count()
+                'total'    => $partidos->count()
             ]);
             
         } catch (\Exception $e) {
@@ -809,34 +809,56 @@ class LigaController
     {
         try {
             $userId = $request->getAttribute('user_id');
-            
-            $partidos = Partido::where('creador_id', $userId)
+
+            $partidos = Partido::query()
+                // El usuario está inscrito en el partido
+                ->whereHas('inscripciones', function ($q) use ($userId) {
+                    $q->where('user_id', $userId)
+                    ->where('estado', 'confirmado');
+                })
+
+                // Partido finalizado y de liga
                 ->where('estado', 'finalizado')
                 ->whereNotNull('codLiga')
+
+                // Sin resultados aún
                 ->whereDoesntHave('resultados')
-                ->with(['creador', 'inscripciones' => function($query) {
-                    $query->where('estado', 'confirmado')
-                          ->with('usuario');
-                }])
+
+                // Mínimo 2 jugadores confirmados
+                ->whereHas('inscripciones', function ($q) {
+                    $q->where('estado', 'confirmado');
+                }, '>=', 2)
+
+                // Cargar relaciones necesarias
+                ->with([
+                    'creador',
+                    'inscripciones' => function ($q) {
+                        $q->where('estado', 'confirmado')
+                        ->with('usuario');
+                    }
+                ])
+
+                // Ordenar por fecha (más recientes primero)
                 ->orderBy('fecha', 'desc')
+
                 ->get()
-                ->filter(function($partido) {
-                    return $partido->inscripciones->count() >= 2;
-                })
-                ->map(function($partido) {
+                ->map(function ($partido) {
                     return $this->formatearPartidoParaResultados($partido);
-                })
-                ->values(); // <-- Añadir values() para reiniciar índices
-            
+                });
+
             return $this->successResponse($response, [
                 'partidos' => $partidos,
-                'total' => $partidos->count()
+                'total'    => $partidos->count()
             ]);
-            
+
         } catch (\Exception $e) {
-            return $this->errorResponse($response, 'Error al obtener partidos pendientes: ' . $e->getMessage());
+            return $this->errorResponse(
+                $response,
+                'Error al obtener partidos pendientes: ' . $e->getMessage()
+            );
         }
     }
+
 
     private function formatearPartidoParaResultados($partido): array
     {
