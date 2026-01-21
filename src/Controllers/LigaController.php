@@ -85,7 +85,7 @@ class LigaController
             }
             
             // 9. Guardar en transacción
-            \DB::beginTransaction();
+            DB::beginTransaction();
             
             try {
                 // Guardar resultado principal
