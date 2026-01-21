@@ -861,6 +861,7 @@ class LigaController
 
     private function formatearPartidoParaResultados($partido): array
     {
+        print_r($partido);
         $jugadores = $this->obtenerJugadoresPorEquipo($partido);
         
         // Asegurar que convertimos las colecciones a arrays
@@ -874,7 +875,7 @@ class LigaController
             })->toArray()
             : (array) $jugadores['equipoA'];
             
-        $equipoB = $jugadores['equipoB'] instanceof \Illuminate\Support\Collection
+        $equipoB = $jugadores['equipoB']
             ? $jugadores['equipoB']->map(function($jugador) {
                 return [
                     'id'        => $jugador->id ?? $jugador['id'] ?? '',
