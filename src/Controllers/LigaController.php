@@ -10,6 +10,7 @@ use PadelClub\Models\EstadisticaLiga;
 use PadelClub\Models\User;
 use PadelClub\Models\InscripcionPartido;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 class LigaController
 {
