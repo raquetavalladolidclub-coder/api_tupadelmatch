@@ -826,7 +826,7 @@ class LigaController
                 // Mínimo 2 jugadores confirmados
                 // ->whereHas('inscripciones', function ($q) {
                 //     $q->where('estado', 'confirmado');
-                // }, '>=', 2)
+                // }, '>=', 2) */
 
                 // Cargar relaciones necesarias
                 ->with([
@@ -835,7 +835,7 @@ class LigaController
                         $q->where('estado', 'confirmado')
                         ->with('usuario');
                     }
-                ])*/
+                ])
 
                 // Ordenar por fecha (más recientes primero)
                 ->orderBy('fecha', 'desc')
