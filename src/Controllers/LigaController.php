@@ -9,13 +9,309 @@ use PadelClub\Models\ResultadoSet;
 use PadelClub\Models\EstadisticaLiga;
 use PadelClub\Models\User;
 use PadelClub\Models\InscripcionPartido;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Carbon;
 
 class LigaController
 {
     // POST /api/partidos/{id}/resultados
     public function guardarResultados(Request $request, Response $response, $args)
+    {
+        try {
+            $partidoId = $args['id'];
+            $userId    = $request->getAttribute('user_id');
+            $data      = $request->getParsedBody();
+            
+            // 1. Validar partido
+            $partido = Partido::with(['creador', 'inscripciones.usuario'])->find($partidoId);
+            
+            if (!$partido) {
+                return $this->errorResponse($response, 'Partido no encontrado', 404);
+            }
+            
+            // 2. Validar que es partido de liga
+            if (empty($partido->codLiga)) {
+                return $this->errorResponse($response, 'Este partido no es de liga');
+            }
+            
+            // 3. Validar que el usuario es el creador
+            if ($partido->creador_id != $userId) {
+                return $this->errorResponse($response, 'Solo el creador del partido puede registrar resultados');
+            }
+            
+            // 4. Validar que el partido está finalizado
+            if ($partido->estado != 'finalizado') {
+                return $this->errorResponse($response, 'El partido debe estar en estado "finalizado"');
+            }
+            
+            // 5. Validar que no tiene resultados previos
+            if ($partido->resultados()->exists()) {
+                return $this->errorResponse($response, 'Este partido ya tiene resultados registrados');
+            }
+            
+            // 6. Validar sets
+            if (!isset($data['sets']) || !is_array($data['sets']) || count($data['sets']) != 3) {
+                return $this->errorResponse($response, 'Debe proporcionar resultados para 3 sets');
+            }
+            
+            $setsValidados = [];
+            foreach ($data['sets'] as $index => $set) {
+                if (!isset($set['puntosEquipoA'], $set['puntosEquipoB'])) {
+                    return $this->errorResponse($response, "Formato inválido en set " . ($index + 1));
+                }
+                
+                $puntosA = (int)$set['puntosEquipoA'];
+                $puntosB = (int)$set['puntosEquipoB'];
+                
+                if (!$this->validarPuntuacionSet($puntosA, $puntosB)) {
+                    return $this->errorResponse($response, "Puntuación inválida en set " . ($index + 1) . ": $puntosA-$puntosB");
+                }
+                
+                $setsValidados[] = [
+                    'numero_set' => $index + 1,
+                    'puntos_equipo_a' => $puntosA,
+                    'puntos_equipo_b' => $puntosB
+                ];
+            }
+            
+            // 7. Calcular resultados
+            $resultados = $this->calcularResultados($setsValidados);
+            
+            // 8. Obtener jugadores organizados por equipos
+            $jugadores = $this->obtenerJugadoresPorEquipo($partido);
+            
+            if (count($jugadores['equipoA']) < 1 || count($jugadores['equipoB']) < 1) {
+                return $this->errorResponse($response, 'El partido no tiene suficientes jugadores para equipos');
+            }
+            
+            // 9. Guardar en transacción MANUALMENTE
+            $pdo = \PadelClub\Models\Partido::getConnectionResolver()->connection()->getPdo();
+            $pdo->beginTransaction();
+            
+            try {
+                // Guardar resultado principal
+                $resultado = ResultadoPartido::create([
+                    'partido_id' => $partidoId,
+                    'sets_ganados_equipo_a' => $resultados['setsGanadosA'],
+                    'sets_ganados_equipo_b' => $resultados['setsGanadosB'],
+                    'puntos_totales_equipo_a' => $resultados['puntosTotalesA'],
+                    'puntos_totales_equipo_b' => $resultados['puntosTotalesB'],
+                    'equipo_ganador' => $resultados['equipoGanador']
+                ]);
+                
+                // Guardar sets individuales
+                foreach ($setsValidados as $set) {
+                    ResultadoSet::create([
+                        'resultado_id' => $resultado->id,
+                        'numero_set' => $set['numero_set'],
+                        'puntos_equipo_a' => $set['puntos_equipo_a'],
+                        'puntos_equipo_b' => $set['puntos_equipo_b']
+                    ]);
+                }
+                
+                // Actualizar estadísticas de jugadores
+                $this->actualizarEstadisticasJugadores(
+                    $partido->codLiga,
+                    $jugadores,
+                    $resultados
+                );
+                
+                $pdo->commit();
+                
+                return $this->successResponse($response, [
+                    'message' => 'Resultados guardados correctamente',
+                    'resultado' => $this->formatearResultado($resultado)
+                ], 201);
+                
+            } catch (\Exception $e) {
+                $pdo->rollBack();
+                throw $e;
+            }
+            
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error al guardar resultados: ' . $e->getMessage());
+        }
+    }
+    
+    private function actualizarEstadisticasJugadores($codLiga, $jugadores, $resultados): void
+    {
+        // Actualizar equipo A
+        $ganoEquipoA = $resultados['equipoGanador'] == 'A';
+        foreach ($jugadores['equipoA'] as $jugador) {
+            $this->actualizarEstadisticasIndividuales(
+                $jugador->id,
+                $codLiga,
+                $ganoEquipoA,
+                $resultados['setsGanadosA'],
+                $resultados['setsGanadosB'],
+                $resultados['puntosTotalesA'],
+                $resultados['puntosTotalesB']
+            );
+        }
+        
+        // Actualizar equipo B
+        $ganoEquipoB = $resultados['equipoGanador'] == 'B';
+        foreach ($jugadores['equipoB'] as $jugador) {
+            $this->actualizarEstadisticasIndividuales(
+                $jugador->id,
+                $codLiga,
+                $ganoEquipoB,
+                $resultados['setsGanadosB'],
+                $resultados['setsGanadosA'],
+                $resultados['puntosTotalesB'],
+                $resultados['puntosTotalesA']
+            );
+        }
+    }
+    
+    private function actualizarEstadisticasIndividuales(
+        $usuarioId, 
+        $codLiga, 
+        $gano, 
+        $setsGanados, 
+        $setsPerdidos,
+        $puntosAFavor, 
+        $puntosEnContra
+    ): void {
+        $estadistica = EstadisticaLiga::firstOrNew([
+            'usuario_id' => $usuarioId,
+            'cod_liga' => $codLiga
+        ]);
+        
+        // Si es nueva, inicializar con valores por defecto
+        if (!$estadistica->exists) {
+            $estadistica->fill([
+                'partidos_jugados' => 0,
+                'partidos_ganados' => 0,
+                'partidos_perdidos' => 0,
+                'sets_ganados' => 0,
+                'sets_perdidos' => 0,
+                'puntos_a_favor' => 0,
+                'puntos_en_contra' => 0,
+                'puntos_ranking' => 1000
+            ]);
+        }
+        
+        // Guardar puntos anteriores antes de actualizar
+        $puntosAnterior = $estadistica->puntos_ranking;
+        
+        // Actualizar estadísticas
+        $estadistica->partidos_jugados += 1;
+        $estadistica->partidos_ganados += $gano ? 1 : 0;
+        $estadistica->partidos_perdidos += $gano ? 0 : 1;
+        $estadistica->sets_ganados += $setsGanados;
+        $estadistica->sets_perdidos += $setsPerdidos;
+        $estadistica->puntos_a_favor += $puntosAFavor;
+        $estadistica->puntos_en_contra += $puntosEnContra;
+        
+        // Calcular nuevos puntos de ranking
+        $nuevosPuntos = $this->calcularPuntosRanking(
+            $estadistica->puntos_ranking,
+            $gano,
+            $setsGanados,
+            $setsPerdidos
+        );
+        
+        $estadistica->puntos_ranking = $nuevosPuntos;
+        $estadistica->save();
+        
+        // Registrar en historial usando query builder directo
+        $pdo = \PadelClub\Models\Partido::getConnectionResolver()->connection()->getPdo();
+        
+        $sql = "INSERT INTO historial_ranking (usuario_id, cod_liga, puntos_anterior, puntos_nuevo, diferencia, motivo, created_at, updated_at) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            $usuarioId,
+            $codLiga,
+            $puntosAnterior,
+            $nuevosPuntos,
+            $nuevosPuntos - $puntosAnterior,
+            'partido_jugado',
+            date('Y-m-d H:i:s'),
+            date('Y-m-d H:i:s')
+        ]);
+    }
+    
+    private function obtenerHistorialJugador($codLiga, $usuarioId): array
+    {
+        $pdo = \PadelClub\Models\Partido::getConnectionResolver()->connection()->getPdo();
+        
+        $sql = "SELECT hr.puntos_anterior, hr.puntos_nuevo, hr.diferencia, hr.motivo, p.fecha, p.id as partido_id
+                FROM historial_ranking hr
+                LEFT JOIN partidos p ON hr.partido_id = p.id
+                WHERE hr.cod_liga = :codLiga AND hr.usuario_id = :usuarioId
+                ORDER BY hr.created_at DESC
+                LIMIT 10";
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            ':codLiga' => $codLiga,
+            ':usuarioId' => $usuarioId
+        ]);
+        
+        $resultados = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        
+        return array_map(function($item) {
+            return [
+                'puntos_anterior' => $item['puntos_anterior'],
+                'puntos_nuevo' => $item['puntos_nuevo'],
+                'diferencia' => $item['diferencia'],
+                'tendencia' => $item['diferencia'] >= 0 ? 'positiva' : 'negativa',
+                'motivo' => $item['motivo'],
+                'fecha' => $item['fecha'],
+                'partido_id' => $item['partido_id']
+            ];
+        }, $resultados);
+    }
+    
+    private function obtenerRivalesFrecuentes($codLiga, $usuarioId): array
+    {
+        $pdo = \PadelClub\Models\Partido::getConnectionResolver()->connection()->getPdo();
+        
+        $sql = "SELECT 
+                    u.id,
+                    u.nombre,
+                    u.apellidos,
+                    COUNT(*) as partidos_jugados,
+                    SUM(CASE WHEN rp.equipo_ganador = 
+                        CASE WHEN jp1.posicion % 2 = 0 THEN 'A' ELSE 'B' END 
+                        THEN 1 ELSE 0 END) as partidos_ganados
+                FROM partidos p
+                JOIN inscripciones_partidos jp1 ON p.id = jp1.partido_id
+                JOIN inscripciones_partidos jp2 ON p.id = jp2.partido_id
+                JOIN users u ON jp2.usuario_id = u.id
+                JOIN resultados_partidos rp ON p.id = rp.partido_id
+                WHERE p.codLiga = :codLiga
+                AND jp1.usuario_id = :usuarioId1
+                AND jp2.usuario_id != :usuarioId2
+                AND p.estado = 'finalizado'
+                AND jp1.estado = 'confirmado'
+                AND jp2.estado = 'confirmado'
+                GROUP BY u.id, u.nombre, u.apellidos
+                ORDER BY partidos_jugados DESC
+                LIMIT 5";
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            ':codLiga' => $codLiga,
+            ':usuarioId1' => $usuarioId,
+            ':usuarioId2' => $usuarioId
+        ]);
+        
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+
+
+
+
+
+
+
+
+
+    // POST /api/partidos/{id}/resultados
+    public function guardarResultadosOLD(Request $request, Response $response, $args)
     {
         try {
             $partidoId = $args['id'];
@@ -335,7 +631,7 @@ class LigaController
         ];
     }
     
-    private function actualizarEstadisticasJugadores($codLiga, $jugadores, $resultados): void
+    private function actualizarEstadisticasJugadoresOLD($codLiga, $jugadores, $resultados): void
     {
         // Actualizar equipo A
         $ganoEquipoA = $resultados['equipoGanador'] == 'A';
@@ -366,7 +662,7 @@ class LigaController
         }
     }
     
-    private function actualizarEstadisticasIndividuales(
+    private function actualizarEstadisticasIndividualesOLD(
         $usuarioId, 
         $codLiga, 
         $gano, 
@@ -498,7 +794,7 @@ class LigaController
         ];
     }
     
-    private function obtenerHistorialJugador($codLiga, $usuarioId): array
+    private function obtenerHistorialJugadorOLD($codLiga, $usuarioId): array
     {
         return \DB::table('historial_ranking as hr')
             ->join('partidos as p', 'hr.partido_id', '=', 'p.id')
@@ -529,7 +825,7 @@ class LigaController
             ->toArray();
     }
     
-    private function obtenerRivalesFrecuentes($codLiga, $usuarioId): array
+    private function obtenerRivalesFrecuentesOLD($codLiga, $usuarioId): array
     {
         return \DB::select("
             SELECT 
