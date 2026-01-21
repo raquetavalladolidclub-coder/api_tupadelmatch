@@ -897,6 +897,7 @@ class LigaController
             'codLiga'  => $partido->codLiga,
             'equipo_a' => $equipoA,
             'equipo_b' => $equipoB,
+            'jugadores' => $jugadores,
         ];
     }
 
