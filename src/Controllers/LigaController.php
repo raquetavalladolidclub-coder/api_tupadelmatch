@@ -83,6 +83,123 @@ class LigaController
                 return $this->errorResponse($response, 'El partido no tiene suficientes jugadores para equipos');
             }
             
+            // 9. Guardar en transacción - CORREGIDO
+            \Illuminate\Support\Facades\DB::beginTransaction(); // <-- CAMBIADO
+            
+            try {
+                // Guardar resultado principal
+                $resultado = ResultadoPartido::create([
+                    'partido_id' => $partidoId,
+                    'sets_ganados_equipo_a' => $resultados['setsGanadosA'],
+                    'sets_ganados_equipo_b' => $resultados['setsGanadosB'],
+                    'puntos_totales_equipo_a' => $resultados['puntosTotalesA'],
+                    'puntos_totales_equipo_b' => $resultados['puntosTotalesB'],
+                    'equipo_ganador' => $resultados['equipoGanador']
+                ]);
+                
+                // Guardar sets individuales
+                foreach ($setsValidados as $set) {
+                    ResultadoSet::create([
+                        'resultado_id' => $resultado->id,
+                        'numero_set' => $set['numero_set'],
+                        'puntos_equipo_a' => $set['puntos_equipo_a'],
+                        'puntos_equipo_b' => $set['puntos_equipo_b']
+                    ]);
+                }
+                
+                // Actualizar estadísticas de jugadores
+                $this->actualizarEstadisticasJugadores(
+                    $partido->codLiga,
+                    $jugadores,
+                    $resultados
+                );
+                
+                \Illuminate\Support\Facades\DB::commit(); // <-- CAMBIADO
+                
+                return $this->successResponse($response, [
+                    'message' => 'Resultados guardados correctamente',
+                    'resultado' => $this->formatearResultado($resultado)
+                ], 201);
+                
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\DB::rollBack(); // <-- CAMBIADO
+                throw $e;
+            }
+            
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error al guardar resultados: ' . $e->getMessage());
+        }
+    }
+
+    public function guardarResultadosOLD(Request $request, Response $response, $args)
+    {
+        try {
+            $partidoId = $args['id'];
+            $userId    = $request->getAttribute('user_id');
+            $data      = $request->getParsedBody();
+            
+            // 1. Validar partido
+            $partido = Partido::with(['creador', 'inscripciones.usuario'])->find($partidoId);
+            
+            if (!$partido) {
+                return $this->errorResponse($response, 'Partido no encontrado', 404);
+            }
+            
+            // 2. Validar que es partido de liga
+            if (empty($partido->codLiga)) {
+                return $this->errorResponse($response, 'Este partido no es de liga');
+            }
+            
+            // 3. Validar que el usuario es el creador
+            if ($partido->creador_id != $userId) {
+                return $this->errorResponse($response, 'Solo el creador del partido puede registrar resultados');
+            }
+            
+            // 4. Validar que el partido está finalizado
+            if ($partido->estado != 'finalizado') {
+                return $this->errorResponse($response, 'El partido debe estar en estado "finalizado"');
+            }
+            
+            // 5. Validar que no tiene resultados previos
+            if ($partido->resultados()->exists()) {
+                return $this->errorResponse($response, 'Este partido ya tiene resultados registrados');
+            }
+            
+            // 6. Validar sets
+            if (!isset($data['sets']) || !is_array($data['sets']) || count($data['sets']) != 3) {
+                return $this->errorResponse($response, 'Debe proporcionar resultados para 3 sets');
+            }
+            
+            $setsValidados = [];
+            foreach ($data['sets'] as $index => $set) {
+                if (!isset($set['puntosEquipoA'], $set['puntosEquipoB'])) {
+                    return $this->errorResponse($response, "Formato inválido en set " . ($index + 1));
+                }
+                
+                $puntosA = (int)$set['puntosEquipoA'];
+                $puntosB = (int)$set['puntosEquipoB'];
+                
+                if (!$this->validarPuntuacionSet($puntosA, $puntosB)) {
+                    return $this->errorResponse($response, "Puntuación inválida en set " . ($index + 1) . ": $puntosA-$puntosB");
+                }
+                
+                $setsValidados[] = [
+                    'numero_set' => $index + 1,
+                    'puntos_equipo_a' => $puntosA,
+                    'puntos_equipo_b' => $puntosB
+                ];
+            }
+            
+            // 7. Calcular resultados
+            $resultados = $this->calcularResultados($setsValidados);
+            
+            // 8. Obtener jugadores organizados por equipos
+            $jugadores = $this->obtenerJugadoresPorEquipo($partido);
+            
+            if (count($jugadores['equipoA']) < 1 || count($jugadores['equipoB']) < 1) {
+                return $this->errorResponse($response, 'El partido no tiene suficientes jugadores para equipos');
+            }
+            
             // 9. Guardar en transacción
             \DB::beginTransaction();
             
