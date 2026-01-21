@@ -9,6 +9,7 @@ use PadelClub\Models\ResultadoSet;
 use PadelClub\Models\EstadisticaLiga;
 use PadelClub\Models\User;
 use PadelClub\Models\InscripcionPartido;
+use Illuminate\Support\Facades\DB;
 
 class LigaController
 {
@@ -17,12 +18,11 @@ class LigaController
     {
         try {
             $partidoId = $args['id'];
-            $userId = $request->getAttribute('user_id');
-            $data = $request->getParsedBody();
+            $userId    = $request->getAttribute('user_id');
+            $data      = $request->getParsedBody();
             
             // 1. Validar partido
-            $partido = Partido::with(['creador', 'inscripciones.usuario'])
-                            ->find($partidoId);
+            $partido = Partido::with(['creador', 'inscripciones.usuario'])->find($partidoId);
             
             if (!$partido) {
                 return $this->errorResponse($response, 'Partido no encontrado', 404);
@@ -128,40 +128,6 @@ class LigaController
             
         } catch (\Exception $e) {
             return $this->errorResponse($response, 'Error al guardar resultados: ' . $e->getMessage());
-        }
-    }
-    
-    // GET /api/partidos/pendientes-resultados
-    public function obtenerPartidosPendientesResultadosOLD(Request $request, Response $response)
-    {
-        try {
-            $userId = $request->getAttribute('user_id');
-            
-            $partidos = Partido::where('creador_id', $userId)
-                ->where('estado', 'finalizado')
-                ->whereNotNull('codLiga')
-                ->whereDoesntHave('resultados')
-                ->with(['creador', 'inscripciones' => function($query) {
-                    $query->where('estado', 'confirmado')
-                          ->with('usuario');
-                }])
-                ->orderBy('fecha', 'desc')
-                ->get()
-                ->filter(function($partido) {
-                    // Filtrar partidos con al menos 2 jugadores confirmados
-                    return $partido->inscripciones->count() >= 2;
-                })
-                ->map(function($partido) {
-                    return $this->formatearPartidoParaResultados($partido);
-                });
-            
-            return $this->successResponse($response, [
-                'partidos' => $partidos,
-                'total'    => $partidos->count()
-            ]);
-            
-        } catch (\Exception $e) {
-            return $this->errorResponse($response, 'Error al obtener partidos pendientes: ' . $e->getMessage());
         }
     }
     
