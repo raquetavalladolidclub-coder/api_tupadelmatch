@@ -172,8 +172,8 @@ class LigaController
         $puntosEnContra
     ): void {
         $estadistica = EstadisticaLiga::firstOrNew([
-            'usuario_id' => $usuarioId,
-            'cod_liga' => $codLiga
+            'user_id' => $usuarioId,
+            'codLiga' => $codLiga
         ]);
         
         // Si es nueva, inicializar con valores por defecto
