@@ -865,16 +865,16 @@ class LigaController
         
         // Asegurar que convertimos las colecciones a arrays
         $equipoA = $jugadores['equipoA']
-    ? $jugadores['equipoA']->map(function ($inscripcion) {
-                $usuario = $inscripcion->usuario;
+            ? $jugadores['equipoA']->map(function ($inscripcion) {
+                        $usuario = $inscripcion->usuario;
 
-                return [
-                    'id'        => $usuario->id ?? '',
-                    'nombre'    => $usuario->nombre ?? 'Jugador',
-                    'apellidos' => $usuario->apellidos ?? ''
-                ];
-            })->toArray()
-            : [];
+                        return [
+                            'id'        => $usuario->id ?? '',
+                            'nombre'    => $usuario->nombre ?? 'Jugador',
+                            'apellidos' => $usuario->apellidos ?? ''
+                        ];
+                    })->toArray()
+                    : [];
 
             
         $equipoB = $jugadores['equipoB']
