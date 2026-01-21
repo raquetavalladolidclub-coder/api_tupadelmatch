@@ -11,8 +11,8 @@ class EstadisticaLiga extends Model
     public $timestamps = true;
     
     protected $fillable = [
-        'usuario_id',
-        'cod_liga',
+        'user_id',
+        'codLiga',
         'partidos_jugados',
         'partidos_ganados',
         'partidos_perdidos',
