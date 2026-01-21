@@ -38,6 +38,7 @@ return function (App $app) {
     
     // Rutas protegidas - Partidos
     $app->get('/partidos', [PartidoController::class, 'listarPartidos'])->add(new AuthMiddleware());
+    $app->get('/misProximosPartidos', [PartidoController::class, 'listarPartidosProximos'])->add(new AuthMiddleware());
         
     $app->get('/partidos/{id}', [PartidoController::class, 'obtenerPartido'])
         ->add(new AuthMiddleware());
