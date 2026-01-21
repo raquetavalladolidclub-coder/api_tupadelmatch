@@ -78,7 +78,7 @@ class PartidoController
 
             // Filtrar por fecha
             if (isset($filters['fecha'])) {
-                $query->where('fecha', $filters['fecha']);
+                $query->where('fecha', '>=', $filters['fecha']);
             }
 
             // Ordenar por fecha y hora
