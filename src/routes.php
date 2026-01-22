@@ -82,7 +82,6 @@ return function (App $app) {
         return $response->withHeader('Content-Type', 'application/json');
     });
 
-
     // Resultados de partidos
     $app->post('/partidosLiga/{id}/resultados', [LigaController::class, 'guardarResultados'])->add(new AuthMiddleware());
     $app->get('/partidosLiga/pendientes-resultados', [LigaController::class, 'obtenerPartidosPendientesResultados'])->add(new AuthMiddleware());
@@ -93,7 +92,7 @@ return function (App $app) {
     $app->get('/ligas/{codLiga}/ultimos-partidos', [LigaController::class, 'obtenerUltimosPartidosLiga'])->add(new AuthMiddleware());
 
 
-    // Rutas de encuesta de nivelación (protegidas)
+    // Rutas de encuesta de nivelación
     $app->post('/api/leveling-survey', [SurveyController::class, 'submitSurvey'])->add(new AuthMiddleware());
     $app->get('/api/leveling-survey', [SurveyController::class, 'getUserSurvey'])->add(new AuthMiddleware());
     $app->post('/api/update-user-level', [SurveyController::class, 'updateUserLevel'])->add(new AuthMiddleware());

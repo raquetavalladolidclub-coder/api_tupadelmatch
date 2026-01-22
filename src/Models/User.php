@@ -28,7 +28,8 @@
             'asistencias',
             'ausencias',
             'codLiga',
-            'is_active'
+            'is_active',
+            'encuesta'
         ];
         
         protected $hidden = [

@@ -67,7 +67,8 @@ class AuthController
                     'fiabilidad'  => $user->fiabilidad,
                     'asistencias' => $user->asistencias,
                     'ausencias'   => $user->ausencias,
-                    'codLiga'     => $user->codLiga
+                    'codLiga'     => $user->codLiga,
+                    'encuesta'    => $user->encuesta
                 ]
             ]);
             
