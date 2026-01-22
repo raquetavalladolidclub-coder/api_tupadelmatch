@@ -403,7 +403,7 @@ class LigaController
             
             return $this->successResponse($response, [
                 'partidos' => $partidos,
-                'total' => $partidos->count()
+                'total'    => $partidos->count()
             ]);
             
         } catch (\Exception $e) {
@@ -681,22 +681,22 @@ class LigaController
         $jugadores = $this->obtenerJugadoresPorEquipo($partido);
         
         return [
-            'id' => $partido->id,
+            'id'    => $partido->id,
             'fecha' => $partido->fecha->format('Y-m-d'),
-            'hora' => $partido->hora,
+            'hora'  => $partido->hora,
             'pista' => $partido->pista,
             'resultado' => $this->formatearResultado($partido->resultados),
             'equipo_a' => $jugadores['equipoA']->map(function($jugador) {
                 return [
                     'id' => $jugador->id,
-                    'nombre' => $jugador->nombre,
+                    'nombre' => $jugador->full_name,
                     'apellidos' => $jugador->apellidos
                 ];
             }),
             'equipo_b' => $jugadores['equipoB']->map(function($jugador) {
                 return [
                     'id' => $jugador->id,
-                    'nombre' => $jugador->nombre,
+                    'nombre' => $jugador->full_name,
                     'apellidos' => $jugador->apellidos
                 ];
             })
