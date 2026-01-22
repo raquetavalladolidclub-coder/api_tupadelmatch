@@ -630,8 +630,8 @@ class LigaController
             'posicion' => $posicion,
             'usuario' => [
                 'id' => $estadistica->usuario->id,
-                'nombre' => $estadistica->usuario->nombre,
-                'apellidos' => $estadistica->usuario->apellidos,
+                'nombre' => $estadistica->usuario->full_name,
+                'username' => $estadistica->usuario->username,
                 'categoria' => $estadistica->usuario->categoria,
                 'foto_perfil' => $estadistica->usuario->image_path
             ],
