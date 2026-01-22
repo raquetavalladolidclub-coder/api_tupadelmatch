@@ -630,7 +630,7 @@ class LigaController
         return [
             'posicion' => $posicion,
             'usuario' => [
-                'id' => $estadistica->usuario->id,
+                'id' => $estadistica->user_id,
                 'nombre' => $estadistica->usuario->nombre,
                 'apellidos' => $estadistica->usuario->apellidos,
                 'categoria' => $estadistica->usuario->categoria,
