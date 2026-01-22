@@ -302,7 +302,7 @@ class LigaController
     }
     
     // GET /api/ligas/{codLiga}/ranking
-    public function obtenerRankingLiga(Request $request, Response $response, $args)
+    public function obtenerRankingLigaOld(Request $request, Response $response, $args)
     {
         try {
             $codLiga = $args['codLiga'];
@@ -335,6 +335,53 @@ class LigaController
                 'mi_posicion' => $miPosicion
             ]);
             
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error al obtener ranking: ' . $e->getMessage());
+        }
+    }
+
+    public function obtenerRankingLiga(Request $request, Response $response, $args)
+    {
+        try {
+            $codLiga = $args['codLiga'];
+            $userId = $request->getAttribute('user_id');
+            
+            // Verificar que el usuario pertenece a la liga
+            $usuario = User::find($userId);
+            if ($usuario->codLiga != $codLiga) {
+                return $this->errorResponse($response, 'No perteneces a esta liga', 403);
+            }
+            
+            // Obtener ranking usando join para asegurar datos del usuario
+            $ranking = EstadisticaLiga::select('estadisticas_liga.*', 'users.*')
+                ->leftJoin('users', 'estadisticas_liga.user_id', '=', 'users.id')
+                ->where('estadisticas_liga.codLiga', $codLiga)
+                ->orderBy('estadisticas_liga.puntos_ranking', 'desc')
+                ->get()
+                ->map(function($estadistica, $index) {
+                    return [
+                        'posicion' => $index + 1,
+                        'usuario' => [
+                            'id' => $estadistica->id,
+                            'nombre' => $estadistica->nombre,
+                            'apellidos' => $estadistica->apellidos,
+                            'categoria' => $estadistica->categoria,
+                            'foto_perfil' => $estadistica->image_path
+                        ],
+                        'partidos_jugados' => $estadistica->partidos_jugados,
+                        'partidos_ganados' => $estadistica->partidos_ganados,
+                        'partidos_perdidos' => $estadistica->partidos_perdidos,
+                        'porcentaje_victorias' => $estadistica->porcentaje_victorias,
+                        'sets_ganados' => $estadistica->sets_ganados,
+                        'sets_perdidos' => $estadistica->sets_perdidos,
+                        'diferencia_sets' => $estadistica->diferencia_sets,
+                        'puntos_ranking' => $estadistica->puntos_ranking,
+                        'puntos_a_favor' => $estadistica->puntos_a_favor,
+                        'puntos_en_contra' => $estadistica->puntos_en_contra
+                    ];
+                });
+            
+            // Resto del código...
         } catch (\Exception $e) {
             return $this->errorResponse($response, 'Error al obtener ranking: ' . $e->getMessage());
         }
