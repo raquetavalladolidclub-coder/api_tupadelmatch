@@ -626,7 +626,6 @@ class LigaController
     
     private function formatearEstadisticaRanking($estadistica, $posicion): array
     {
-        print_r($estadistica);
         return [
             'posicion' => $posicion,
             'usuario' => [
