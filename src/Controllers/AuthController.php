@@ -431,7 +431,7 @@ class AuthController
     public function updateProfile(Request $request, Response $response)
     {
         $userId = $request->getAttribute('user_id');
-        $data = $request->getParsedBody();
+        $data   = $request->getParsedBody();
         
         $user = User::find($userId);
         
@@ -455,6 +455,46 @@ class AuthController
                     'avatar' => $user->avatar,
                     'level' => $user->level,
                     'phone' => $user->phone
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error al actualizar el perfil: ' . $e->getMessage());
+        }
+    }
+
+    public function updateEncuesta(Request $request, Response $response)
+    {
+        $userId = $request->getAttribute('user_id');
+        $data   = $request->getParsedBody();
+        
+        $user = User::find($userId);
+        
+        if (!$user) {
+            return $this->errorResponse($response, 'Usuario no encontrado');
+        }
+        
+        try {
+            $user->update(['encuesta' => $data['name'] ?? $user->encuesta]);
+            
+            return $this->successResponse($response, [
+                'message' => 'Perfil actualizado correctamente',
+                'user' => [
+                    'id'          => $user->id,
+                    'email'       => $user->email,
+                    'username'    => $user->username ?? null,
+                    'full_name'   => $user->full_name,
+                    'nombre'      => $user->nombre,
+                    'apellidos'   => $user->apellidos,
+                    'image_path'  => $user->image_path,
+                    'nivel'       => $user->nivel,
+                    'genero'      => $user->genero,
+                    'categoria'   => $user->categoria,
+                    'fiabilidad'  => $user->fiabilidad,
+                    'asistencias' => $user->asistencias,
+                    'ausencias'   => $user->ausencias,
+                    'codLiga'     => $user->codLiga,
+                    'encuesta'    => $user->encuesta
                 ]
             ]);
             

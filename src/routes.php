@@ -59,8 +59,8 @@ return function (App $app) {
     $app->get('/auth/user', [AuthController::class, 'validateToken'])->add(new AuthMiddleware());
     $app->get('/auth/profile', [AuthController::class, 'getProfile'])->add(new AuthMiddleware());
         
-    $app->put('/auth/profile', [AuthController::class, 'updateProfile'])
-        ->add(new AuthMiddleware());
+    $app->put('/auth/profile', [AuthController::class, 'updateProfile'])->add(new AuthMiddleware());
+    $app->put('/auth/encuesta', [AuthController::class, 'updateEncuesta'])->add(new AuthMiddleware());
         
     // Ruta de bienvenida (CORREGIDA)
     $app->get('/', function (Request $request, Response $response) {
