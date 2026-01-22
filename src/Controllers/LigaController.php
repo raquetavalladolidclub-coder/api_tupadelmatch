@@ -690,14 +690,14 @@ class LigaController
                 return [
                     'id' => $jugador->id,
                     'nombre' => $jugador->full_name,
-                    'apellidos' => $jugador->apellidos
+                    'username' => $jugador->username
                 ];
             }),
             'equipo_b' => $jugadores['equipoB']->map(function($jugador) {
                 return [
                     'id' => $jugador->id,
                     'nombre' => $jugador->full_name,
-                    'apellidos' => $jugador->apellidos
+                    'username' => $jugador->username
                 ];
             })
         ];
