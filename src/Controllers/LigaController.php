@@ -382,8 +382,9 @@ class LigaController
     public function obtenerUltimosPartidosLiga(Request $request, Response $response, $args)
     {
         try {
-            $codLiga = $args['codLiga'];
-            $limit = $request->getQueryParam('limit', 10);
+            $codLiga     = $args['codLiga'];
+            $queryParams = $request->getQueryParams();
+            $limit       = $queryParams['limit'] ?? 10;
             
             $partidos = Partido::where('codLiga', $codLiga)
                 ->where('estado', 'finalizado')
