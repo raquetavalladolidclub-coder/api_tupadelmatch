@@ -429,8 +429,267 @@ class AuthController
             ]
         ]);
     }
-    
+
     public function updateProfile(Request $request, Response $response)
+    {
+        $userId = $request->getAttribute('user_id');
+        $data = $request->getParsedBody();
+        
+        $user = User::find($userId);
+        
+        if (!$user) {
+            return $this->errorResponse($response, 'Usuario no encontrado');
+        }
+        
+        // Campos permitidos para actualizar
+        $allowedFields = [
+            'nombre',
+            'apellidos', 
+            'phone',
+            'genero',
+            'categoria',
+            'liga',
+            'codLiga'
+        ];
+        
+        // Validar campos recibidos
+        $updates = [];
+        foreach ($data as $field => $value) {
+            if (in_array($field, $allowedFields)) {
+                $updates[$field] = $value;
+            }
+        }
+        
+        if (empty($updates)) {
+            return $this->errorResponse($response, 'No se proporcionaron datos válidos para actualizar');
+        }
+        
+        try {
+            // Actualizar campos
+            $user->update($updates);
+            
+            return $this->successResponse($response, [
+                'success' => true,
+                'message' => 'Perfil actualizado correctamente',
+                'user' => [
+                    'id' => $user->id,
+                    'nombre' => $user->nombre,
+                    'apellidos' => $user->apellidos,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'genero' => $user->genero,
+                    'categoria' => $user->categoria,
+                    'liga' => $user->liga,
+                    'codLiga' => $user->codLiga,
+                    'image_path' => $user->image_path,
+                    'nivel_puntuacion' => $user->nivel_puntuacion
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error al actualizar el perfil: ' . $e->getMessage());
+        }
+    }
+
+    public function changePassword(Request $request, Response $response)
+    {
+        $userId = $request->getAttribute('user_id');
+        $data = $request->getParsedBody();
+        
+        // Validar campos requeridos
+        if (empty($data['current_password']) || empty($data['new_password']) || empty($data['confirm_password'])) {
+            return $this->errorResponse($response, 'Todos los campos son requeridos');
+        }
+        
+        $currentPassword = $data['current_password'];
+        $newPassword = $data['new_password'];
+        $confirmPassword = $data['confirm_password'];
+        
+        // Validar que las nuevas contraseñas coincidan
+        if ($newPassword !== $confirmPassword) {
+            return $this->errorResponse($response, 'Las nuevas contraseñas no coinciden');
+        }
+        
+        // Validar longitud mínima
+        if (strlen($newPassword) < 6) {
+            return $this->errorResponse($response, 'La nueva contraseña debe tener al menos 6 caracteres');
+        }
+        
+        $user = User::find($userId);
+        
+        if (!$user) {
+            return $this->errorResponse($response, 'Usuario no encontrado');
+        }
+        
+        try {
+            // Verificar contraseña actual
+            if (!password_verify($currentPassword, $user->password)) {
+                return $this->errorResponse($response, 'La contraseña actual es incorrecta');
+            }
+            
+            // Verificar que la nueva contraseña sea diferente
+            if (password_verify($newPassword, $user->password)) {
+                return $this->errorResponse($response, 'La nueva contraseña debe ser diferente a la actual');
+            }
+            
+            // Hashear nueva contraseña
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+            
+            // Actualizar contraseña
+            $user->password = $hashedPassword;
+            $user->save();
+            
+            // Opcional: Invalidar tokens JWT existentes
+            // $this->invalidateUserTokens($userId);
+            
+            return $this->successResponse($response, [
+                'success' => true,
+                'message' => 'Contraseña cambiada correctamente'
+            ]);
+            
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error al cambiar la contraseña: ' . $e->getMessage());
+        }
+    }
+
+    public function uploadProfileImage(Request $request, Response $response)
+    {
+        $userId = $request->getAttribute('user_id');
+        
+        $uploadedFiles = $request->getUploadedFiles();
+        
+        if (empty($uploadedFiles['profile_image'])) {
+            return $this->errorResponse($response, 'No se ha proporcionado ninguna imagen');
+        }
+        
+        $uploadedFile = $uploadedFiles['profile_image'];
+        
+        // Validar que sea una imagen
+        if ($uploadedFile->getError() !== UPLOAD_ERR_OK) {
+            return $this->errorResponse($response, 'Error al subir la imagen');
+        }
+        
+        // Validar tipo de archivo
+        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        $fileType = $uploadedFile->getClientMediaType();
+        
+        if (!in_array($fileType, $allowedTypes)) {
+            return $this->errorResponse($response, 'Solo se permiten imágenes JPEG, PNG o GIF');
+        }
+        
+        // Validar tamaño (máximo 5MB)
+        if ($uploadedFile->getSize() > 5 * 1024 * 1024) {
+            return $this->errorResponse($response, 'La imagen no debe superar los 5MB');
+        }
+        
+        $user = User::find($userId);
+        
+        if (!$user) {
+            return $this->errorResponse($response, 'Usuario no encontrado');
+        }
+        
+        try {
+            // Generar nombre único para el archivo
+            $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
+            $filename = 'profile_' . $userId . '_' . time() . '.' . $extension;
+            
+            // Directorio de uploads (ajusta la ruta según tu estructura)
+            $uploadDirectory = __DIR__ . '/../../public/uploads/profiles/';
+            
+            // Crear directorio si no existe
+            if (!is_dir($uploadDirectory)) {
+                mkdir($uploadDirectory, 0755, true);
+            }
+            
+            // Mover archivo
+            $uploadedFile->moveTo($uploadDirectory . $filename);
+            
+            // Ruta relativa para guardar en BD
+            $imagePath = '/uploads/profiles/' . $filename;
+            
+            // Actualizar en base de datos
+            $user->image_path = $imagePath;
+            $user->save();
+            
+            return $this->successResponse($response, [
+                'success' => true,
+                'message' => 'Imagen de perfil actualizada correctamente',
+                'data' => [
+                    'image_path' => $imagePath,
+                    'full_url' => 'http://' . $_SERVER['HTTP_HOST'] . $imagePath
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error al subir la imagen: ' . $e->getMessage());
+        }
+    }
+
+    public function updateUserInfo(Request $request, Response $response)
+    {
+        $userId = $request->getAttribute('user_id');
+        $data = $request->getParsedBody();
+        
+        $user = User::find($userId);
+        
+        if (!$user) {
+            return $this->errorResponse($response, 'Usuario no encontrado');
+        }
+        
+        try {
+            $updates = [];
+            $messages = [];
+            
+            // Actualizar campos básicos si están presentes
+            if (isset($data['nombre'])) {
+                $user->nombre = $data['nombre'];
+                $messages[] = 'Nombre actualizado';
+            }
+            
+            if (isset($data['apellidos'])) {
+                $user->apellidos = $data['apellidos'];
+                $messages[] = 'Apellidos actualizados';
+            }
+            
+            if (isset($data['phone'])) {
+                $user->phone = $data['phone'];
+                $messages[] = 'Teléfono actualizado';
+            }
+            
+            if (isset($data['genero']) && in_array($data['genero'], ['masculino', 'femenino'])) {
+                $user->genero = $data['genero'];
+                $messages[] = 'Género actualizado';
+            }
+            
+            if (isset($data['categoria']) && in_array($data['categoria'], ['promesas', 'cobre', 'bronce', 'plata', 'diamante', 'oro', 'pro'])) {
+                $user->categoria = $data['categoria'];
+                $messages[] = 'Categoría actualizada';
+            }
+            
+            // Guardar todos los cambios
+            $user->save();
+            
+            return $this->successResponse($response, [
+                'success' => true,
+                'message' => count($messages) > 0 ? implode(', ', $messages) : 'Datos actualizados',
+                'user' => [
+                    'id' => $user->id,
+                    'nombre' => $user->nombre,
+                    'apellidos' => $user->apellidos,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'genero' => $user->genero,
+                    'categoria' => $user->categoria,
+                    'image_path' => $user->image_path,
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error al actualizar: ' . $e->getMessage());
+        }
+    }
+    
+    public function updateProfileOLD(Request $request, Response $response)
     {
         $userId = $request->getAttribute('user_id');
         $data   = $request->getParsedBody();

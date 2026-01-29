@@ -99,4 +99,13 @@ return function (App $app) {
     $app->get('/api/leveling-stats', [SurveyController::class, 'getLevelingStats'])->add(new AuthMiddleware());
 
     $app->put('/auth/update', [AuthController::class, 'updateUserField'])->add(new AuthMiddleware());
+
+    // Rutas de perfil y configuración
+    $app->put('/auth/profile', [AuthController::class, 'updateProfile'])->add(new AuthMiddleware());
+    $app->put('/auth/info', [AuthController::class, 'updateUserInfo'])->add(new AuthMiddleware());
+    $app->put('/auth/password', [AuthController::class, 'changePassword'])->add(new AuthMiddleware());
+    $app->post('/usauther/upload-image', [AuthController::class, 'uploadProfileImage'])->add(new AuthMiddleware());
+
+    // Ruta para actualizar campo específico (que ya tienes)
+    $app->put('/auth/field', [AuthController::class, 'updateUserField'])->add(new AuthMiddleware());
 };
