@@ -61,6 +61,7 @@ return function (App $app) {
         
     $app->put('/auth/profile', [AuthController::class, 'updateProfile'])->add(new AuthMiddleware());
     $app->put('/auth/encuesta', [AuthController::class, 'updateEncuesta'])->add(new AuthMiddleware());
+    $app->delete('/auth/account', [AuthController::class, 'deleteAccount'])->add(new AuthMiddleware());
         
     // Ruta de bienvenida (CORREGIDA)
     $app->get('/', function (Request $request, Response $response) {
@@ -90,7 +91,6 @@ return function (App $app) {
     $app->get('/ligas/{codLiga}/ranking', [LigaController::class, 'obtenerRankingLiga'])->add(new AuthMiddleware());
     $app->get('/ligas/{codLiga}/estadisticas[/{usuarioId}]', [LigaController::class, 'obtenerEstadisticasJugador'])->add(new AuthMiddleware());
     $app->get('/ligas/{codLiga}/ultimos-partidos', [LigaController::class, 'obtenerUltimosPartidosLiga'])->add(new AuthMiddleware());
-
 
     // Rutas de encuesta de nivelación
     $app->post('/api/leveling-survey', [SurveyController::class, 'submitSurvey'])->add(new AuthMiddleware());

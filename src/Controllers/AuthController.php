@@ -465,6 +465,43 @@ class AuthController
         }
     }
 
+    public function deleteAccount(Request $request, Response $response)
+    {
+        $userId = $request->getAttribute('user_id');
+        $data = $request->getParsedBody();
+        
+        // Validar confirmación
+        $confirmacion = $data['confirmar'] ?? null;
+        
+        if ($confirmacion !== 'ELIMINAR') {
+            return $this->errorResponse($response, 'Para eliminar la cuenta debes escribir: ELIMINAR');
+        }
+        
+        $user = User::find($userId);
+        
+        if (!$user) {
+            return $this->errorResponse($response, 'Usuario no encontrado');
+        }
+        
+        try {
+            // Soft delete: marcar como inactivo
+            $user->is_active = 0;
+            $user->save();
+            
+            // O si quieres hard delete (eliminar permanentemente):
+            // $user->delete();
+            
+            return $this->successResponse($response, [
+                'success' => true,
+                'message' => 'Cuenta eliminada correctamente',
+                'data' => null
+            ]);
+            
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error al eliminar la cuenta: ' . $e->getMessage());
+        }
+    }
+
     public function updateEncuesta(Request $request, Response $response)
     {
         $userId = $request->getAttribute('user_id');
