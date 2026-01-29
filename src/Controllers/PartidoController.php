@@ -381,8 +381,9 @@ class PartidoController
             'codLiga'               => $partido->codLiga,
             'precio_individual'     => number_format($partido->precio_individual, 2),
             'precio_pista_completa' => number_format($partido->precio_pista_completa, 2),
-            'logo'                  => $partido->club?->url_logo,
-            'imagen'                => $partido->club?->url_imagen,
+            'logoClub'              => $partido->club?->url_logo,
+            'imagenClub'            => $partido->club?->url_imagen,
+            'nombreClub'            => $partido->club?->nombre,
             'creador' => [
                 'id'    => $partido->creador->id,
                 'name'  => $partido->creador->name ?? "",
