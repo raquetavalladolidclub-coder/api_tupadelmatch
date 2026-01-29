@@ -101,7 +101,7 @@ return function (App $app) {
     $app->put('/auth/update', [AuthController::class, 'updateUserField'])->add(new AuthMiddleware());
 
     // Rutas de perfil y configuración
-    $app->put('/auth/profile', [AuthController::class, 'updateProfile'])->add(new AuthMiddleware());
+    // $app->put('/auth/profile', [AuthController::class, 'updateProfile'])->add(new AuthMiddleware());
     $app->put('/auth/info', [AuthController::class, 'updateUserInfo'])->add(new AuthMiddleware());
     $app->put('/auth/password', [AuthController::class, 'changePassword'])->add(new AuthMiddleware());
     $app->post('/usauther/upload-image', [AuthController::class, 'uploadProfileImage'])->add(new AuthMiddleware());
