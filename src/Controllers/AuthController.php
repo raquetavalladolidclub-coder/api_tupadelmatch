@@ -69,8 +69,8 @@ class AuthController
                     'ausencias'   => $user->ausencias,
                     'codLiga'     => $user->codLiga,
                     'encuesta'    => $user->encuesta,
-                    'notificaciones_push'  => $user->notificaciones_push,
-                    'notificaciones_email' => $user->notificaciones_email
+                    'notificacionesPush'  => $user->notificacionesPush,
+                    'notificacionesEmail' => $user->notificacionesEmail
                 ]
             ]);
             

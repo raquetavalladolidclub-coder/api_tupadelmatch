@@ -30,8 +30,8 @@
             'codLiga',
             'is_active',
             'encuesta',
-            'notificaciones_push',
-            'notificaciones_email'
+            'notificacionesPush',
+            'notificacionesEmail'
         ];
         
         protected $hidden = [
