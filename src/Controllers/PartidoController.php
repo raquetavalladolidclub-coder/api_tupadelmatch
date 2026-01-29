@@ -12,7 +12,12 @@ class PartidoController
     public function listarPartidos(Request $request, Response $response)
     {
         try {
-            $query = Partido::with(['creador', 'jugadoresConfirmados.usuario']);
+            // $query = Partido::with(['creador', 'jugadoresConfirmados.usuario']);
+            $query = Partido::with([
+                'creador',
+                'jugadoresConfirmados.usuario',
+                'club:id,url_logo,url_imagen'
+            ]);
             
             // Filtros
             $filters = $request->getQueryParams();

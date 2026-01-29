@@ -89,4 +89,10 @@ class Partido extends Model
     {
         return $this->resultados()->exists();
     }
+
+    public function club(): BelongsTo
+    {
+        return $this->belongsTo(Club::class, 'idClub');
+    }
+
 }
