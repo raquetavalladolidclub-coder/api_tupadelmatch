@@ -98,4 +98,5 @@ return function (App $app) {
     $app->post('/api/update-user-level', [SurveyController::class, 'updateUserLevel'])->add(new AuthMiddleware());
     $app->get('/api/leveling-stats', [SurveyController::class, 'getLevelingStats'])->add(new AuthMiddleware());
 
+    $app->put('/auth/update', [AuthController::class, 'updateUserField'])->add(new AuthMiddleware());
 };

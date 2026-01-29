@@ -524,4 +524,41 @@ class AuthController
         return $response->withStatus($statusCode)
             ->withHeader('Content-Type', 'application/json');
     }
+
+    public function updateUserField(Request $request, Response $response)
+    {
+        $userId = $request->getAttribute('user_id');
+        $data   = $request->getParsedBody();
+        
+        // Obtener campo y valor del body
+        $field = $data['campo'] ?? null;
+        $value = $data['valor'] ?? null;
+        
+        // Validar que se enviaron ambos parámetros
+        if (!$field || $value === null) {
+            return $this->errorResponse($response, 'Se requiere "campo" y "valor" en el body');
+        }
+        
+        // Buscar usuario
+        $user = User::find($userId);
+        if (!$user) {
+            return $this->errorResponse($response, 'Usuario no encontrado');
+        }
+        
+        try {
+            // Actualizar solo el campo específico
+            $user->$field = $value;
+            $user->save();
+            
+            return $this->successResponse($response, [
+                'success' => true,
+                'message' => 'Campo actualizado correctamente',
+                'campo'   => $field,
+                'valor_actualizado' => $value
+            ]);
+            
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error al actualizar: ' . $e->getMessage());
+        }
+    }
 }
