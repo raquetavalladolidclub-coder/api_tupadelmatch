@@ -29,7 +29,9 @@
             'ausencias',
             'codLiga',
             'is_active',
-            'encuesta'
+            'encuesta',
+            'notificaciones_push',
+            'notificaciones_email'
         ];
         
         protected $hidden = [
