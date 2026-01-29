@@ -16,7 +16,7 @@ class PartidoController
             $query = Partido::with([
                 'creador',
                 'jugadoresConfirmados.usuario',
-                'club:id,url_logo,url_imagen'
+                'club:id,nombre,url_logo,url_imagen'
             ]);
             
             // Filtros
