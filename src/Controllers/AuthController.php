@@ -471,11 +471,11 @@ class AuthController
         $data = $request->getParsedBody();
         
         // Validar confirmación
-        $confirmacion = $data['confirmar'] ?? null;
+        /*$confirmacion = $data['confirmar'] ?? null;
         
         if ($confirmacion !== 'ELIMINAR') {
             return $this->errorResponse($response, 'Para eliminar la cuenta debes escribir: ELIMINAR');
-        }
+        }*/
         
         $user = User::find($userId);
         
