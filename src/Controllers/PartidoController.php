@@ -23,7 +23,7 @@ class PartidoController
             $filters = $request->getQueryParams();
             
             // Filtrar por fecha
-            if (isset($filters['fecha'])) {
+            /*if (isset($filters['fecha'])) {
                 // $query->where('fecha', $filters['fecha']);
             }
             
@@ -44,7 +44,7 @@ class PartidoController
             // Filtrar por género
             if (isset($filters['genero'])) {
                 $query->where('genero', $filters['genero']);
-            }
+            }*/
             
             
             // Filtrar por estado
