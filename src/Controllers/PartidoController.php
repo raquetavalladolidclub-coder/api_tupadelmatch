@@ -441,9 +441,9 @@ class PartidoController
             'precio_individual'     => number_format($partido->precio_individual, 2),
             'precio_pista_completa' => number_format($partido->precio_pista_completa, 2),
             'club' => [
-                'logoClub'              => $partido->club?->url_logo,
-                'imagenClub'            => $partido->club?->url_imagen,
-                'nombreClub'            => $partido->club?->nombre,
+                'logoClub'              => $partido->club?->url_logo ?? 'https://admin.tupadelmatch.es/assets/images/logo.png',
+                'imagenClub'            => $partido->club?->url_imagen ?? 'https://admin.tupadelmatch.es/assets/images/logo.png',
+                'nombreClub'            => $partido->club?->nombre ?? 'Club padel',
             ],
             'creador' => [
                 'id'    => $partido->creador->id,
