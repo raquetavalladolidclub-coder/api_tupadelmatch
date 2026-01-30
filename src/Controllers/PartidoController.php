@@ -29,7 +29,7 @@ class PartidoController
             
             // Filtrar por fecha desde/hasta
             if (isset($filters['fecha_desde'])) {
-                $query->where('fecha', '>=', $filters['fecha_desde']);
+                // $query->where('fecha', '>=', $filters['fecha_desde']);
             }
             
             if (isset($filters['fecha_hasta'])) {
