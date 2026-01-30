@@ -9,6 +9,65 @@ use PadelClub\Models\User;
 
 class PartidoController
 {
+    public function listarMisPartidos(Request $request, Response $response)
+    {
+        try {
+            $userId = $request->getAttribute('user_id'); // o desde token / sesión
+
+            $query = Partido::with(['creador', 'jugadoresConfirmados.usuario', 'club:id,nombre,url_logo,url_imagen'])
+                ->whereHas('inscripciones', function ($q) use ($userId) {
+                    $q->where('user_id', $userId);
+                });
+            
+            // Filtros
+            $filters = $request->getQueryParams();
+            
+            // Filtrar por fecha
+            if (isset($filters['fecha'])) {
+                $query->where('fecha', $filters['fecha']);
+            }
+            
+            // Filtrar por fecha desde/hasta
+            if (isset($filters['fecha_desde'])) {
+                $query->where('fecha', '>=', $filters['fecha_desde']);
+            }
+            
+            if (isset($filters['fecha_hasta'])) {
+                $query->where('fecha', '<=', $filters['fecha_hasta']);
+            }
+            
+            // Filtrar por tipo
+            if (isset($filters['tipo'])) {
+                $query->where('tipo', $filters['tipo']);
+            }
+            
+            // Filtrar por género
+            if (isset($filters['genero'])) {
+                $query->where('genero', $filters['genero']);
+            }
+            
+            
+            // Filtrar por estado
+            /*$estado = $filters['estado'] ?? 'disponible';
+            $query->where('estado', $estado);*/
+            
+            // Ordenar por fecha y hora
+            $query->orderBy('fecha', 'asc')->orderBy('hora', 'asc');
+            
+            $partidos = $query->get()->map(function($partido) {
+                return $this->formatearPartido($partido);
+            });
+            
+            return $this->successResponse($response, [
+                'partidos' => $partidos,
+                'total'    => $partidos->count()
+            ]);
+            
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error al listar partidos: ' . $e->getMessage());
+        }
+    }
+
     public function listarPartidos(Request $request, Response $response)
     {
         try {
