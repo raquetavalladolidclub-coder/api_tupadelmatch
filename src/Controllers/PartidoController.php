@@ -334,6 +334,7 @@ class PartidoController
             echo "VALOR: ".$organizador->id;
             echo " - ". $userId;
             if ($organizador && $organizador->id != $userId) {
+                echo "Aqui";
                 $this->notificationService->sendPlayerJoinedNotification(
                     $partido, 
                     $usuario, 
