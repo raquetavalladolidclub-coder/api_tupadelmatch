@@ -331,10 +331,8 @@ class PartidoController
             /////////////////////////////////////////////////////////////////////////////////
             // Notificar al organizador que un jugador se ha apuntado
             $organizador = User::find($partido->creador_id);
-            echo "VALOR: ".$organizador->id;
-            echo " - ". $userId;
+         
             if ($organizador && $organizador->id == $userId) {
-                echo "Aqui";
                 $this->notificationService->sendPlayerJoinedNotification(
                     $partido, 
                     $usuario, 
@@ -343,11 +341,11 @@ class PartidoController
             }
 
             // Enviar email de confirmación al usuario
-            /*$this->notificationService->sendPlayerConfirmationEmail(
+            $this->notificationService->sendPlayerConfirmationEmail(
                 $partido,
                 $usuario,
                 $inscripcion
-            );*/
+            );
             
             // Si el partido se completó, enviar notificación a todos
             if ($partido->esta_completo) {
