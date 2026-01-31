@@ -162,7 +162,7 @@ class NotificationService
             'current_players' => $partido->jugadoresConfirmados()->count(),
             'max_players'     => $partido->tipo === 'individual' ? 2 : 4,
             
-            'organizer_name'  => $partido->creador->name ?? 'Organizador',
+            'organizer_name'  => $partido->creador->full_name ?? 'Organizador',
             'organizer_phone' => $partido->creador->telefono ?? 'No disponible',
             
             'players' => $jugadores,
