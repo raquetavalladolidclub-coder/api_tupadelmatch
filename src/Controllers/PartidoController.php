@@ -12,9 +12,10 @@ class PartidoController
 {
     private $notificationService;
     
-    public function __construct(NotificationService $notificationService)
+    // Hacer el parámetro opcional con valor null
+    public function __construct(?NotificationService $notificationService = null)
     {
-        $this->notificationService = $notificationService;
+        $this->notificationService = $notificationService ?? new NotificationService();
     }
 
     public function listarMisPartidos(Request $request, Response $response)
