@@ -176,7 +176,7 @@ class NotificationService
         
         return $this->sendGeneralNotificationWithTemplate(
             $usuario->email,
-            'confirmacion_inscripcion_partido.html',
+            'confirmacionInscripcionPartido.html',
             $data
         );
     }
