@@ -26,12 +26,14 @@ class NotificationService
     {
         // Configuración SMTP - AJUSTA ESTOS VALORES
         $this->mailer->isSMTP();
-        $this->mailer->Host       = 'smtp.tupadelmatch.es'; // Tu servidor SMTP
+        $this->mailer->SMTPDebug  = 2;
+        $this->mailer->Host       = $_ENV['MAIL_HOST'] ?? 'smtp.gmail.com';
         $this->mailer->SMTPAuth   = true;
-        $this->mailer->Username   = 'notificaciones@tupadelmatch.es'; // Tu email
-        $this->mailer->Password   = 'tu_password'; // Tu password
-        $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $this->mailer->Port       = 587;
+        $this->mailer->Username   = $_ENV['MAIL_USERNAME'];
+        $this->mailer->Password   = $_ENV['MAIL_PASSWORD'];
+        $this->mailer->SMTPSecure = $_ENV['MAIL_ENCRYPTION'] ?? 'tls';
+        $this->mailer->Port       = $_ENV['MAIL_PORT'] ?? 587;
+        $this->mailer->CharSet    = 'UTF-8';
         
         // Configuración general
         $this->mailer->setFrom('notificaciones@tupadelmatch.es', $this->appName);
