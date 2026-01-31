@@ -14,6 +14,7 @@ class PartidoController
 
     public function listarMisPartidos(Request $request, Response $response)
     {
+        $this->notificationService->sendGeneralNotification('fericor@gmail.com', 'Hola PADEL', 'HOLA PADEL PADEL PADEL');
         try {
             $userId = $request->getAttribute('user_id'); // o desde token / sesión
 
@@ -60,8 +61,6 @@ class PartidoController
             $partidos = $query->get()->map(function($partido) {
                 return $this->formatearPartido($partido);
             });
-
-            $this->notificationService->sendGeneralNotification('fericor@gmail.com', 'Hola PADEL', 'HOLA PADEL PADEL PADEL');
             
             return $this->successResponse($response, [
                 'partidos' => $partidos,
