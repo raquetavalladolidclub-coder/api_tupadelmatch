@@ -69,7 +69,7 @@ class NotificationService
     /**
      * Enviar notificación general
      */
-    public function sendGeneralNotification($to, $subject, $message)
+    public static function sendGeneralNotification($to, $subject, $message)
     {
         $data = [
             'subject' => $subject,
