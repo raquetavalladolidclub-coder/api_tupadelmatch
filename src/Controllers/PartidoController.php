@@ -410,8 +410,8 @@ class PartidoController
             // Si el partido estaba completo, notificar a lista de espera
             if ($partido->estado == 'completo') {
                 // Obtener jugadores en lista de espera
-                $waitingList = $this->getWaitingList($partido->id);
-                if ($waitingList->count() > 0) {
+                $jugadores = $partido->jugadoresConfirmados()->with('usuario')->get()->pluck('usuario');
+                if ($jugadores->count() > 0) {
                     $this->notificationService->sendSpotAvailableNotification(
                         $partido,
                         $usuario,
