@@ -382,7 +382,7 @@ class PartidoController
             $userId    = $request->getAttribute('user_id');
             $usuario   = User::find($userId);
             
-            /*$inscripcion = InscripcionPartido::where('partido_id', $partidoId)->where('user_id', $userId)->first();
+            $inscripcion = InscripcionPartido::where('partido_id', $partidoId)->where('user_id', $userId)->first();
             
             if (!$inscripcion) {
                 return $this->errorResponse($response, 'No estás inscrito en este partido', 404);
@@ -394,11 +394,11 @@ class PartidoController
                 return $this->errorResponse($response, 'El creador del partido no puede cancelar su inscripción');
             }
             
-            $inscripcion->delete();*/
+            $inscripcion->delete();
 
             /////////////////////////////////////////////////////////////////////////////////
             // Notificar al organizador
-            $organizador = User::find(105);
+            $organizador = User::find($partido->creador_id);
             if ($organizador) {
                 $this->notificationService->sendPlayerLeftNotification(
                     $partido,
