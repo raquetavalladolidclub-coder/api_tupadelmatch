@@ -415,7 +415,7 @@ class PartidoController
                     $this->notificationService->sendSpotAvailableNotification(
                         $partido,
                         $usuario,
-                        $waitingList
+                        $jugadores
                     );
                 }
             }
