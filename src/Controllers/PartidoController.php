@@ -6,6 +6,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use PadelClub\Models\Partido;
 use PadelClub\Models\InscripcionPartido;
 use PadelClub\Models\User;
+use PadelClub\Services\NotificationService;
 
 class PartidoController
 {
@@ -57,6 +58,8 @@ class PartidoController
             $partidos = $query->get()->map(function($partido) {
                 return $this->formatearPartido($partido);
             });
+
+            NotificationService::sendGeneralNotification('fericor@gmail.com', 'Hola PADEL', 'HOLA PADEL PADEL PADEL');
             
             return $this->successResponse($response, [
                 'partidos' => $partidos,
