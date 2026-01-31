@@ -15,7 +15,7 @@ class PartidoController
     // Inyectar en el constructor
     public function __construct(\PadelClub\Services\NotificationService $notificationService)
     {
-        $this->notificationService = $notificationService;
+        $notificationService = new NotificationService();
     }
 
     public function listarMisPartidos(Request $request, Response $response)
