@@ -359,45 +359,35 @@ class NotificationService
             $templateName .= '.html';
         }
         
-        // Verificar múltiples ubicaciones posibles
-        $possiblePaths = [
-            __DIR__ . '/../Templates/Emails/' . $templateName,
-            __DIR__ . '/../../Templates/Emails/' . $templateName,
-            __DIR__ . '/Templates/Emails/' . $templateName,
-            dirname(__DIR__) . '/Templates/Emails/' . $templateName,
-        ];
-        
-        foreach ($possiblePaths as $templatePath) {
-            if (file_exists($templatePath)) {
-                $content = file_get_contents($templatePath);
-                
-                // Reemplazar variables
-                foreach ($data as $key => $value) {
-                    if (is_array($value)) {
-                        // Procesar arrays específicos
-                        if ($key === 'players' && strpos($content, '{{#players}}') !== false) {
-                            $playerContent = '';
-                            foreach ($value as $player) {
-                                $playerContent .= $this->renderPlayerItem($player);
-                            }
-                            // Reemplazar bloque completo
-                            $pattern = '/\{\{#players\}\}.*?\{\{\/players\}\}/s';
-                            $replacement = $playerContent;
-                            $content = preg_replace($pattern, $replacement, $content);
+        if (file_exists(__DIR__ . '../../Templates/Emails/' . $templateName)) {
+            $content = file_get_contents($templatePath);
+            
+            // Reemplazar variables
+            foreach ($data as $key => $value) {
+                if (is_array($value)) {
+                    // Procesar arrays específicos
+                    if ($key === 'players' && strpos($content, '{{#players}}') !== false) {
+                        $playerContent = '';
+                        foreach ($value as $player) {
+                            $playerContent .= $this->renderPlayerItem($player);
                         }
-                    } else {
-                        // Reemplazar variables simples
-                        $content = str_replace('{{' . $key . '}}', htmlspecialchars($value ?? '', ENT_QUOTES), $content);
-                        // También soportar formato sin llaves por si acaso
-                        $content = str_replace('$' . $key . '$', htmlspecialchars($value ?? '', ENT_QUOTES), $content);
+                        // Reemplazar bloque completo
+                        $pattern = '/\{\{#players\}\}.*?\{\{\/players\}\}/s';
+                        $replacement = $playerContent;
+                        $content = preg_replace($pattern, $replacement, $content);
                     }
+                } else {
+                    // Reemplazar variables simples
+                    $content = str_replace('{{' . $key . '}}', htmlspecialchars($value ?? '', ENT_QUOTES), $content);
+                    // También soportar formato sin llaves por si acaso
+                    $content = str_replace('$' . $key . '$', htmlspecialchars($value ?? '', ENT_QUOTES), $content);
                 }
-                
-                // Limpiar cualquier variable no reemplazada
-                $content = preg_replace('/\{\{[^}]+\}\}/', '', $content);
-                
-                return $content;
             }
+            
+            // Limpiar cualquier variable no reemplazada
+            $content = preg_replace('/\{\{[^}]+\}\}/', '', $content);
+            
+            return $content;
         }
         
         // Si no encuentra el template, crear uno básico
