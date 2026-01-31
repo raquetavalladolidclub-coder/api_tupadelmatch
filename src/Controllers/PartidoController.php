@@ -379,7 +379,8 @@ class PartidoController
     {
         try {
             $partidoId = $args['id'];
-            $userId = $request->getAttribute('user_id');
+            $userId    = $request->getAttribute('user_id');
+            $usuario   = User::find($userId);
             
             $inscripcion = InscripcionPartido::where('partido_id', $partidoId)->where('user_id', $userId)->first();
             
