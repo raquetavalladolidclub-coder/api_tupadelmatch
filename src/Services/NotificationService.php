@@ -14,7 +14,7 @@ class NotificationService
 
     public function __construct()
     {
-        $this->templatesPath = __DIR__ . '../../Templates/Emails/';
+        $this->templatesPath = __DIR__ . '/../Templates/Emails/';
         // $templatePath = __DIR__ . '/../Templates/Emails/' . $template . '.html';
         
         // Configurar PHPMailer (ajusta con tus credenciales)
