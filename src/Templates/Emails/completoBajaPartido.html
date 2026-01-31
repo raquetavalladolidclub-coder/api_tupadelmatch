@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Plaza Disponible! - TuPadelMatch</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+        .header { background-color: #53abc0; padding: 25px; text-align: center; }
+        .logo { max-width: 200px; height: auto; margin-bottom: 15px; }
+        .content { padding: 30px; }
+        .urgent-badge { background: #FF5722; color: white; padding: 12px 25px; 
+                       border-radius: 25px; display: inline-block; margin: 10px 0; 
+                       font-weight: bold; font-size: 18px; text-transform: uppercase; }
+        .opportunity-card { background: linear-gradient(135deg, #FFF3E0 0%, #FFECB3 100%); 
+                           border-radius: 12px; padding: 30px; margin: 25px 0; 
+                           border: 3px dashed #53abc0; text-align: center; }
+        .match-info { background: white; padding: 20px; border-radius: 10px; margin: 20px 0; 
+                     box-shadow: 0 4px 12px rgba(255, 152, 0, 0.1); }
+        .countdown { font-size: 32px; font-weight: bold; color: #FF5722; margin: 20px 0; }
+        .button { display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #53abc0 0%, #FF5722 100%); 
+                  color: white; text-decoration: none; border-radius: 10px; font-weight: bold; 
+                  margin: 20px 0; font-size: 18px; transition: all 0.3s; 
+                  box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3); }
+        .button:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4); }
+        .footer { text-align: center; padding: 25px; color: #666; font-size: 12px; 
+                  background-color: #f8f9fa; border-top: 1px solid #ddd; }
+        .warning-box { background: #FFEBEE; border: 2px solid #FF5252; padding: 20px; 
+                      border-radius: 8px; margin: 25px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://admin.tupadelmatch.es/assets/images/logo.png" alt="TuPadelMatch" class="logo">
+            <h1 style="color: white; margin: 0; font-size: 28px;">🚨 ¡OPORTUNIDAD ÚNICA!</h1>
+            <p style="color: white; margin: 10px 0 0; font-size: 18px;">Se ha liberado una plaza</p>
+        </div>
+        
+        <div class="content">
+            <div class="urgent-badge">⚠️ PLAZA DISPONIBLE INMEDIATAMENTE</div>
+            
+            <h2>¡Hola {{player_name}}!</h2>
+            
+            <p><strong>¡Atención!</strong> Se ha liberado una plaza en un partido <strong>completo</strong> 
+               en el que estabas interesado. ¡Esta es tu oportunidad!</p>
+            
+            <div class="opportunity-card">
+                <h3 style="margin: 0; color: #FF5722; font-size: 24px;">🎯 ¡RESERVA RÁPIDO!</h3>
+                <p style="font-size: 18px; margin: 15px 0;">Solo hay <strong>1 plaza disponible</strong> y otros jugadores también han recibido esta notificación.</p>
+                
+                <div class="countdown">
+                    ⏳ TIEMPO LIMITADO
+                </div>
+            </div>
+            
+            <div class="match-info">
+                <h3 style="color: #53abc0; margin-top: 0;">📋 Detalles del partido</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+                    <div style="background: #FFF8E1; padding: 15px; border-radius: 6px;">
+                        <strong>📅 Fecha:</strong><br>
+                        <span style="font-size: 18px; font-weight: bold;">{{match_date}}</span><br>
+                        <small>({{days_until_match}} días)</small>
+                    </div>
+                    <div style="background: #FFF8E1; padding: 15px; border-radius: 6px;">
+                        <strong>🕒 Hora:</strong><br>
+                        <span style="font-size: 18px; font-weight: bold;">{{match_time}}</span>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;">
+                    <div style="background: #FFF8E1; padding: 15px; border-radius: 6px;">
+                        <strong>🎾 Pista:</strong><br>{{court_name}}
+                    </div>
+                    <div style="background: #FFF8E1; padding: 15px; border-radius: 6px;">
+                        <strong>💰 Precio:</strong><br>{{price}}€
+                    </div>
+                </div>
+                
+                <p><strong>📍 Dirección:</strong> {{court_address}}</p>
+                <p><strong>📊 Nivel:</strong> {{skill_level}}</p>
+                <p><strong>👥 Jugadores actuales:</strong> {{current_players}}/{{max_players}} (¡Falta 1!)</p>
+            </div>
+            
+            <div class="warning-box">
+                <h4 style="margin: 0 0 10px; color: #D32F2F;">⚠️ IMPORTANTE SABER:</h4>
+                <ul style="margin: 0; padding-left: 20px;">
+                    <li>Esta plaza es para el <strong>PRIMER jugador</strong> que la reserve</li>
+                    <li>El enlace de reserva es <strong>personal e intransferible</strong></li>
+                    <li><strong>Caduca en 2 horas</strong> o cuando alguien más la reserve</li>
+                    <li>Al ser un partido completo, el nivel de juego está garantizado</li>
+                </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{quick_join_url}}" class="button">✅ ¡QUIERO ESA PLAZA!</a>
+            </div>
+            
+            <p style="text-align: center; font-style: italic; color: #666;">
+                Enlace exclusivo para ti • Caduca a las {{expiration_time}}
+            </p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <p><strong>¿No te interesa esta plaza?</strong></p>
+                <a href="{{available_matches_url}}" style="color: #53abc0; text-decoration: none; font-weight: bold;">
+                    👉 Ver otros partidos disponibles
+                </a>
+            </div>
+            
+            <p>El equipo de <strong>TuPadelMatch</strong> 🎾</p>
+        </div>
+        
+        <div class="footer">
+            <p>Este es un email automático de TuPadelMatch. Por favor, no respondas a este mensaje.</p>
+            <p>¿Problemas con el enlace? Contacta con nosotros: <a href="mailto:soporte@tupadelmatch.es" style="color: #53abc0;">soporte@tupadelmatch.es</a></p>
+            <p>&copy; {{current_year}} TuPadelMatch. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

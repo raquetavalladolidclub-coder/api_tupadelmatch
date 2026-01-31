@@ -20,8 +20,6 @@ class PartidoController
 
     public function listarMisPartidos(Request $request, Response $response)
     {
-        $this->notificationService->sendGeneralNotification('fericor@gmail.com', 'Hola PADEL', 'HOLA PADEL PADEL PADEL');
-
         try {
             $userId = $request->getAttribute('user_id'); // o desde token / sesión
 
@@ -329,7 +327,33 @@ class PartidoController
             if ($partido->creador_id == $userId) {
                 $inscripcion->update(['estado' => 'confirmado']);
             }
+
+            /////////////////////////////////////////////////////////////////////////////////
+            // Notificar al organizador que un jugador se ha apuntado
+            $organizador = User::find($partido->creador_id);
+            if ($organizador && $organizador->id != $userId) {
+                $this->notificationService->sendPlayerJoinedNotification(
+                    $partido, 
+                    $usuario, 
+                    $organizador->email
+                );
+            }
+
+            // Enviar email de confirmación al usuario
+            $this->notificationService->sendPlayerConfirmationEmail(
+                $partido,
+                $usuario,
+                $inscripcion
+            );
             
+            // Si el partido se completó, enviar notificación a todos
+            if ($partido->esta_completo) {
+                $jugadores = $partido->jugadoresConfirmados()->with('usuario')->get()->pluck('usuario');
+                $this->notificationService->sendMatchFullNotification($partido, $jugadores);
+            }
+            /////////////////////////////////////////////////////////////////////////////////
+            
+
             // Verificar si el partido se completó
             $this->actualizarEstadoPartido($partido, $userId, $nivelUsuario, $data['tipoReserva']); //  $data['nivelPartido']
             
@@ -369,7 +393,32 @@ class PartidoController
             }
             
             $inscripcion->delete();
+
+            /////////////////////////////////////////////////////////////////////////////////
+            // Notificar al organizador
+            $organizador = User::find($partido->creador_id);
+            if ($organizador) {
+                $this->notificationService->sendPlayerLeftNotification(
+                    $partido,
+                    $usuario,
+                    $organizador->email
+                );
+            }
             
+            // Si el partido estaba completo, notificar a lista de espera
+            if ($partido->estado == 'completo') {
+                // Obtener jugadores en lista de espera
+                $waitingList = $this->getWaitingList($partido->id);
+                if ($waitingList->count() > 0) {
+                    $this->notificationService->sendSpotAvailableNotification(
+                        $partido,
+                        $usuario,
+                        $waitingList
+                    );
+                }
+            }
+            /////////////////////////////////////////////////////////////////////////////////
+
             // Actualizar estado del partido
             $this->actualizarEstadoPartido($partido);
             

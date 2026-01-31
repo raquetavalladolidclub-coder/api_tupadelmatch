@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancelación confirmada - TuPadelMatch</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+        .header { background-color: #53abc0; padding: 20px; text-align: center; }
+        .logo { max-width: 200px; height: auto; margin-bottom: 15px; }
+        .content { padding: 30px; }
+        .info-card { background: #fff3e0; border-radius: 8px; padding: 20px; margin: 20px 0; border-left: 4px solid #53abc0; }
+        .button { display: inline-block; padding: 14px 28px; background-color: #4CAF50; 
+                  color: white; text-decoration: none; border-radius: 6px; font-weight: bold; 
+                  margin: 15px 0; transition: background-color 0.3s; }
+        .button:hover { background-color: #45a049; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; 
+                  background-color: #f8f9fa; border-top: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://admin.tupadelmatch.es/assets/images/logo.png" alt="TuPadelMatch" class="logo">
+            <h1 style="color: white; margin: 0;">Cancelación confirmada</h1>
+        </div>
+        
+        <div class="content">
+            <h2>Hola {{player_name}},</h2>
+            
+            <p>Has cancelado tu participación en el partido correctamente.</p>
+            
+            <div class="info-card">
+                <h3 style="margin-top: 0; color: #53abc0;">📋 Partido cancelado:</h3>
+                <p><strong>📅 Fecha:</strong> {{match_date}}</p>
+                <p><strong>🕒 Hora:</strong> {{match_time}}</p>
+                <p><strong>🎾 Pista:</strong> {{court_name}}</p>
+                <p><strong>📍 Dirección:</strong> {{court_address}}</p>
+            </div>
+            
+            <p>Esperamos verte en otro partido pronto. ¡La comunidad te echará de menos! 😊</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{available_matches_url}}" class="button">🎾 Ver partidos disponibles</a>
+            </div>
+            
+            <div style="background: #ffebee; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                <p style="margin: 0; color: #c62828;">
+                    <strong>⚠️ Nota importante:</strong> Si la cancelación fue con menos de 24 horas de antelación, 
+                    podrían aplicarse políticas de penalización según las normas del club.
+                </p>
+            </div>
+            
+            <p>El equipo de <strong>TuPadelMatch</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>Este es un email automático de TuPadelMatch. Por favor, no respondas a este mensaje.</p>
+            <p>&copy; {{current_year}} TuPadelMatch. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

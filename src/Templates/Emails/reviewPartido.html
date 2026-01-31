@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Cómo te fue el partido? - TuPadelMatch</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+        .header { background-color: #53abc0; padding: 20px; text-align: center; }
+        .logo { max-width: 200px; height: auto; margin-bottom: 15px; }
+        .content { padding: 30px; }
+        .review-card { background: #e8f5e9; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .rating-stars { font-size: 24px; color: #FFD700; margin: 15px 0; }
+        .button { display: inline-block; padding: 14px 28px; background-color: #53abc0; 
+                  color: white; text-decoration: none; border-radius: 6px; font-weight: bold; 
+                  margin: 10px 5px; transition: background-color 0.3s; }
+        .button:hover { background-color: #45a049; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; 
+                  background-color: #f8f9fa; border-top: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://admin.tupadelmatch.es/assets/images/logo.png" alt="TuPadelMatch" class="logo">
+            <h1 style="color: white; margin: 0;">🏆 ¿Cómo te fue el partido?</h1>
+        </div>
+        
+        <div class="content">
+            <h2>Hola {{player_name}},</h2>
+            
+            <p>Esperamos que hayas disfrutado de tu partido de pádel de ayer. Tu opinión nos ayuda a mejorar la experiencia para todos.</p>
+            
+            <div class="review-card">
+                <h3 style="margin-top: 0; color: #53abc0;">📋 Partido jugado:</h3>
+                <p><strong>📅 Fecha:</strong> {{match_date}}</p>
+                <p><strong>🎾 Pista:</strong> {{court_name}}</p>
+                <p><strong>👥 Jugadores:</strong> {{player_count}} jugadores</p>
+            </div>
+            
+            <h3>⭐ Califica tu experiencia:</h3>
+            <div class="rating-stars">
+                ★★★★★
+            </div>
+            
+            <p style="text-align: center; margin: 30px 0;">
+                <a href="{{review_url}}" class="button">📝 Dejar reseña</a>
+                <a href="{{new_match_url}}" class="button">🎾 Buscar nuevo partido</a>
+            </p>
+            
+            <h3>¿Te gustaría jugar de nuevo con estos jugadores?</h3>
+            <p style="text-align: center;">
+                <a href="{{create_match_url}}" class="button">🚀 Crear nuevo partido</a>
+            </p>
+            
+            <p style="margin-top: 30px;">
+                <strong>¡Gracias por ser parte de TuPadelMatch!</strong> Tu participación hace crecer nuestra comunidad. 🎾
+            </p>
+            
+            <p>El equipo de <strong>TuPadelMatch</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>Este es un email automático de TuPadelMatch.</p>
+            <p>¿Necesitas ayuda? <a href="mailto:soporte@tupadelmatch.es">soporte@tupadelmatch.es</a></p>
+            <p>&copy; {{current_year}} TuPadelMatch. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>
