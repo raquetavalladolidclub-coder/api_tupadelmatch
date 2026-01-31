@@ -364,7 +364,7 @@ class NotificationService
                 return false;
             }
         }
-
+echo $templatePath;
         $content = file_get_contents($templatePath);
         
         // Reemplazar variables en el template
