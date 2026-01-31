@@ -123,7 +123,7 @@ class NotificationService
 
         return $this->sendGeneralNotificationWithTemplate(
             $organizadorEmail,
-            'jugador_apuntado',
+            'jugador_apuntado.html',
             $data
         );
     }
@@ -215,7 +215,7 @@ class NotificationService
             
             $sent = $sent && $this->sendGeneralNotificationWithTemplate(
                 $jugador->email,
-                'partido_completo',
+                'partido_completo.html',
                 $data
             );
         }
@@ -236,7 +236,7 @@ class NotificationService
 
         return $this->sendGeneralNotificationWithTemplate(
             $organizadorEmail,
-            'jugador_eliminado',
+            'jugador_eliminado.html',
             $data
         );
     }
@@ -391,14 +391,14 @@ class NotificationService
     private function getSubjectForTemplate($template, $data)
     {
         $subjects = [
-            'welcome'             => '¡Bienvenido a ' . $this->appName . '!',
-            'jugador_apuntado'    => 'Nuevo jugador en tu partido',
-            'partido_completo'    => '🎉 ¡Tu partido está completo!',
-            'jugador_eliminado'   => 'Un jugador ha cancelado su participación',
-            'plaza_disponible'    => '🚨 ¡Plaza disponible en partido completo!',
-            'recordatorio_24h'    => '⏰ Recordatorio: Tu partido de pádel mañana',
-            'invitacion_privada'  => '🎯 Invitación a partido privado',
-            'review_post_partido' => '🏆 ¿Cómo te fue el partido?'
+            'welcome.html'             => '¡Bienvenido a ' . $this->appName . '!',
+            'jugador_apuntado.html'    => 'Nuevo jugador en tu partido',
+            'partido_completo.html'    => '🎉 ¡Tu partido está completo!',
+            'jugador_eliminado.html'   => 'Un jugador ha cancelado su participación',
+            'plaza_disponible.html'    => '🚨 ¡Plaza disponible en partido completo!',
+            'recordatorio_24h.html'    => '⏰ Recordatorio: Tu partido de pádel mañana',
+            'invitacion_privada.html'  => '🎯 Invitación a partido privado',
+            'review_post_partido.html' => '🏆 ¿Cómo te fue el partido?'
         ];
 
         return $subjects[$template] ?? 'Notificación de ' . $this->appName;
