@@ -355,7 +355,7 @@ class PartidoController
             
 
             // Verificar si el partido se completó
-            $this->actualizarEstadoPartido($partido, $userId, $nivelUsuario, $data['tipoReserva'] ?? 'individual'); //  $data['nivelPartido']
+            /*$this->actualizarEstadoPartido($partido, $userId, $nivelUsuario, $data['tipoReserva'] ?? 'individual'); //  $data['nivelPartido']
             
             return $this->successResponse($response, [
                 'message' => 'Inscripción realizada correctamente',
@@ -365,7 +365,7 @@ class PartidoController
                     'partido_id' => $partido->id,
                     'data'       => $data
                 ]
-            ], 201);
+            ], 201);*/
             
         } catch (\Exception $e) {
             return $this->errorResponse($response, 'Error al inscribirse: ' . $e->getMessage());
