@@ -138,10 +138,10 @@ class NotificationService
             ->get()
             ->map(function($insc) {
                 return [
-                    'name'        => $insc->usuario->nombre ?? $insc->usuario->username,
+                    'name'        => $insc->usuario->full_name ?? $insc->usuario->username,
                     'skill_level' => $insc->usuario->categoria ?? 'N/A',
-                    'phone'       => $insc->usuario->telefono ?? 'No disponible',
-                    'initials'    => $this->getInitials($insc->usuario->nombre ?? $insc->usuario->username)
+                    'phone'       => $insc->usuario->phone ?? 'No disponible',
+                    'initials'    => $this->getInitials($insc->usuario->full_name ?? $insc->usuario->username)
                 ];
             })
             ->toArray();
