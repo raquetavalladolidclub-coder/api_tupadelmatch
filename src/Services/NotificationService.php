@@ -190,10 +190,10 @@ class NotificationService
         $playerData = [];
         foreach ($jugadores as $jugador) {
             $playerData[] = [
-                'name'        => $jugador->nombre ?? $jugador->username,
+                'name'        => $jugador->full_name ?? $jugador->username,
                 'skill_level' => $jugador->categoria ?? 'N/A',
-                'phone'       => $jugador->telefono ?? 'No disponible',
-                'initials'    => $this->getInitials($jugador->nombre ?? $jugador->username)
+                'phone'       => $jugador->phone ?? 'No disponible',
+                'initials'    => $this->getInitials($jugador->full_name ?? $jugador->username)
             ];
         }
 
@@ -213,7 +213,7 @@ class NotificationService
         // Enviar a todos los jugadores
         $sent = true;
         foreach ($jugadores as $jugador) {
-            $data['player_name'] = $jugador->nombre ?? $jugador->username;
+            $data['player_name'] = $jugador->full_name ?? $jugador->username;
             
             $sent = $sent && $this->sendGeneralNotificationWithTemplate(
                 $jugador->email,
