@@ -382,11 +382,11 @@ class PartidoController
             $userId    = $request->getAttribute('user_id');
             $usuario   = User::find($userId);
             
-            $inscripcion = InscripcionPartido::where('partido_id', $partidoId)->where('user_id', $userId)->first();
+            /*$inscripcion = InscripcionPartido::where('partido_id', $partidoId)->where('user_id', $userId)->first();
             
             if (!$inscripcion) {
                 return $this->errorResponse($response, 'No estás inscrito en este partido', 404);
-            }
+            }*/
             
             // No permitir cancelar si el usuario es el creador
             $partido = $inscripcion->partido;
