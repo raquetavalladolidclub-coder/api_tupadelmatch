@@ -14,8 +14,7 @@ class NotificationService
 
     public function __construct()
     {
-        $this->templatesPath = __DIR__ . '../Templates/Emails/';
-        // $templatePath = __DIR__ . '/../Templates/Emails/' . $template . '.html';
+        $this->templatesPath = __DIR__ . '/../Templates/Emails/';
         
         // Configurar PHPMailer (ajusta con tus credenciales)
         $this->mailer = new PHPMailer(true);
@@ -76,7 +75,7 @@ class NotificationService
             // Determinar asunto según el template
             $subject = $this->getSubjectForTemplate($template, $data);
             $this->mailer->Subject = $subject;
-            $this->mailer->Body = $templateContent;
+            $this->mailer->Body    = $templateContent;
             $this->mailer->AltBody = $this->generatePlainText($templateContent);
 
             // Enviar el email
