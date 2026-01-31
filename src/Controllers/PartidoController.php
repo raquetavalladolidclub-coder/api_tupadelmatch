@@ -526,7 +526,7 @@ class PartidoController
                     'nombre'      => $inscripcion->usuario->nombre,
                     'apellidos'   => $inscripcion->usuario->apellidos,
                     'categoria'   => $inscripcion->usuario->categoria,
-                    'imageUrl'    => $inscripcion->usuario->image_path ?? 'https://admin.tupadelmatch.es/assets/images/logo.png',
+                    'imageUrl'    => $inscripcion->usuario->image_path ?? 'assets/images/logo.png',
                     'fiabilidad'  => $inscripcion->usuario->fiabilidad ?? 0,
                     'tipoReserva' => $inscripcion->tipoReserva
                 ];
