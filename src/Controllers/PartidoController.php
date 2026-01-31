@@ -394,7 +394,7 @@ class PartidoController
                 return $this->errorResponse($response, 'El creador del partido no puede cancelar su inscripción');
             }
             
-            $inscripcion->delete();
+            // $inscripcion->delete();
 
             /////////////////////////////////////////////////////////////////////////////////
             // Notificar al organizador
