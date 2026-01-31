@@ -12,10 +12,9 @@ class PartidoController
 {
     private $notificationService;
     
-    // Inyectar en el constructor
-    public function __construct()
+    public function __construct(NotificationService $notificationService)
     {
-        $notificationService = new NotificationService();
+        $this->notificationService = $notificationService;
     }
 
     public function listarMisPartidos(Request $request, Response $response)
