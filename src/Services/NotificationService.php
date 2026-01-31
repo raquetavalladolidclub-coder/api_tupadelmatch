@@ -163,7 +163,7 @@ class NotificationService
             'max_players'     => $partido->tipo === 'individual' ? 2 : 4,
             
             'organizer_name'  => $partido->creador->full_name ?? 'Organizador',
-            'organizer_phone' => $partido->creador->telefono ?? 'No disponible',
+            'organizer_phone' => $partido->creador->phone ?? 'No disponible',
             
             'players' => $jugadores,
             
