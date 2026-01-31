@@ -358,7 +358,7 @@ class NotificationService
             
             $sent = $sent && $this->sendGeneralNotificationWithTemplate(
                 $waitingPlayer->email,
-                'plaza_disponible.html',
+                'jugador_eliminado.html',
                 $data
             );
         }
