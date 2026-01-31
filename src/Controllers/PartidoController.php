@@ -338,7 +338,7 @@ class PartidoController
                     $usuario, 
                     $organizador->email
                 );
-            }+7
+            }*/
 
             // Enviar email de confirmación al usuario
             $this->notificationService->sendPlayerConfirmationEmail(
