@@ -12,6 +12,7 @@
         public $timestamps    = true;
         
         protected $fillable = [
+            'idClub',
             'google_id',
             'username',
             'password',
@@ -19,17 +20,20 @@
             'nombre',
             'apellidos',
             'email',
+            'phone',
             'full_name',
             'role',
             'nivel',
             'genero',
             'categoria',
+            'nivel_puntuacion',
+            'liga',
+            'encuesta',
             'fiabilidad',
             'asistencias',
             'ausencias',
-            'codLiga',
             'is_active',
-            'encuesta',
+            'codLiga',
             'notificacionesPush',
             'notificacionesEmail'
         ];
