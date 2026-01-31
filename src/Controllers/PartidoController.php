@@ -332,7 +332,7 @@ class PartidoController
             // Notificar al organizador que un jugador se ha apuntado
             $organizador = User::find($partido->creador_id);
          
-            if ($organizador && $organizador->id == $userId) {
+            if ($organizador && $organizador->id != $userId) {
                 $this->notificationService->sendPlayerJoinedNotification(
                     $partido, 
                     $usuario, 
