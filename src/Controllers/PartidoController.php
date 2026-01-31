@@ -10,6 +10,8 @@ use PadelClub\Services\NotificationService;
 
 class PartidoController
 {
+    private $notificationService;
+
     public function listarMisPartidos(Request $request, Response $response)
     {
         try {
@@ -59,7 +61,7 @@ class PartidoController
                 return $this->formatearPartido($partido);
             });
 
-            NotificationService::sendGeneralNotification('fericor@gmail.com', 'Hola PADEL', 'HOLA PADEL PADEL PADEL');
+            $this->notificationService->sendGeneralNotification('fericor@gmail.com', 'Hola PADEL', 'HOLA PADEL PADEL PADEL');
             
             return $this->successResponse($response, [
                 'partidos' => $partidos,
