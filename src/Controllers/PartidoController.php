@@ -406,6 +406,13 @@ class PartidoController
                     $organizador->email
                 );
             }
+
+            // Enviar email de CONFIRMACIÓN AL USUARIO que canceló
+            $this->notificationService->sendCancellationConfirmationToUser(
+                $partido,
+                $usuario,
+                $inscripcion
+            );
             
             // Si el partido estaba completo, notificar a lista de espera
             if ($partido->estado == 'completo') {

@@ -225,7 +225,73 @@ class NotificationService
         return $sent;
     }
 
-    public function sendPlayerLeftNotification($partido, $jugador, $organizadorEmail)
+    public function sendCancellationConfirmationToUser($partido, $usuario, $inscripcion)
+    {
+        $data = [
+            'player_name'  => $usuario->full_name ?? $usuario->username,
+            'player_email' => $usuario->email,
+            
+            // Datos del partido
+            'match_date'    => $partido->fecha->format('d/m/Y'),
+            'match_time'    => $partido->hora,
+            'court_name'    => $partido->pista,
+            'court_address' => $partido->club ? $partido->club->direccion : 'Dirección no disponible',
+            'skill_level'   => $partido->categoria,
+            'price'         => number_format($partido->precio_individual, 2) . '€',
+            
+            // Información de cancelación
+            'cancellation_date' => date('d/m/Y H:i'),
+            'cancellation_code' => 'CAN-' . str_pad($inscripcion->id, 6, '0', STR_PAD_LEFT),
+            
+            // URLs
+            'available_matches_url' => 'https://tupadelmatch.es/partidos',
+            'new_match_url' => 'https://tupadelmatch.es/partidos?nivel=' . $partido->categoria,
+            
+            // Política de cancelación
+            'cancellation_policy' => $this->getCancellationPolicy($partido->fecha, $partido->hora),
+            'penalty_applied' => $this->calculatePenalty($partido->fecha, $partido->hora, $partido->precio_individual),
+        ];
+        
+        return $this->sendGeneralNotificationWithTemplate(
+            $usuario->email,
+            'cancelacion_usuario_confirmacion.html',
+            $data
+        );
+    }
+
+    private function getCancellationPolicy($fechaPartido, $horaPartido)
+    {
+        $fechaCompleta = new \DateTime($fechaPartido->format('Y-m-d') . ' ' . $horaPartido);
+        $ahora = new \DateTime();
+        $diferencia = $fechaCompleta->diff($ahora);
+        $horas = $diferencia->h + ($diferencia->days * 24);
+        
+        if ($horas > 24) {
+            return 'Sin penalización (cancelación con más de 24 horas de antelación)';
+        } elseif ($horas > 3) {
+            return 'Penalización del 50% (cancelación entre 3 y 24 horas antes)';
+        } else {
+            return 'Penalización del 100% (cancelación con menos de 3 horas)';
+        }
+    }
+
+    private function calculatePenalty($fechaPartido, $horaPartido, $precio)
+    {
+        $fechaCompleta = new \DateTime($fechaPartido->format('Y-m-d') . ' ' . $horaPartido);
+        $ahora = new \DateTime();
+        $diferencia = $fechaCompleta->diff($ahora);
+        $horas = $diferencia->h + ($diferencia->days * 24);
+        
+        if ($horas > 24) {
+            return 0;
+        } elseif ($horas > 3) {
+            return $precio * 0.5;
+        } else {
+            return $precio;
+        }
+    }
+
+    public function sendPlayerLeftNotificationOLD($partido, $jugador, $organizadorEmail)
     {
         $data = [
             'player_name'           => $jugador->full_name ?? $jugador->username,
@@ -239,6 +305,30 @@ class NotificationService
         return $this->sendGeneralNotificationWithTemplate(
             $organizadorEmail,
             'jugador_eliminado.html',
+            $data
+        );
+    }
+
+    public function sendPlayerLeftNotification($partido, $jugador, $organizadorEmail)
+    {
+        $data = [
+            'organizer_name'    => 'Organizador', // O puedes pasar el nombre real
+            'player_name'       => $jugador->full_name ?? $jugador->username,
+            'match_date'        => $partido->fecha->format('d/m/Y'),
+            'match_time'        => $partido->hora,
+            'court_name'        => $partido->pista,
+            'court_address'     => $partido->club ? $partido->club->direccion : 'Dirección no disponible',
+            'price'             => number_format($partido->precio_individual, 2) . '€',
+            'available_spots'   => $partido->plazas_disponibles,
+            'cancellation_date' => date('d/m/Y'),
+            'cancellation_time' => date('H:i'),
+            'match_management_url' => 'https://tupadelmatch.es/partido/' . $partido->id . '/manage',
+            'share_url'            => 'https://tupadelmatch.es/partido/' . $partido->id . '/share',
+        ];
+
+        return $this->sendGeneralNotificationWithTemplate(
+            $organizadorEmail,
+            'jugador_eliminado.html', // Usar el nuevo template
             $data
         );
     }

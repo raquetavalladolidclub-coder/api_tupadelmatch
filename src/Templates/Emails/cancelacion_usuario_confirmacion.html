@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancelación confirmada - TuPadelMatch</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+        .header { background-color: #53abc1; padding: 25px; text-align: center; }
+        .logo { max-width: 180px; height: auto; margin-bottom: 15px; }
+        .content { padding: 30px; }
+        .confirmation-badge { background: white; color: #53abc1; padding: 12px 30px; 
+                             border-radius: 25px; display: inline-block; margin: 10px 0; 
+                             font-weight: bold; font-size: 20px; border: 2px solid #53abc1; }
+        .info-card { background: #FFF3E0; border-radius: 12px; padding: 25px; margin: 25px 0; 
+                     border-left: 5px solid #53abc1; }
+        .penalty-box { background: #FFEBEE; border-radius: 10px; padding: 20px; margin: 20px 0; 
+                      border: 2px solid #F44336; }
+        .button { display: inline-block; padding: 16px 32px; background-color: #2196F3; 
+                  color: white; text-decoration: none; border-radius: 10px; font-weight: bold; 
+                  font-size: 16px; margin: 20px 0; transition: all 0.3s;
+                  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3); }
+        .button:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4); }
+        .footer { text-align: center; padding: 25px; color: #666; font-size: 13px; 
+                  background-color: #f8f9fa; border-top: 1px solid #ddd; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+        .info-item { background: white; padding: 15px; border-radius: 8px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <img src="https://admin.tupadelmatch.es/assets/images/logo.png" alt="TuPadelMatch" class="logo">
+            <h1 style="color: white; margin: 0; font-size: 28px;">✅ CANCELACIÓN CONFIRMADA</h1>
+            <p style="color: white; margin: 10px 0 0; font-size: 16px;">Tu inscripción ha sido cancelada</p>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <div class="confirmation-badge">CANCELACIÓN #{{cancellation_code}}</div>
+            
+            <h2 style="color: #53abc1;">Hola {{player_name}},</h2>
+            
+            <p>Tu inscripción en el partido de pádel ha sido <strong>cancelada exitosamente</strong>. 
+               Aquí tienes un resumen de la operación:</p>
+            
+            <div class="info-card">
+                <h3 style="margin-top: 0; color: #53abc1;">📋 Partido cancelado</h3>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>📅 Fecha</strong><br>
+                        {{match_date}}
+                    </div>
+                    <div class="info-item">
+                        <strong>🕒 Hora</strong><br>
+                        {{match_time}}
+                    </div>
+                    <div class="info-item">
+                        <strong>🎾 Pista</strong><br>
+                        {{court_name}}
+                    </div>
+                    <div class="info-item">
+                        <strong>💰 Precio</strong><br>
+                        {{price}}
+                    </div>
+                </div>
+                
+                <p><strong>📍 Dirección:</strong> {{court_address}}</p>
+                <p><strong>📊 Nivel:</strong> {{skill_level}}</p>
+            </div>
+            
+            <div class="penalty-box">
+                <h4 style="margin: 0 0 10px; color: #F44336;">
+                    <i class="fas fa-exclamation-triangle"></i> Información de penalización
+                </h4>
+                <p><strong>Política aplicada:</strong> {{cancellation_policy}}</p>
+                <p><strong>Penalización estimada:</strong> 
+                   {{#penalty_applied}}
+                   <span style="color: #F44336; font-weight: bold;">{{penalty_applied}}€</span>
+                   {{/penalty_applied}}
+                   {{^penalty_applied}}
+                   <span style="color: #4CAF50; font-weight: bold;">Sin penalización</span>
+                   {{/penalty_applied}}
+                </p>
+                <p style="font-size: 0.9rem; margin-top: 10px;">
+                    <em>Nota: Las penalizaciones se aplican en tu próxima reserva o se procesan como reembolso parcial.</em>
+                </p>
+            </div>
+            
+            <p><strong>📅 Fecha de cancelación:</strong> {{cancellation_date}}</p>
+            <p><strong>📧 Email de contacto:</strong> soporte@tupadelmatch.es</p>
+            
+            <p style="margin: 25px 0; font-style: italic;">
+                ¡Esperamos verte en otro partido pronto! Tu plaza ha quedado disponible para otros jugadores.
+            </p>
+            
+            <p style="margin-top: 30px;">
+                El equipo de <strong style="color: #53abc1;">PadelMatch</strong>
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>Este es un email automático de confirmación de cancelación.</p>
+            <p>Si no has solicitado esta cancelación, por favor contacta con nosotros inmediatamente.</p>
+            <p><strong>Referencia:</strong> {{cancellation_code}} | {{cancellation_date}}</p>
+            <p>&copy; {{current_year}} {{app_name}}. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>
