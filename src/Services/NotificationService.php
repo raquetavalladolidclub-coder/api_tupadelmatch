@@ -228,7 +228,7 @@ class NotificationService
     public function sendPlayerLeftNotification($partido, $jugador, $organizadorEmail)
     {
         $data = [
-            'player_name'           => $jugador->nombre ?? $jugador->username,
+            'player_name'           => $jugador->full_name ?? $jugador->username,
             'match_date'            => $partido->fecha->format('d/m/Y'),
             'match_time'            => $partido->hora,
             'court_name'            => $partido->pista,
@@ -246,7 +246,7 @@ class NotificationService
     public function sendSpotAvailableNotification($partido, $jugador, $waitingListPlayers)
     {
         $data = [
-            'player_name'      => $jugador->nombre ?? $jugador->username,
+            'player_name'      => $jugador->full_name ?? $jugador->username,
             'match_date'       => $partido->fecha->format('d/m/Y'),
             'days_until_match' => $this->daysUntil($partido->fecha),
             'match_time'       => $partido->hora,
@@ -264,7 +264,7 @@ class NotificationService
         // Enviar a todos los jugadores en lista de espera
         $sent = true;
         foreach ($waitingListPlayers as $waitingPlayer) {
-            $data['player_name'] = $waitingPlayer->nombre ?? $waitingPlayer->username;
+            $data['player_name'] = $waitingPlayer->full_name ?? $waitingPlayer->username;
             
             $sent = $sent && $this->sendGeneralNotificationWithTemplate(
                 $waitingPlayer->email,

@@ -381,9 +381,7 @@ class PartidoController
             $partidoId = $args['id'];
             $userId = $request->getAttribute('user_id');
             
-            $inscripcion = InscripcionPartido::where('partido_id', $partidoId)
-                                           ->where('user_id', $userId)
-                                           ->first();
+            $inscripcion = InscripcionPartido::where('partido_id', $partidoId)->where('user_id', $userId)->first();
             
             if (!$inscripcion) {
                 return $this->errorResponse($response, 'No estás inscrito en este partido', 404);
