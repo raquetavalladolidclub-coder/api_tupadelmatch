@@ -21,7 +21,7 @@
             'apellidos',
             'email',
             'phone',
-            'full_name',
+            'fullName',
             'role',
             'nivel',
             'genero',

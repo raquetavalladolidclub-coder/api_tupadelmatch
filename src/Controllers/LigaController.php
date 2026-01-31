@@ -630,7 +630,7 @@ class LigaController
             'posicion' => $posicion,
             'usuario' => [
                 'id' => $estadistica->usuario->id,
-                'nombre' => $estadistica->usuario->full_name,
+                'nombre' => $estadistica->usuario->fullName,
                 'username' => $estadistica->usuario->username,
                 'categoria' => $estadistica->usuario->categoria,
                 'foto_perfil' => $estadistica->usuario->imagePath
@@ -689,14 +689,14 @@ class LigaController
             'equipo_a' => $jugadores['equipoA']->map(function($jugador) {
                 return [
                     'id' => $jugador->id,
-                    'nombre' => $jugador->full_name,
+                    'nombre' => $jugador->fullName,
                     'username' => $jugador->username
                 ];
             }),
             'equipo_b' => $jugadores['equipoB']->map(function($jugador) {
                 return [
                     'id' => $jugador->id,
-                    'nombre' => $jugador->full_name,
+                    'nombre' => $jugador->fullName,
                     'username' => $jugador->username
                 ];
             })
@@ -822,7 +822,7 @@ class LigaController
             ? $jugadores['equipoA']->map(function($jugador) {
                 return [
                     'id'        => $jugador->id ?? $jugador['id'] ?? '',
-                    'nombre'    => $jugador->full_name ?? $jugador['full_name'] ?? 'Jugador',
+                    'nombre'    => $jugador->fullName ?? $jugador['fullName'] ?? 'Jugador',
                     'apellidos' => $jugador->apellidos ?? $jugador['apellidos'] ?? ''
                 ];
             })->toArray()
@@ -832,7 +832,7 @@ class LigaController
             ? $jugadores['equipoB']->map(function($jugador) {
                 return [
                     'id'        => $jugador->id ?? $jugador['id'] ?? '',
-                    'nombre'    => $jugador->full_name ?? $jugador['full_name'] ?? 'Jugador',
+                    'nombre'    => $jugador->fullName ?? $jugador['fullName'] ?? 'Jugador',
                     'apellidos' => $jugador->apellidos ?? $jugador['apellidos'] ?? ''
                 ];
             })->toArray()

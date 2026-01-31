@@ -112,7 +112,7 @@ class NotificationService
     public function sendPlayerJoinedNotification($partido, $jugador, $organizadorEmail)
     {
         $data = [
-            'player_name'       => $jugador->full_name ?? $jugador->username,
+            'player_name'       => $jugador->fullName ?? $jugador->username,
             'organizer_name'    => $organizadorEmail, // O nombre del organizador
             'match_date'        => $partido->fecha->format('d/m/Y'),
             'match_time'        => $partido->hora,
@@ -138,10 +138,10 @@ class NotificationService
             ->get()
             ->map(function($insc) {
                 return [
-                    'name'        => $insc->usuario->full_name ?? $insc->usuario->username,
+                    'name'        => $insc->usuario->fullName ?? $insc->usuario->username,
                     'skill_level' => $insc->usuario->categoria ?? 'N/A',
                     'phone'       => $insc->usuario->phone ?? 'No disponible',
-                    'initials'    => $this->getInitials($insc->usuario->full_name ?? $insc->usuario->username)
+                    'initials'    => $this->getInitials($insc->usuario->fullName ?? $insc->usuario->username)
                 ];
             })
             ->toArray();
@@ -162,7 +162,7 @@ class NotificationService
             'current_players' => $partido->jugadoresConfirmados()->count(),
             'max_players'     => $partido->tipo === 'individual' ? 2 : 4,
             
-            'organizer_name'  => $partido->creador->full_name ?? 'Organizador',
+            'organizer_name'  => $partido->creador->fullName ?? 'Organizador',
             'organizer_phone' => $partido->creador->phone ?? 'No disponible',
             
             'players' => $jugadores,
@@ -190,10 +190,10 @@ class NotificationService
         $playerData = [];
         foreach ($jugadores as $jugador) {
             $playerData[] = [
-                'name'        => $jugador->full_name ?? $jugador->username,
+                'name'        => $jugador->fullName ?? $jugador->username,
                 'skill_level' => $jugador->categoria ?? 'N/A',
                 'phone'       => $jugador->phone ?? 'No disponible',
-                'initials'    => $this->getInitials($jugador->full_name ?? $jugador->username)
+                'initials'    => $this->getInitials($jugador->fullName ?? $jugador->username)
             ];
         }
 
@@ -213,7 +213,7 @@ class NotificationService
         // Enviar a todos los jugadores
         $sent = true;
         foreach ($jugadores as $jugador) {
-            $data['player_name'] = $jugador->full_name ?? $jugador->username;
+            $data['player_name'] = $jugador->fullName ?? $jugador->username;
             
             $sent = $sent && $this->sendGeneralNotificationWithTemplate(
                 $jugador->email,
@@ -228,7 +228,7 @@ class NotificationService
     public function sendCancellationConfirmationToUser($partido, $usuario, $inscripcion)
     {
         $data = [
-            'player_name'  => $usuario->full_name ?? $usuario->username,
+            'player_name'  => $usuario->fullName ?? $usuario->username,
             'player_email' => $usuario->email,
             
             // Datos del partido
@@ -294,7 +294,7 @@ class NotificationService
     public function sendPlayerLeftNotificationOLD($partido, $jugador, $organizadorEmail)
     {
         $data = [
-            'player_name'           => $jugador->full_name ?? $jugador->username,
+            'player_name'           => $jugador->fullName ?? $jugador->username,
             'match_date'            => $partido->fecha->format('d/m/Y'),
             'match_time'            => $partido->hora,
             'court_name'            => $partido->pista,
@@ -313,7 +313,7 @@ class NotificationService
     {
         $data = [
             'organizer_name'    => 'Organizador', // O puedes pasar el nombre real
-            'player_name'       => $jugador->full_name ?? $jugador->username,
+            'player_name'       => $jugador->fullName ?? $jugador->username,
             'match_date'        => $partido->fecha->format('d/m/Y'),
             'match_time'        => $partido->hora,
             'court_name'        => $partido->pista,
@@ -336,7 +336,7 @@ class NotificationService
     public function sendSpotAvailableNotification($partido, $jugador, $waitingListPlayers)
     {
         $data = [
-            'player_name'      => $jugador->full_name ?? $jugador->username,
+            'player_name'      => $jugador->fullName ?? $jugador->username,
             'match_date'       => $partido->fecha->format('d/m/Y'),
             'days_until_match' => $this->daysUntil($partido->fecha),
             'match_time'       => $partido->hora,
@@ -354,7 +354,7 @@ class NotificationService
         // Enviar a todos los jugadores en lista de espera
         $sent = true;
         foreach ($waitingListPlayers as $waitingPlayer) {
-            $data['player_name'] = $waitingPlayer->full_name ?? $waitingPlayer->username;
+            $data['player_name'] = $waitingPlayer->fullName ?? $waitingPlayer->username;
             
             $sent = $sent && $this->sendGeneralNotificationWithTemplate(
                 $waitingPlayer->email,
