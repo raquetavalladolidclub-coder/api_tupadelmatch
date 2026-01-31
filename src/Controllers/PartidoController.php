@@ -10,11 +10,11 @@ use PadelClub\Services\NotificationService;
 
 class PartidoController
 {
-    private $notificationService;
 
     public function listarMisPartidos(Request $request, Response $response)
     {
         NotificationService::sendGeneralNotification('fericor@gmail.com', 'Hola PADEL', 'HOLA PADEL PADEL PADEL');
+        
         try {
             $userId = $request->getAttribute('user_id'); // o desde token / sesión
 

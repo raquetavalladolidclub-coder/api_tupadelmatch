@@ -6,7 +6,7 @@ use PadelClub\Models\User;
 
 class NotificationService
 {
-    private $mailer;
+    public $mailer;
 
     public function __construct()
     {
@@ -69,7 +69,7 @@ class NotificationService
     /**
      * Enviar notificación general
      */
-    public static function sendGeneralNotification($to, $subject, $message)
+    public function sendGeneralNotification($to, $subject, $message)
     {
         $data = [
             'subject' => $subject,
