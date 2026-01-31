@@ -358,8 +358,10 @@ class NotificationService
         if (!str_ends_with($templateName, '.html')) {
             $templateName .= '.html';
         }
+
+        $templatePath = $this->templatesPath . $templateName;
         
-        if (file_exists(__DIR__ . '../../Templates/Emails/' . $templateName)) {
+        if (file_exists($templatePath)) {
             $content = file_get_contents($templatePath);
             
             // Reemplazar variables
@@ -391,7 +393,7 @@ class NotificationService
         }
         
         // Si no encuentra el template, crear uno básico
-        error_log("Template no encontrado: $templateName. Paths probados: " . implode(', ', $possiblePaths));
+        error_log("Template no encontrado: $templateName. Paths probados: " . $templatePath);
         return $this->createBasicTemplate($templateName, $data);
     }
 
