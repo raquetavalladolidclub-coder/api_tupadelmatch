@@ -16,7 +16,7 @@
             'google_id',
             'username',
             'password',
-            'image_path',
+            'imagePath',
             'nombre',
             'apellidos',
             'email',

@@ -633,7 +633,7 @@ class LigaController
                 'nombre' => $estadistica->usuario->full_name,
                 'username' => $estadistica->usuario->username,
                 'categoria' => $estadistica->usuario->categoria,
-                'foto_perfil' => $estadistica->usuario->image_path
+                'foto_perfil' => $estadistica->usuario->imagePath
             ],
             'partidos_jugados' => $estadistica->partidos_jugados,
             'partidos_ganados' => $estadistica->partidos_ganados,
@@ -657,7 +657,7 @@ class LigaController
                 'apellidos' => $estadistica->usuario->apellidos,
                 'categoria' => $estadistica->usuario->categoria,
                 'email' => $estadistica->usuario->email,
-                'foto_perfil' => $estadistica->usuario->image_path
+                'foto_perfil' => $estadistica->usuario->imagePath
             ],
             'estadisticas' => [
                 'partidos_jugados' => $estadistica->partidos_jugados,

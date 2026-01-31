@@ -60,7 +60,7 @@ class AuthController
                     'full_name'   => $user->full_name,
                     'nombre'      => $user->nombre,
                     'apellidos'   => $user->apellidos,
-                    'image_path'  => $user->image_path,
+                    'imagePath'  => $user->imagePath,
                     'nivel'       => $user->nivel,
                     'genero'      => $user->genero,
                     'categoria'   => $user->categoria,
@@ -391,7 +391,7 @@ class AuthController
                     'full_name'   => $user->full_name,
                     'nombre'      => $user->nombre,
                     'apellidos'   => $user->apellidos,
-                    'image_path'  => $user->image_path,
+                    'imagePath'  => $user->imagePath,
                     'nivel'       => $user->nivel,
                     'genero'      => $user->genero,
                     'categoria'   => $user->categoria,
@@ -481,7 +481,7 @@ class AuthController
                     'categoria' => $user->categoria,
                     'liga' => $user->liga,
                     'codLiga' => $user->codLiga,
-                    'image_path' => $user->image_path,
+                    'imagePath' => $user->imagePath,
                     'nivel_puntuacion' => $user->nivel_puntuacion
                 ]
             ]);
@@ -608,14 +608,14 @@ class AuthController
             $imagePath = '/uploads/profiles/' . $filename;
             
             // Actualizar en base de datos
-            $user->image_path = $imagePath;
+            $user->imagePath = $imagePath;
             $user->save();
             
             return $this->successResponse($response, [
                 'success' => true,
                 'message' => 'Imagen de perfil actualizada correctamente',
                 'data' => [
-                    'image_path' => $imagePath,
+                    'imagePath' => $imagePath,
                     'full_url' => 'http://' . $_SERVER['HTTP_HOST'] . $imagePath
                 ]
             ]);
@@ -680,7 +680,7 @@ class AuthController
                     'phone' => $user->phone,
                     'genero' => $user->genero,
                     'categoria' => $user->categoria,
-                    'image_path' => $user->image_path,
+                    'imagePath' => $user->imagePath,
                 ]
             ]);
             
@@ -784,7 +784,7 @@ class AuthController
                     'full_name'   => $user->full_name,
                     'nombre'      => $user->nombre,
                     'apellidos'   => $user->apellidos,
-                    'image_path'  => $user->image_path,
+                    'imagePath'  => $user->imagePath,
                     'nivel'       => $user->nivel,
                     'genero'      => $user->genero,
                     'categoria'   => $user->categoria,
