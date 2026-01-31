@@ -172,12 +172,14 @@ class NotificationService
             'cancel_url'        => 'https://tupadelmatch.es/partido/' . $partido->id . '/cancel?token=' . $this->generateCancelToken($inscripcion->id),
             'share_url'         => 'https://tupadelmatch.es/partido/' . $partido->id . '/share',
         ];
+
+        print_r($data);
         
-        return $this->sendGeneralNotificationWithTemplate(
+        /*return $this->sendGeneralNotificationWithTemplate(
             $usuario->email,
             'confirmacionInscripcionPartido.html',
             $data
-        );
+        );*/
     }
 
     private function generateCancelToken($inscriptionId)
