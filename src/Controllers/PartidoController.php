@@ -333,7 +333,7 @@ class PartidoController
             $organizador = User::find($partido->creador_id);
             echo "VALOR: ".$organizador->id;
             echo " - ". $userId;
-            if ($organizador && $organizador->id != $userId) {
+            if ($organizador && $organizador->id == $userId) {
                 echo "Aqui";
                 $this->notificationService->sendPlayerJoinedNotification(
                     $partido, 
