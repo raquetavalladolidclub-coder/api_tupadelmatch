@@ -12,44 +12,12 @@ class NotificationService
     private $supportEmail = 'soporte@tupadelmatch.es';
     private $logoUrl      = 'https://admin.tupadelmatch.es/assets/images/logo.png';
 
-    /*public function __construct()
+    public function __construct()
     {
         $this->templatesPath = __DIR__ . '/../Templates/Emails/';
         // $templatePath = __DIR__ . '/../Templates/Emails/' . $template . '.html';
         
         // Configurar PHPMailer (ajusta con tus credenciales)
-        $this->mailer = new PHPMailer(true);
-        $this->configureMailer();
-    }*/
-
-    public function __construct()
-    {
-        // Definir múltiples rutas posibles para templates
-        $possibleTemplatePaths = [
-            __DIR__ . '/../Templates/Emails/',
-            __DIR__ . '/../../Templates/Emails/',
-            dirname(__DIR__) . '/Templates/Emails/',
-            dirname(dirname(__DIR__)) . '/Templates/Emails/'
-        ];
-        
-        foreach ($possibleTemplatePaths as $path) {
-            if (is_dir($path)) {
-                $this->templatesPath = $path;
-                break;
-            }
-        }
-        
-        if (!$this->templatesPath) {
-            $this->templatesPath = __DIR__ . '/../Templates/Emails/';
-            // Crear directorio si no existe
-            if (!is_dir($this->templatesPath)) {
-                mkdir($this->templatesPath, 0755, true);
-            }
-        }
-        
-        error_log("Templates path: " . $this->templatesPath);
-        
-        // Configurar PHPMailer
         $this->mailer = new PHPMailer(true);
         $this->configureMailer();
     }
