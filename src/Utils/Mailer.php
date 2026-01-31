@@ -18,6 +18,7 @@ class Mailer
 
         // Configuración SMTP
         $this->mailer->isSMTP();
+        $this->mailer->SMTPDebug  = 2;
         $this->mailer->Host       = $_ENV['MAIL_HOST'] ?? 'smtp.gmail.com';
         $this->mailer->SMTPAuth   = true;
         $this->mailer->Username   = $_ENV['MAIL_USERNAME'];
