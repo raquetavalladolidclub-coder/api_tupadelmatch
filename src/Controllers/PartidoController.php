@@ -318,7 +318,7 @@ class PartidoController
             $inscripcion = InscripcionPartido::create([
                 'partido_id'  => $partidoId,
                 'user_id'     => $userId,
-                'tipoReserva' => strtoupper($data['tipoReserva']),
+                'tipoReserva' => strtoupper($data['tipoReserva'] ?? 'individual'),
                 'estado'      => 'confirmado', // 'pendiente',
                 'comentario'  => $data['notas'] ?? null
             ]);
@@ -330,14 +330,14 @@ class PartidoController
 
             /////////////////////////////////////////////////////////////////////////////////
             // Notificar al organizador que un jugador se ha apuntado
-            /*$organizador = User::find($partido->creador_id);
+            $organizador = User::find($partido->creador_id);
             if ($organizador && $organizador->id != $userId) {
                 $this->notificationService->sendPlayerJoinedNotification(
                     $partido, 
                     $usuario, 
                     $organizador->email
                 );
-            }*/
+            }
 
             // Enviar email de confirmación al usuario
             $this->notificationService->sendPlayerConfirmationEmail(
