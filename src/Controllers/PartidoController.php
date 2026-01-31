@@ -328,11 +328,11 @@ class PartidoController
                 $inscripcion->update(['estado' => 'confirmado']);
             }
 
-            $partido = Partido::find($partidoId);
+            // $partido = Partido::find($partidoId);
 
             /////////////////////////////////////////////////////////////////////////////////
             // Notificar al organizador que un jugador se ha apuntado
-            /*$organizador = User::find($partido->creador_id);
+            $organizador = User::find($partido->creador_id);
          
             if ($organizador && $organizador->id != $userId) {
                 $this->notificationService->sendPlayerJoinedNotification(
@@ -340,7 +340,7 @@ class PartidoController
                     $usuario, 
                     $organizador->email
                 );
-            }*/
+            }
 
             // Enviar email de confirmación al usuario
             $this->notificationService->sendPlayerConfirmationEmail(
@@ -363,8 +363,8 @@ class PartidoController
             return $this->successResponse($response, [
                 'message' => 'Inscripción realizada correctamente',
                 'inscripcion' => [
-                    'id'         => 0, // $inscripcion->id,
-                    'estado'     => 0, // $inscripcion->estado,
+                    'id'         => $inscripcion->id,
+                    'estado'     => $inscripcion->estado,
                     'partido_id' => $partido->id,
                     'data'       => $data
                 ]
