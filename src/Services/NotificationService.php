@@ -8,13 +8,14 @@ class NotificationService
 {
     private $mailer;
     private $templatesPath;
-    private $appName = 'TuPadelMatch';
+    private $appName      = 'PadelMatch';
     private $supportEmail = 'soporte@tupadelmatch.es';
-    private $logoUrl = 'https://admin.tupadelmatch.es/assets/images/logo.png';
+    private $logoUrl      = 'https://admin.tupadelmatch.es/assets/images/logo.png';
 
     public function __construct()
     {
-        $this->templatesPath = __DIR__ . '/../Templates/Email/';
+        $this->templatesPath = __DIR__ . '/../Templates/Emails/';
+        // $templatePath = __DIR__ . '/../Templates/Emails/' . $template . '.html';
         
         // Configurar PHPMailer (ajusta con tus credenciales)
         $this->mailer = new PHPMailer(true);
