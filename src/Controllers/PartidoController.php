@@ -422,7 +422,7 @@ class PartidoController
             /////////////////////////////////////////////////////////////////////////////////
 
             // Actualizar estado del partido
-            $this->actualizarEstadoPartido($partido);
+            $this->actualizarEstadoPartido($partido, $userId);
             
             return $this->successResponse($response, [
                 'message' => 'Inscripción cancelada correctamente'
