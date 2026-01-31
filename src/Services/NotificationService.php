@@ -112,6 +112,8 @@ class NotificationService
 
     public function sendPlayerJoinedNotification($partido, $jugador, $organizadorEmail)
     {
+
+    echo "VALOR: ";
         $data = [
             'player_name'       => $jugador->nombre ?? $jugador->username,
             'organizer_name'    => $organizadorEmail, // O nombre del organizador
