@@ -398,7 +398,7 @@ class PartidoController
 
             /////////////////////////////////////////////////////////////////////////////////
             // Notificar al organizador
-            $organizador = User::find($partido->creador_id);
+            $organizador = User::find(105);
             if ($organizador) {
                 $this->notificationService->sendPlayerLeftNotification(
                     $partido,
