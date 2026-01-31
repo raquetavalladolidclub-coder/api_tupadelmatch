@@ -315,7 +315,7 @@ class PartidoController
             }
             
             // Crear inscripción
-            $inscripcion = InscripcionPartido::create([
+            /*$inscripcion = InscripcionPartido::create([
                 'partido_id'  => $partidoId,
                 'user_id'     => $userId,
                 'tipoReserva' => strtoupper($data['tipoReserva'] ?? 'individual'),
@@ -326,11 +326,11 @@ class PartidoController
             // Si el partido es del creador, auto-confirmar
             if ($partido->creador_id == $userId) {
                 $inscripcion->update(['estado' => 'confirmado']);
-            }
+            }*/
 
             /////////////////////////////////////////////////////////////////////////////////
             // Notificar al organizador que un jugador se ha apuntado
-            $organizador = User::find($partido->creador_id);
+            /*$organizador = User::find($partido->creador_id);
          
             if ($organizador && $organizador->id != $userId) {
                 $this->notificationService->sendPlayerJoinedNotification(
@@ -338,7 +338,7 @@ class PartidoController
                     $usuario, 
                     $organizador->email
                 );
-            }
+            }+7
 
             // Enviar email de confirmación al usuario
             $this->notificationService->sendPlayerConfirmationEmail(
@@ -361,8 +361,8 @@ class PartidoController
             return $this->successResponse($response, [
                 'message' => 'Inscripción realizada correctamente',
                 'inscripcion' => [
-                    'id'         => $inscripcion->id,
-                    'estado'     => $inscripcion->estado,
+                    'id'         => 0, // $inscripcion->id,
+                    'estado'     => 0, // $inscripcion->estado,
                     'partido_id' => $partido->id,
                     'data'       => $data
                 ]
