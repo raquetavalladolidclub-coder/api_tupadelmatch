@@ -112,7 +112,7 @@ class NotificationService
     public function sendPlayerJoinedNotification($partido, $jugador, $organizadorEmail)
     {
         $data = [
-            'player_name'       => $jugador->nombre ?? $jugador->username,
+            'player_name'       => $jugador->full_name ?? $jugador->username,
             'organizer_name'    => $organizadorEmail, // O nombre del organizador
             'match_date'        => $partido->fecha->format('d/m/Y'),
             'match_time'        => $partido->hora,
