@@ -12,12 +12,44 @@ class NotificationService
     private $supportEmail = 'soporte@tupadelmatch.es';
     private $logoUrl      = 'https://admin.tupadelmatch.es/assets/images/logo.png';
 
-    public function __construct()
+    /*public function __construct()
     {
         $this->templatesPath = __DIR__ . '/../Templates/Emails/';
         // $templatePath = __DIR__ . '/../Templates/Emails/' . $template . '.html';
         
         // Configurar PHPMailer (ajusta con tus credenciales)
+        $this->mailer = new PHPMailer(true);
+        $this->configureMailer();
+    }*/
+
+    public function __construct()
+    {
+        // Definir múltiples rutas posibles para templates
+        $possibleTemplatePaths = [
+            __DIR__ . '/../Templates/Emails/',
+            __DIR__ . '/../../Templates/Emails/',
+            dirname(__DIR__) . '/Templates/Emails/',
+            dirname(dirname(__DIR__)) . '/Templates/Emails/'
+        ];
+        
+        foreach ($possibleTemplatePaths as $path) {
+            if (is_dir($path)) {
+                $this->templatesPath = $path;
+                break;
+            }
+        }
+        
+        if (!$this->templatesPath) {
+            $this->templatesPath = __DIR__ . '/../Templates/Emails/';
+            // Crear directorio si no existe
+            if (!is_dir($this->templatesPath)) {
+                mkdir($this->templatesPath, 0755, true);
+            }
+        }
+        
+        error_log("Templates path: " . $this->templatesPath);
+        
+        // Configurar PHPMailer
         $this->mailer = new PHPMailer(true);
         $this->configureMailer();
     }
@@ -351,8 +383,108 @@ class NotificationService
     /**
      * Métodos auxiliares
      */
-    
+
     private function loadTemplate($templateName, $data)
+    {
+        // Asegurar que tenga la extensión .html
+        if (!str_ends_with($templateName, '.html')) {
+            $templateName .= '.html';
+        }
+        
+        // Verificar múltiples ubicaciones posibles
+        $possiblePaths = [
+            __DIR__ . '/../Templates/Emails/' . $templateName,
+            __DIR__ . '/../../Templates/Emails/' . $templateName,
+            __DIR__ . '/Templates/Emails/' . $templateName,
+            dirname(__DIR__) . '/Templates/Emails/' . $templateName,
+        ];
+        
+        foreach ($possiblePaths as $templatePath) {
+            if (file_exists($templatePath)) {
+                $content = file_get_contents($templatePath);
+                
+                // Reemplazar variables
+                foreach ($data as $key => $value) {
+                    if (is_array($value)) {
+                        // Procesar arrays específicos
+                        if ($key === 'players' && strpos($content, '{{#players}}') !== false) {
+                            $playerContent = '';
+                            foreach ($value as $player) {
+                                $playerContent .= $this->renderPlayerItem($player);
+                            }
+                            // Reemplazar bloque completo
+                            $pattern = '/\{\{#players\}\}.*?\{\{\/players\}\}/s';
+                            $replacement = $playerContent;
+                            $content = preg_replace($pattern, $replacement, $content);
+                        }
+                    } else {
+                        // Reemplazar variables simples
+                        $content = str_replace('{{' . $key . '}}', htmlspecialchars($value ?? '', ENT_QUOTES), $content);
+                        // También soportar formato sin llaves por si acaso
+                        $content = str_replace('$' . $key . '$', htmlspecialchars($value ?? '', ENT_QUOTES), $content);
+                    }
+                }
+                
+                // Limpiar cualquier variable no reemplazada
+                $content = preg_replace('/\{\{[^}]+\}\}/', '', $content);
+                
+                return $content;
+            }
+        }
+        
+        // Si no encuentra el template, crear uno básico
+        error_log("Template no encontrado: $templateName. Paths probados: " . implode(', ', $possiblePaths));
+        return $this->createBasicTemplate($templateName, $data);
+    }
+
+    private function createBasicTemplate($templateName, $data)
+    {
+        // Template HTML básico de respaldo
+        $subject = $this->getSubjectForTemplate($templateName, $data);
+        
+        $html = '<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>' . htmlspecialchars($subject) . '</title>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; }
+                .content { padding: 30px; background-color: #f9f9f9; }
+                .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>' . htmlspecialchars($subject) . '</h1>
+                </div>
+                
+                <div class="content">';
+        
+        // Agregar datos dinámicos
+        foreach ($data as $key => $value) {
+            if (!is_array($value) && !in_array($key, ['app_name', 'support_email', 'current_year'])) {
+                $html .= '<p><strong>' . htmlspecialchars($key) . ':</strong> ' . htmlspecialchars($value) . '</p>';
+            }
+        }
+        
+        $html .= '
+                </div>
+                
+                <div class="footer">
+                    <p>Este es un email automático de ' . htmlspecialchars($data['app_name'] ?? 'TuPadelMatch') . '.</p>
+                    <p>&copy; ' . ($data['current_year'] ?? date('Y')) . ' ' . htmlspecialchars($data['app_name'] ?? 'TuPadelMatch') . '. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </body>
+        </html>';
+        
+        return $html;
+    }
+    
+    private function loadTemplateOLD($templateName, $data)
     {
         $templatePath = $this->templatesPath . $templateName;
         
@@ -364,7 +496,7 @@ class NotificationService
                 return false;
             }
         }
-echo $templatePath;
+
         $content = file_get_contents($templatePath);
         
         // Reemplazar variables en el template
