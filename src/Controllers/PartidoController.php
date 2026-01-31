@@ -337,8 +337,6 @@ class PartidoController
                     $usuario, 
                     $organizador->email
                 );
-
-                echo "EMAIL: ".$organizador->email;
             }
 
             // Enviar email de confirmación al usuario
@@ -362,8 +360,8 @@ class PartidoController
             return $this->successResponse($response, [
                 'message' => 'Inscripción realizada correctamente',
                 'inscripcion' => [
-                    'id'         => $inscripcion->id,
-                    'estado'     => $inscripcion->estado,
+                    'id'         => 0, // $inscripcion->id,
+                    'estado'     => $organizador->email, // $inscripcion->estado,
                     'partido_id' => $partido->id,
                     'data'       => $data
                 ]
