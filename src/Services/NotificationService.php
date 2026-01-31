@@ -124,7 +124,7 @@ class NotificationService
 
         return $this->sendGeneralNotificationWithTemplate(
             $organizadorEmail,
-            'jugador_apuntado.html',
+            'jugadorApuntado.html',
             $data
         );
     }
