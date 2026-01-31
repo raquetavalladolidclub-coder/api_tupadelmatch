@@ -315,7 +315,7 @@ class PartidoController
             }
             
             // Crear inscripción
-            /*$inscripcion = InscripcionPartido::create([
+            $inscripcion = InscripcionPartido::create([
                 'partido_id'  => $partidoId,
                 'user_id'     => $userId,
                 'tipoReserva' => strtoupper($data['tipoReserva'] ?? 'individual'),
@@ -326,7 +326,7 @@ class PartidoController
             // Si el partido es del creador, auto-confirmar
             if ($partido->creador_id == $userId) {
                 $inscripcion->update(['estado' => 'confirmado']);
-            }*/
+            }
 
             /////////////////////////////////////////////////////////////////////////////////
             // Notificar al organizador que un jugador se ha apuntado
