@@ -328,6 +328,8 @@ class PartidoController
                 $inscripcion->update(['estado' => 'confirmado']);
             }
 
+            $partido = Partido::find($partidoId);
+
             /////////////////////////////////////////////////////////////////////////////////
             // Notificar al organizador que un jugador se ha apuntado
             /*$organizador = User::find($partido->creador_id);
