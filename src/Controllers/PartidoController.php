@@ -13,7 +13,7 @@ class PartidoController
     private $notificationService;
     
     // Inyectar en el constructor
-    public function __construct(\PadelClub\Services\NotificationService $notificationService)
+    public function __construct()
     {
         $notificationService = new NotificationService();
     }
