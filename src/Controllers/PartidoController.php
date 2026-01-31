@@ -10,11 +10,18 @@ use PadelClub\Services\NotificationService;
 
 class PartidoController
 {
+    private $notificationService;
+    
+    // Inyectar en el constructor
+    public function __construct(\PadelClub\Services\NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
 
     public function listarMisPartidos(Request $request, Response $response)
     {
-        NotificationService::sendGeneralNotification('fericor@gmail.com', 'Hola PADEL', 'HOLA PADEL PADEL PADEL');
-        
+        $this->notificationService->sendGeneralNotification('fericor@gmail.com', 'Hola PADEL', 'HOLA PADEL PADEL PADEL');
+
         try {
             $userId = $request->getAttribute('user_id'); // o desde token / sesión
 

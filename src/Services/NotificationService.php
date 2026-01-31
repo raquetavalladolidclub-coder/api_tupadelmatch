@@ -6,7 +6,7 @@ use PadelClub\Models\User;
 
 class NotificationService
 {
-    public $mailer;
+    private $mailer;
 
     public function __construct()
     {
