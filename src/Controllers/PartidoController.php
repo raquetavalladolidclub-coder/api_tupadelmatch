@@ -337,6 +337,8 @@ class PartidoController
                     $usuario, 
                     $organizador->email
                 );
+
+                echo "EMAIL: ".$organizador->email;
             }
 
             // Enviar email de confirmación al usuario

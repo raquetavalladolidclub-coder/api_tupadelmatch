@@ -122,8 +122,6 @@ class NotificationService
             'match_details_url' => 'https://tupadelmatch.es/partido/' . $partido->id
         ];
 
-        echo "EMail: ".$organizadorEmail;
-
         return $this->sendGeneralNotificationWithTemplate(
             $organizadorEmail,
             'jugadorApuntado.html',
