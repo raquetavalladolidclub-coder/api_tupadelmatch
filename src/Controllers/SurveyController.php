@@ -21,9 +21,9 @@ class SurveyController
         }
 
         // Validación básica
-        $required = [
-            // 'experience_years',
-            // 'weekly_play_frequency',
+        /*$required = [
+            'experience_years',
+            'weekly_play_frequency',
             'has_competitive_experience',
             'technical_level',
             'physical_condition',
@@ -34,7 +34,7 @@ class SurveyController
             if (!isset($data[$field])) {
                 return $this->errorResponse($response, "Campo requerido: $field");
             }
-        }
+        }*/
 
         try {
             // Evitar más de una encuesta por usuario
