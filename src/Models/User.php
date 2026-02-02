@@ -39,7 +39,6 @@
         ];
         
         protected $hidden = [
-            'tokenDevice',
             'password'
         ];
         

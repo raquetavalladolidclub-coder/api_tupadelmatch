@@ -57,10 +57,10 @@ class AuthController
                     'id'          => $user->id,
                     'email'       => $user->email,
                     'username'    => $user->username ?? null,
-                    'fullName'   => $user->fullName,
+                    'fullName'    => $user->fullName,
                     'nombre'      => $user->nombre,
                     'apellidos'   => $user->apellidos,
-                    'imagePath'  => $user->imagePath,
+                    'imagePath'   => $user->imagePath,
                     'nivel'       => $user->nivel,
                     'genero'      => $user->genero,
                     'categoria'   => $user->categoria,
@@ -69,6 +69,7 @@ class AuthController
                     'ausencias'   => $user->ausencias,
                     'codLiga'     => $user->codLiga,
                     'encuesta'    => $user->encuesta,
+                    'tokenDevice' => $user->tokenDevice,
                     'notificacionesPush'  => $user->notificacionesPush,
                     'notificacionesEmail' => $user->notificacionesEmail
                 ]
