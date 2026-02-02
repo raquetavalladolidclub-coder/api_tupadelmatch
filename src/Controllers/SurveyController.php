@@ -41,13 +41,13 @@ class SurveyController
             }
 
             $categorias = [
-                'PROMESAS' => 1,
-                'COBRE'    => 2,
-                'BRONCE'   => 3,
-                'PLATA'    => 4,
-                'DIAMANTE' => 5,
-                'ORO'      => 6,
-                'PRO'      => 7];
+                'promesas' => 1,
+                'cobre'    => 2,
+                'bronce'   => 3,
+                'plata'    => 4,
+                'diamante' => 5,
+                'oro'      => 6,
+                'pro'      => 7];
 
             // Crear encuesta
             $survey = Survey::create([
