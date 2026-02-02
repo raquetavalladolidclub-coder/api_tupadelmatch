@@ -63,7 +63,7 @@ class SurveyController
             $user = User::find($userId);
             if ($user) {
                 $user->categoria = strtolower($data['nivel_club']);
-                $user->nivel_puntuacion = $score;
+                $user->nivel_puntuacion = $categorias[$data['nivel_club']];
                 $user->encuesta = 1;
                 $user->save();
             }
