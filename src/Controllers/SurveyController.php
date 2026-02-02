@@ -22,7 +22,7 @@ class SurveyController
     public function submitSurvey(Request $request, Response $response): Response
     {
         try {
-            $data = $request->getParsedBody();
+            $data   = $request->getParsedBody();
             $userId = $request->getAttribute('userId');
             
             if (!$userId) {
@@ -42,7 +42,7 @@ class SurveyController
             }
             
             // Crear objeto Survey
-            $survey = new Survey();
+            /*$survey = new Survey();
             $survey->user_id = $userId;
             $survey->experience_years = (int) $data['experience_years'];
             $survey->weekly_play_frequency = (int) $data['weekly_play_frequency'];
@@ -75,7 +75,7 @@ class SurveyController
                     'suggested_category' => $savedSurvey->suggested_category,
                     'created_at' => $savedSurvey->created_at
                 ]
-            ], 201);
+            ], 201);*/
             
         } catch (\Exception $e) {
             error_log('Error en submitSurvey: ' . $e->getMessage());
