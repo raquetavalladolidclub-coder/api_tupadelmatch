@@ -21,20 +21,19 @@ class SurveyController
         }
 
         // Validación básica
-        /*$required = [
-            'experience_years',
-            'weekly_play_frequency',
-            'has_competitive_experience',
-            'technical_level',
-            'physical_condition',
-            'tactical_knowledge'
+        $required = [
+            'nivel_percepcion',
+            'partidos_semana',
+            'nivel_club',
+            'nivel_club_texto',
+            'puntuacion'
         ];
 
         foreach ($required as $field) {
             if (!isset($data[$field])) {
                 return $this->errorResponse($response, "Campo requerido: $field");
             }
-        }*/
+        }
 
         try {
             // Evitar más de una encuesta por usuario
@@ -42,36 +41,29 @@ class SurveyController
                 return $this->errorResponse($response, 'La encuesta ya fue completada', 409);
             }
 
-            // Calcular score
-            $score =
-                (int)$data['experience_years'] +
-                (int)$data['weekly_play_frequency'] +
-                (int)$data['technical_level'] +
-                (int)$data['physical_condition'] +
-                (int)$data['tactical_knowledge'];
-
-            $suggestedCategory =
-                $score >= 20 ? 'Avanzado' :
-                ($score >= 12 ? 'Intermedio' : 'Inicial');
+            $categorias = [
+                'PROMESAS' => 1,
+                'COBRE'    => 2,
+                'BRONCE'   => 3,
+                'PLATA'    => 4,
+                'DIAMANTE' => 5,
+                'ORO'      => 6,
+                'PRO'      => 7];
 
             // Crear encuesta
             $survey = Survey::create([
                 'user_id' => $userId,
-                'experience_years' => $data['experience_years'],
-                'weekly_play_frequency' => $data['weekly_play_frequency'],
-                'has_competitive_experience' => $data['has_competitive_experience'],
-                'technical_level' => $data['technical_level'],
-                'physical_condition' => $data['physical_condition'],
-                'tactical_knowledge' => $data['tactical_knowledge'],
-                'previous_category' => $data['previous_category'] ?? null,
-                'calculated_score' => $score,
-                'suggested_category' => $suggestedCategory
+                'nivel_percepcion' => $data['nivel_percepcion'],
+                'partidos_semana'  => $data['partidos_semana'],
+                'nivel_club'       => $data['nivel_club'],
+                'nivel_club_texto' => $data['nivel_club_texto'],
+                'puntuacion'       => $categorias[$data['nivel_club']]
             ]);
 
             // Actualizar usuario
             $user = User::find($userId);
             if ($user) {
-                $user->nivel = $suggestedCategory;
+                $user->categoria = strtolower($data['nivel_club']);
                 $user->nivel_puntuacion = $score;
                 $user->encuesta = 1;
                 $user->save();
