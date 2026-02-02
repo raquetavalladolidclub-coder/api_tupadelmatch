@@ -25,8 +25,7 @@ class SurveyController
             'nivel_percepcion',
             'partidos_semana',
             'nivel_club',
-            'nivel_club_texto',
-            'puntuacion'
+            'nivel_club_texto'
         ];
 
         foreach ($required as $field) {
