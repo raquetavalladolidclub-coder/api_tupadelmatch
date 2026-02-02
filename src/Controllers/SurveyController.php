@@ -23,7 +23,7 @@ class SurveyController
         // Validación básica
         $required = [
             // 'experience_years',
-            'weekly_play_frequency',
+            // 'weekly_play_frequency',
             'has_competitive_experience',
             'technical_level',
             'physical_condition',
