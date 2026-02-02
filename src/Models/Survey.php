@@ -1,26 +1,40 @@
 <?php
-// src/Models/Survey.php
 namespace PadelClub\Models;
 
-class Survey
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Survey extends Model
 {
-    public $id;
-    public $user_id;
-    public $experience_years;
-    public $weekly_play_frequency;
-    public $has_competitive_experience;
-    public $technical_level;
-    public $physical_condition;
-    public $tactical_knowledge;
-    public $previous_category;
-    public $calculated_score;
-    public $suggested_category;
-    public $created_at;
-    public $updated_at;
-    
-    public function __construct()
+    protected $table = 'surveys';
+    protected $primaryKey = 'id';
+    public $timestamps = true;
+
+    protected $fillable = [
+        'user_id',
+        'experience_years',
+        'weekly_play_frequency',
+        'has_competitive_experience',
+        'technical_level',
+        'physical_condition',
+        'tactical_knowledge',
+        'previous_category',
+        'calculated_score',
+        'suggested_category'
+    ];
+
+    protected $casts = [
+        'has_competitive_experience' => 'boolean',
+        'experience_years' => 'integer',
+        'weekly_play_frequency' => 'integer',
+        'technical_level' => 'integer',
+        'physical_condition' => 'integer',
+        'tactical_knowledge' => 'integer',
+        'calculated_score' => 'integer'
+    ];
+
+    public function user(): BelongsTo
     {
-        $this->created_at = date('Y-m-d H:i:s');
-        $this->updated_at = date('Y-m-d H:i:s');
+        return $this->belongsTo(User::class, 'user_id');
     }
 }
