@@ -13,7 +13,7 @@
         
         protected $fillable = [
             'idClub',
-            'google_id',
+            'tokenDevice',
             'username',
             'password',
             'imagePath',
@@ -39,7 +39,7 @@
         ];
         
         protected $hidden = [
-            'google_id',
+            'tokenDevice',
             'password'
         ];
         
