@@ -36,9 +36,9 @@ class SurveyController
 
         try {
             // Evitar más de una encuesta por usuario
-            if (Survey::where('user_id', $userId)->exists()) {
-                return $this->successResponse($response, 'La encuesta ya fue completada', 201);
-            }
+            // if (Survey::where('user_id', $userId)->exists()) {
+            //     return $this->errorResponse($response, 'La encuesta ya fue completada', 409);
+            // }
 
             $categorias = [
                 'promesas' => 1,
