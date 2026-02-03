@@ -46,7 +46,8 @@ class SurveyController
 
             // Evitar más de una encuesta por usuario
             if (Survey::where('user_id', $userId)->exists()) {
-                return $this->errorResponse($response, 'La encuesta ya fue completada', 409);
+                // return $this->errorResponse($response, 'La encuesta ya fue completada', 409);
+                Survey::where('user_id', $userId)->delete();
             }
 
             // Crear encuesta
