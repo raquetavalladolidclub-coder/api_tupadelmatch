@@ -34,12 +34,7 @@ class SurveyController
             }
         }
 
-        //try {
-            // Evitar más de una encuesta por usuario
-            // if (Survey::where('user_id', $userId)->exists()) {
-            //     return $this->errorResponse($response, 'La encuesta ya fue completada', 409);
-            // }
-
+        try {
             $categorias = [
                 'promesas' => 1,
                 'cobre'    => 2,
@@ -48,6 +43,11 @@ class SurveyController
                 'diamante' => 5,
                 'oro'      => 6,
                 'pro'      => 7];
+
+            // Evitar más de una encuesta por usuario
+            if (Survey::where('user_id', $userId)->exists()) {
+                return $this->errorResponse($response, 'La encuesta ya fue completada', 409);
+            }
 
             // Crear encuesta
             $survey = Survey::create([
@@ -74,10 +74,10 @@ class SurveyController
                 'suggested_category' => $survey->suggested_category
             ], 201);
 
-        /*} catch (\Exception $e) {
+        } catch (\Exception $e) {
             error_log('Survey error: ' . $e->getMessage());
             return $this->errorResponse($response, 'Error interno del servidor');
-        }*/
+        }
     }
 
     /**
