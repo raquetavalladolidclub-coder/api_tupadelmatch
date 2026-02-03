@@ -391,7 +391,7 @@ class PartidoController
             // No permitir cancelar si el usuario es el creador
             $partido = $inscripcion->partido;
             if ($partido->creador_id == $userId) {
-                return $this->errorResponse($response, 'El creador del partido no puede cancelar su inscripción');
+                // return $this->errorResponse($response, 'El creador del partido no puede cancelar su inscripción');
             }
             
             $inscripcion->delete();
