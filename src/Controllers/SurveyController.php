@@ -34,7 +34,7 @@ class SurveyController
             }
         }
 
-        try {
+        //try {
             // Evitar más de una encuesta por usuario
             // if (Survey::where('user_id', $userId)->exists()) {
             //     return $this->errorResponse($response, 'La encuesta ya fue completada', 409);
@@ -74,10 +74,10 @@ class SurveyController
                 'suggested_category' => $survey->suggested_category
             ], 201);
 
-        } catch (\Exception $e) {
+        /*} catch (\Exception $e) {
             error_log('Survey error: ' . $e->getMessage());
             return $this->errorResponse($response, 'Error interno del servidor');
-        }
+        }*/
     }
 
     /**
