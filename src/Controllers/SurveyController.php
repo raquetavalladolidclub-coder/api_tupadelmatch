@@ -56,14 +56,14 @@ class SurveyController
                 'partidos_semana'  => $data['partidos_semana'],
                 'nivel_club'       => $data['nivel_club'],
                 'nivel_club_texto' => $data['nivel_club_texto'],
-                'puntuacion'       => $categorias[$data['nivel_club']]
+                'puntuacion'       => 0 // $categorias[$data['nivel_club']]
             ]);
 
             // Actualizar usuario
             $user = User::find($userId);
             if ($user) {
                 $user->categoria = strtolower($data['nivel_club']);
-                $user->nivel_puntuacion = $categorias[$data['nivel_club']];
+                $user->nivel_puntuacion = 0; // $categorias[$data['nivel_club']];
                 $user->encuesta = 1;
                 $user->save();
             }
