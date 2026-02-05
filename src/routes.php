@@ -3,6 +3,7 @@ use Slim\App;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use PadelClub\Controllers\AuthController;
+use PadelClub\Controllers\PasswordResetController;
 use PadelClub\Controllers\SystemController;
 use PadelClub\Controllers\PartidoController;
 use PadelClub\Controllers\LigaController;
