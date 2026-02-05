@@ -37,10 +37,10 @@ return function (App $app) {
     $app->post('/auth/login', [AuthController::class, 'login']);
 
      // Recuperación de contraseña
-    $group->post('/auth/forgot-password', [PasswordResetController::class, 'requestReset']);
-    $group->post('/auth/validate-reset-token', [PasswordResetController::class, 'validateToken']);
-    $group->post('/auth/reset-password', [PasswordResetController::class, 'resetPassword']);
-    $group->post('/auth/send-new-password', [PasswordResetController::class, 'sendNewPassword']);
+    $app->post('/auth/forgot-password', [PasswordResetController::class, 'requestReset']);
+    $app->post('/auth/validate-reset-token', [PasswordResetController::class, 'validateToken']);
+    $app->post('/auth/reset-password', [PasswordResetController::class, 'resetPassword']);
+    $app->post('/auth/send-new-password', [PasswordResetController::class, 'sendNewPassword']);
     
     // Rutas protegidas - Partidos
     $app->get('/partidos', [PartidoController::class, 'listarPartidos'])->add(new AuthMiddleware());
