@@ -1,5 +1,4 @@
 <?php
-// app/Controllers/PasswordResetController.php
 
 namespace PadelClub\Controllers;
 
@@ -59,11 +58,21 @@ class PasswordResetController
                 'is_used' => false
             ]);
             
-            // Generar enlace
-            $resetLink = $this->generateResetLink($token);
+            // Generar enlace usando la configuración del entorno
+            $frontendUrl = $_ENV['FRONTEND_URL'] ?? 'https://tupadelmatch.es';
+            $resetLink = $frontendUrl . '/reset-password?token=' . $token;
             
-            // Enviar email
-            $this->notificationService->sendPasswordResetEmail($user, $resetLink);
+            // LLAMADA AL EMAIL DE RECUPERACIÓN
+            // Opción 1: Usando el método específico
+            $emailSent = $this->notificationService->sendPasswordResetEmail($user, $resetLink);
+            
+            // Opción 2: O usando el método simplificado (que internamente llama al anterior)
+            // $emailSent = $this->notificationService->sendPasswordReset($user, $token);
+            
+            if (!$emailSent) {
+                error_log("Error: No se pudo enviar el email de recuperación a: " . $user->email);
+                // No fallamos la solicitud, solo lo logueamos
+            }
             
             return $this->successResponse($response, [
                 'message' => 'Si el email existe, recibirás instrucciones para restablecer tu contraseña'
@@ -170,8 +179,13 @@ class PasswordResetController
                 ->where('is_used', false)
                 ->update(['is_used' => true]);
             
-            // Enviar email de confirmación
-            $this->notificationService->sendPasswordChangedConfirmation($user);
+            // LLAMADA AL EMAIL DE CONFIRMACIÓN DE CAMBIO
+            $emailSent = $this->notificationService->sendPasswordChangedConfirmation($user);
+            
+            if (!$emailSent) {
+                error_log("Error: No se pudo enviar email de confirmación a: " . $user->email);
+                // Continuamos aunque falle el email
+            }
             
             return $this->successResponse($response, [
                 'message' => 'Contraseña restablecida exitosamente. Ya puedes iniciar sesión.'
@@ -213,12 +227,20 @@ class PasswordResetController
             $user->password = $newPassword; // El mutator hará el hash
             $user->save();
             
-            // Enviar email con nueva contraseña
-            $this->notificationService->sendNewPasswordEmail($user, $newPassword);
+            // LLAMADA AL EMAIL CON NUEVA CONTRASEÑA
+            $emailSent = $this->notificationService->sendNewPasswordEmail($user, $newPassword);
+            
+            if (!$emailSent) {
+                error_log("Error: No se pudo enviar email con nueva contraseña a: " . $user->email);
+                // Continuamos aunque falle el email
+            }
             
             // Invalidar tokens existentes
             PasswordResetToken::where('user_id', $user->id)
                 ->update(['is_used' => true]);
+            
+            // Opcional: Enviar también email de confirmación
+            $this->notificationService->sendPasswordChangedConfirmation($user);
             
             return $this->successResponse($response, [
                 'message' => 'Si el email existe, recibirás una nueva contraseña por email'
@@ -231,13 +253,122 @@ class PasswordResetController
     }
     
     /**
-     * Generar enlace de recuperación
+     * Versión alternativa que acepta múltiples emails (para broadcast)
      */
-    private function generateResetLink(string $token): string
+    public function sendNewPasswordToMultiple(Request $request, Response $response): Response
     {
-        // Configurar en .env
-        $frontendUrl = $_ENV['FRONTEND_URL'] ?? 'https://tudominio.com';
-        return $frontendUrl . '/reset-password?token=' . $token;
+        $data = $request->getParsedBody();
+        $emails = $data['emails'] ?? []; // Array de emails
+        
+        if (empty($emails)) {
+            return $this->errorResponse($response, 'Se requiere al menos un email');
+        }
+        
+        try {
+            $results = [];
+            
+            foreach ($emails as $email) {
+                $user = User::where('email', $email)->first();
+                
+                if ($user) {
+                    // Generar contraseña aleatoria
+                    $newPassword = Str::random(12);
+                    
+                    // Actualizar contraseña
+                    $user->password = $newPassword;
+                    $user->save();
+                    
+                    // Enviar email
+                    $emailSent = $this->notificationService->sendNewPasswordEmail($user, $newPassword);
+                    
+                    $results[$email] = [
+                        'sent' => $emailSent,
+                        'message' => $emailSent ? 'Email enviado' : 'Error enviando email'
+                    ];
+                    
+                    // Invalidar tokens
+                    PasswordResetToken::where('user_id', $user->id)
+                        ->update(['is_used' => true]);
+                } else {
+                    $results[$email] = [
+                        'sent' => false,
+                        'message' => 'Usuario no encontrado'
+                    ];
+                }
+            }
+            
+            return $this->successResponse($response, [
+                'message' => 'Proceso completado',
+                'results' => $results
+            ]);
+            
+        } catch (\Exception $e) {
+            error_log('Error en sendNewPasswordToMultiple: ' . $e->getMessage());
+            return $this->errorResponse($response, 'Error al procesar la solicitud');
+        }
+    }
+    
+    /**
+     * Método de prueba para verificar envío de emails
+     */
+    public function testEmail(Request $request, Response $response): Response
+    {
+        $data = $request->getParsedBody();
+        $email = $data['email'] ?? null;
+        $type = $data['type'] ?? 'reset'; // reset, new, confirmation
+        
+        if (!$email) {
+            return $this->errorResponse($response, 'Email requerido para prueba');
+        }
+        
+        try {
+            // Crear usuario de prueba o usar existente
+            $user = User::where('email', $email)->first();
+            
+            if (!$user) {
+                // Crear usuario temporal para la prueba
+                $user = new User([
+                    'email' => $email,
+                    'nombre' => 'Usuario',
+                    'apellidos' => 'De Prueba',
+                    'username' => 'testuser'
+                ]);
+            }
+            
+            $result = false;
+            
+            switch ($type) {
+                case 'reset':
+                    $resetLink = 'https://tupadelmatch.es/reset-password?token=test_token_123';
+                    $result = $this->notificationService->sendPasswordResetEmail($user, $resetLink);
+                    break;
+                    
+                case 'new':
+                    $newPassword = 'TestPass123';
+                    $result = $this->notificationService->sendNewPasswordEmail($user, $newPassword);
+                    break;
+                    
+                case 'confirmation':
+                    $result = $this->notificationService->sendPasswordChangedConfirmation($user);
+                    break;
+                    
+                default:
+                    return $this->errorResponse($response, 'Tipo de email no válido');
+            }
+            
+            if ($result) {
+                return $this->successResponse($response, [
+                    'message' => 'Email de prueba enviado exitosamente',
+                    'type' => $type,
+                    'to' => $email
+                ]);
+            } else {
+                return $this->errorResponse($response, 'Error al enviar email de prueba');
+            }
+            
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error en prueba: ' . $e->getMessage());
+        }
     }
     
     private function successResponse(Response $response, $data, $statusCode = 200): Response

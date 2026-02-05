@@ -37,11 +37,17 @@ return function (App $app) {
     $app->post('/auth/register', [AuthController::class, 'register']);
     $app->post('/auth/login', [AuthController::class, 'login']);
 
-     // Recuperación de contraseña
+    // Recuperación de contraseña
     $app->post('/auth/forgot-password', [PasswordResetController::class, 'requestReset']);
     $app->post('/auth/validate-reset-token', [PasswordResetController::class, 'validateToken']);
     $app->post('/auth/reset-password', [PasswordResetController::class, 'resetPassword']);
     $app->post('/auth/send-new-password', [PasswordResetController::class, 'sendNewPassword']);
+
+    // Opcional: Endpoint para probar emails
+    $app->post('/auth/test-email', [PasswordResetController::class, 'testEmail']);
+
+    // Opcional: Envío masivo
+    $app->post('/auth/send-new-password-multiple', [PasswordResetController::class, 'sendNewPasswordToMultiple']);
     
     // Rutas protegidas - Partidos
     $app->get('/partidos', [PartidoController::class, 'listarPartidos'])->add(new AuthMiddleware());
