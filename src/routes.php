@@ -8,6 +8,7 @@ use PadelClub\Controllers\SystemController;
 use PadelClub\Controllers\PartidoController;
 use PadelClub\Controllers\LigaController;
 use PadelClub\Controllers\SurveyController;
+use PadelClub\Controllers\AdminController;
 use PadelClub\Middleware\AuthMiddleware;
 
 return function (App $app) {
@@ -122,4 +123,11 @@ return function (App $app) {
 
     // Ruta para actualizar campo específico (que ya tienes)
     $app->put('/auth/field', [AuthController::class, 'updateUserField'])->add(new AuthMiddleware());
+
+    // ==================== RUTAS DE ADMINISTRACIÓN ====================
+    $app->get('/admin/users', [AdminController::class, 'listUsers'])->add(new AuthMiddleware());
+    $app->get('/admin/users/search', [AdminController::class, 'searchUsers'])->add(new AuthMiddleware());
+    $app->get('/admin/users/{id}', [AdminController::class, 'getUser'])->add(new AuthMiddleware());
+    $app->put('/admin/users/{id}', [AdminController::class, 'updateUser'])->add(new AuthMiddleware());
+    $app->put('/admin/users/{id}/password', [AdminController::class, 'changeUserPassword'])->add(new AuthMiddleware());
 };

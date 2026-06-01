@@ -69,6 +69,8 @@ class AuthController
                     'ausencias'   => $user->ausencias,
                     'codLiga'     => $user->codLiga,
                     'encuesta'    => $user->encuesta,
+                    'role'        => $user->role ?? 'user',
+                    'phone'       => $user->phone ?? '',
                     'tokenDevice' => $user->tokenDevice,
                     'notificacionesPush'  => $user->notificacionesPush,
                     'notificacionesEmail' => $user->notificacionesEmail
@@ -398,7 +400,9 @@ class AuthController
                     'fiabilidad'  => $user->fiabilidad,
                     'asistencias' => $user->asistencias,
                     'ausencias'   => $user->ausencias,
-                    'codLiga'     => $user->codLiga
+                    'codLiga'     => $user->codLiga,
+                    'role'        => $user->role ?? 'user',
+                    'phone'       => $user->phone ?? ''
                 ]
             ]);
             

@@ -9,8 +9,8 @@ class NotificationService
 {
     private $mailer;
     private $templatesPath;
-    private $appName      = 'PadelMatch';
-    private $supportEmail = 'soporte@tupadelmatch.es';
+    private $appName = 'Club Raqueta Pádel';
+    private $supportEmail = 'club@raquetapadel.es';
     private $logoUrl      = 'https://admin.tupadelmatch.es/assets/images/logo.png';
 
     public function __construct()
@@ -290,6 +290,24 @@ class NotificationService
         
         if (file_exists($templatePath)) {
             $content = file_get_contents($templatePath);
+            
+            // Primero procesar bloques condicionales: {{#key}}...{{/key}}
+            // Si la clave NO existe o está vacía/ausente, eliminar el bloque completo
+            foreach ($data as $key => $value) {
+                $pattern = '/\{\{#' . preg_quote($key, '/') . '\}\}(.*?)\{\{\/' . preg_quote($key, '/') . '\}\}/s';
+                if (empty($value) || (is_array($value) && empty($value))) {
+                    // Eliminar bloque completo
+                    $content = preg_replace($pattern, '', $content);
+                } else {
+                    // Mostrar contenido interno del bloque (sin las etiquetas)
+                    $content = preg_replace_callback($pattern, function($matches) {
+                        return $matches[1];
+                    }, $content);
+                }
+            }
+            
+            // Limpiar cualquier bloque condicional que haya quedado (para claves no definidas)
+            $content = preg_replace('/\{\{#([^}]+)\}\}.*?\{\{\/\1\}\}/s', '', $content);
             
             // Reemplazar variables
             foreach ($data as $key => $value) {

@@ -5,51 +5,303 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>¡Bienvenido a {{app_name}}!</title>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; }
-        .content { padding: 30px; background-color: #f9f9f9; }
-        .button { display: inline-block; padding: 12px 24px; background-color: #4CAF50; 
-                  color: white; text-decoration: none; border-radius: 4px; margin: 10px 0; }
-        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        /* RESET */
+        body, table, td, p, a, li, blockquote { 
+            -webkit-text-size-adjust: 100%; 
+            -ms-text-size-adjust: 100%; 
+            margin: 0; 
+            padding: 0; 
+        }
+        body { 
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; 
+            line-height: 1.6; 
+            color: #333333; 
+            background-color: #f4f4f4; 
+        }
+        
+        /* Contenedor principal */
+        .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        
+        /* HEADER con gradiente */
+        .header {
+            background: linear-gradient(135deg, #53abc1 0%, #006b8f 100%);
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header img {
+            max-width: 180px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+        .header h1 {
+            color: #ffffff;
+            font-size: 26px;
+            font-weight: 700;
+            margin: 10px 0 0 0;
+            letter-spacing: 0.5px;
+        }
+        .header p {
+            color: rgba(255,255,255,0.85);
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        
+        /* CONTENIDO */
+        .content {
+            padding: 35px 30px;
+        }
+        .content h2 {
+            color: #006b8f;
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .content p {
+            color: #555555;
+            font-size: 15px;
+            margin-bottom: 16px;
+        }
+        
+        /* Caja de credenciales */
+        .credentials-box {
+            background: linear-gradient(135deg, #f0f9fc 0%, #e8f4f8 100%);
+            border-left: 4px solid #53abc1;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .credentials-box h3 {
+            color: #006b8f;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .credentials-box .credential-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .credentials-box .credential-label {
+            color: #006b8f;
+            font-weight: 600;
+            min-width: 100px;
+            font-size: 14px;
+        }
+        .credentials-box .credential-value {
+            color: #333333;
+            font-size: 14px;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            background: rgba(255,255,255,0.7);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        
+        /* Caja de información del nivel */
+        .level-info {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border: 2px solid #ffb300;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        .level-info .level-icon {
+            font-size: 32px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .level-info h3 {
+            color: #e65100;
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .level-info p {
+            color: #555555;
+            font-size: 14px;
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+        .level-info .contact-info {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        .level-info .contact-info .phone {
+            color: #006b8f;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .level-info .contact-info .hours {
+            color: #888888;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        .level-info .highlight {
+            background: #fff3e0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 13px;
+            color: #e65100;
+            font-weight: 500;
+        }
+        
+        /* Botón */
+        .button {
+            display: inline-block;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #53abc1 0%, #006b8f 100%);
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            margin: 15px 0;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(83, 171, 193, 0.3);
+        }
+        
+        /* Separador */
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #53abc1, transparent);
+            margin: 25px 0;
+        }
+        
+        /* FOOTER */
+        .footer {
+            background-color: #f8f8f8;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        .footer p {
+            color: #999999;
+            font-size: 12px;
+            line-height: 1.5;
+            margin-bottom: 4px;
+        }
+        .footer a {
+            color: #53abc1;
+            text-decoration: none;
+        }
+        .footer .social-links {
+            margin: 15px 0;
+        }
+        .footer .social-links a {
+            display: inline-block;
+            margin: 0 8px;
+        }
+        
+        /* Responsive */
+        @media screen and (max-width: 480px) {
+            .content { padding: 25px 15px; }
+            .header h1 { font-size: 22px; }
+            .credentials-box .credential-item { flex-direction: column; }
+            .credentials-box .credential-label { min-width: auto; margin-bottom: 2px; }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>¡Bienvenido a {{app_name}}!</h1>
-        </div>
-        
-        <div class="content">
-            <h2>Hola {{user_name}},</h2>
-            
-            <p>¡Gracias por registrarte en {{app_name}}! Estamos emocionados de tenerte con nosotros.</p>
-            
-            <p>Tus datos de acceso:</p>
-            <ul>
-                <li><strong>Email:</strong> {{email}}</li>
-                <li><strong>Contraseña:</strong> {{password}}</li>
-            </ul>
-            
-            <p>Te recomendamos cambiar tu contraseña después de tu primer acceso.</p>
-            
-            <p style="text-align: center;">
-                <a href="{{login_url}}" class="button">Iniciar Sesión</a>
-            </p>
-            
-            <p>Si tienes alguna pregunta, no dudes en contactarnos en: 
-               <a href="mailto:{{support_email}}">{{support_email}}</a>
-            </p>
-            
-            <p>¡Nos vemos en la pista!</p>
-            
-            <p>El equipo de {{app_name}}</p>
-        </div>
-        
-        <div class="footer">
-            <p>Este es un email automático, por favor no respondas a este mensaje.</p>
-            <p>&copy; {{current_year}} {{app_name}}. Todos los derechos reservados.</p>
-        </div>
-    </div>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <div class="email-wrapper">
+                    
+                    <!-- HEADER -->
+                    <div class="header">
+                        <img src="{{logo_url}}" alt="{{app_name}}" style="max-width: 180px;">
+                        <h1>¡Bienvenido a {{app_name}}!</h1>
+                        <p>Tu nueva experiencia de pádel comienza aquí 🎾</p>
+                    </div>
+                    
+                    <!-- CONTENIDO -->
+                    <div class="content">
+                        <h2>Hola {{user_name}},</h2>
+                        
+                        <p>¡Gracias por registrarte en <strong>{{app_name}}</strong>! Estamos encantados de darte la bienvenida a nuestra comunidad de pádel.</p>
+                        
+                        <p>Tus datos de acceso para comenzar a jugar:</p>
+                        
+                        <div class="credentials-box">
+                            <h3>🔐 Datos de acceso</h3>
+                            <div class="credential-item">
+                                <span class="credential-label">📧 Email:</span>
+                                <span class="credential-value">{{email}}</span>
+                            </div>
+                            {{#password}}
+                            <div class="credential-item">
+                                <span class="credential-label">🔑 Contraseña:</span>
+                                <span class="credential-value">{{password}}</span>
+                            </div>
+                            {{/password}}
+                            <p style="font-size: 12px; color: #999; margin-top: 10px; margin-bottom: 0;">
+                                💡 Te recomendamos cambiar tu contraseña después del primer acceso.
+                            </p>
+                        </div>
+                        
+                        <!-- INFORMACIÓN DEL NIVEL -->
+                        <div class="level-info">
+                            <div class="level-icon">🎾</div>
+                            <h3>Asignación de nivel en la app</h3>
+                            
+                            <p>El nivel de cada jugador será asignado exclusivamente por los monitores del <strong>Club Raqueta</strong>, mediante una prueba de nivel gratuita o una breve llamada telefónica.</p>
+                            
+                            <div class="contact-info">
+                                <p style="margin-bottom: 5px; color: #555;">📞 Llámanos para asignar tu nivel:</p>
+                                <div class="phone">622 07 65 13</div>
+                                <div class="hours">🕘 Atención de lunes a viernes, de 9:30 a 13:30 h.</div>
+                            </div>
+                            
+                            <div class="highlight">
+                                ⚠️ Una vez completado el registro en la aplicación, será necesario ponerse en contacto en el teléfono indicado para asignar la categoría correspondiente y comenzar a disfrutar de la experiencia de juego.
+                            </div>
+                        </div>
+                        
+                        <p style="text-align: center; margin: 25px 0;">
+                            <a href="{{login_url}}" class="button">👉 Iniciar Sesión</a>
+                        </p>
+                        
+                        <div class="divider"></div>
+                        
+                        <p>Si tienes alguna duda, no dudes en contactarnos en: 
+                           <a href="mailto:{{support_email}}" style="color: #53abc1;">{{support_email}}</a>
+                        </p>
+                        
+                        <p style="margin-top: 20px;">
+                            ¡Nos vemos en la pista! 🏆
+                        </p>
+                        
+                        <p>El equipo de <strong>{{app_name}}</strong></p>
+                    </div>
+                    
+                    <!-- FOOTER -->
+                    <div class="footer">
+                        <p>Este es un email automático, por favor no respondas a este mensaje.</p>
+                        <p>&copy; {{current_year}} {{app_name}}. Todos los derechos reservados.</p>
+                        <p style="margin-top: 8px;">
+                            <a href="mailto:{{support_email}}">Contactar soporte</a>
+                        </p>
+                    </div>
+                    
+                </div>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
