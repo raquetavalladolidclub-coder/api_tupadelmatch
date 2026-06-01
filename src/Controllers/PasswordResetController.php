@@ -58,16 +58,12 @@ class PasswordResetController
                 'is_used' => false
             ]);
             
-            // Generar enlace usando la configuración del entorno
-            $frontendUrl = $_ENV['FRONTEND_URL'] ?? 'https://tupadelmatch.es';
-            $resetLink = $frontendUrl . '/reset-password?token=' . $token;
+            // Generar enlace usando admin.tupadelmatch.es
+            $frontendUrl = $_ENV['FRONTEND_URL'] ?? 'https://admin.tupadelmatch.es';
+            $resetLink = $frontendUrl . '/?action=reset-password&token=' . $token;
             
-            // LLAMADA AL EMAIL DE RECUPERACIÓN
-            // Opción 1: Usando el método específico
+            // Enviar email de recuperación
             $emailSent = $this->notificationService->sendPasswordResetEmail($user, $resetLink);
-            
-            // Opción 2: O usando el método simplificado (que internamente llama al anterior)
-            // $emailSent = $this->notificationService->sendPasswordReset($user, $token);
             
             if (!$emailSent) {
                 error_log("Error: No se pudo enviar el email de recuperación a: " . $user->email);

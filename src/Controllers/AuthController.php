@@ -469,7 +469,6 @@ class AuthController
             $user->update($updates);
             
             return $this->successResponse($response, [
-                'success' => true,
                 'message' => 'Perfil actualizado correctamente',
                 'user' => [
                     'id' => $user->id,

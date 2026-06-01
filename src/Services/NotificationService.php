@@ -267,8 +267,8 @@ class NotificationService
      */
     public function sendPasswordReset(User $user, string $resetToken): bool
     {
-        $frontendUrl = $_ENV['FRONTEND_URL'] ?? 'https://tupadelmatch.es';
-        $resetLink = $frontendUrl . '/reset-password?token=' . $resetToken;
+        $frontendUrl = $_ENV['FRONTEND_URL'] ?? 'https://admin.tupadelmatch.es';
+        $resetLink = $frontendUrl . '/?action=reset-password&token=' . $resetToken;
         
         return $this->sendPasswordResetEmail($user, $resetLink);
     }
