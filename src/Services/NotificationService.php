@@ -351,27 +351,26 @@ class NotificationService
     private function getSubjectForTemplate($template, $data)
     {
         $subjects = [
-            'welcome.html'                => '¡Bienvenido a ' . $this->appName . '!',
-            'jugador_apuntado.html'       => 'Nuevo jugador en tu partido',
-            'partido_completo.html'       => '🎉 ¡Tu partido está completo!',
-            'jugador_eliminado.html'      => 'Un jugador ha cancelado su participación',
-            'plaza_disponible.html'       => '🚨 ¡Plaza disponible en partido completo!',
-            'recordatorio_24h.html'       => '⏰ Recordatorio: Tu partido de pádel mañana',
-            'invitacion_privada.html'     => '🎯 Invitación a partido privado',
-            'review_post_partido.html'    => '🏆 ¿Cómo te fue el partido?',
+            'welcome.html'                      => '¡Bienvenido a ' . $this->appName . '!',
+            'jugadorApuntado.html'              => 'Nuevo jugador en tu partido',
+            'confirmacionInscripcionPartido.html' => '✅ Inscripción confirmada - ' . $this->appName,
+            'partido_completo.html'             => '🎉 ¡Tu partido está completo!',
+            'jugador_eliminado.html'            => 'Un jugador ha cancelado su participación',
+            'cancelacion_usuario_confirmacion.html' => '✅ Cancelación confirmada - ' . $this->appName,
+            'completoBajaPartido.html'          => '🚨 ¡Plaza disponible en partido completo!',
+            'recordatorio_24h.html'             => '⏰ Recordatorio: Tu partido de pádel mañana',
+            'invitacionPrivada.html'            => '🎯 Invitación a partido privado',
+            'reviewPartido.html'                => '🏆 ¿Cómo te fue el partido?',
             
-            // Nuevos subjects para recuperación de contraseña
-            'password_reset.html'         => 'Restablece tu contraseña de ' . $this->appName,
-            'new_password.html'           => 'Tu nueva contraseña de ' . $this->appName,
-            'password_changed.html'       => 'Confirmación de cambio de contraseña - ' . $this->appName
+            'password_reset.html'               => 'Restablece tu contraseña de ' . $this->appName,
+            'new_password.html'                 => 'Tu nueva contraseña de ' . $this->appName,
+            'password_changed.html'             => 'Confirmación de cambio de contraseña - ' . $this->appName
         ];
 
-        // Si no está en la lista, usar un subject genérico
         if (isset($subjects[$template])) {
             return $subjects[$template];
         }
         
-        // Personalizar subject con nombre de usuario si está disponible
         if (isset($data['user_name'])) {
             return 'Hola ' . $data['user_name'] . ' - Notificación de ' . $this->appName;
         }
@@ -404,6 +403,136 @@ class NotificationService
             'jugadorApuntado.html',
             $data
         );
+    }
+
+    /**
+     * Notificar a todos los jugadores cuando un partido se completa
+     */
+    public function sendMatchFullNotification($partido, $jugadores)
+    {
+        $jugadoresArray = $jugadores->map(function($user) {
+            return [
+                'name'        => $user->fullName ?? $user->username,
+                'skill_level' => $user->categoria ?? 'N/A',
+                'phone'       => $user->phone ?? 'No disponible',
+                'initials'    => $this->getInitials($user->fullName ?? $user->username)
+            ];
+        })->toArray();
+
+        $baseData = [
+            'match_date'    => $partido->fecha->format('d/m/Y'),
+            'match_time'    => $partido->hora,
+            'court_name'    => $partido->pista,
+            'court_address' => $partido->club ? $partido->club->direccion : 'Dirección no disponible',
+            'club_phone'    => $partido->club ? $partido->club->telefono : 'No disponible',
+            'skill_level'   => $partido->categoria,
+            'price'         => number_format($partido->precio_individual, 2) . '€',
+            'total_players' => count($jugadoresArray),
+            'max_players'   => $partido->tipo === 'individual' ? 2 : 4,
+            'players'       => $jugadoresArray,
+        ];
+
+        $success = true;
+        foreach ($jugadores as $jugador) {
+            $data = $baseData;
+            $data['player_name'] = $jugador->fullName ?? $jugador->username;
+            $result = $this->sendGeneralNotificationWithTemplate(
+                $jugador->email,
+                'partido_completo.html',
+                $data
+            );
+            if (!$result) $success = false;
+        }
+
+        return $success;
+    }
+
+    /**
+     * Notificar al organizador cuando un jugador se da de baja
+     */
+    public function sendPlayerLeftNotification($partido, $jugador, $organizadorEmail)
+    {
+        $organizador = $partido->creador;
+
+        $data = [
+            'organizer_name'    => $organizador->fullName ?? $organizador->username ?? 'Organizador',
+            'player_name'       => $jugador->fullName ?? $jugador->username,
+            'match_date'        => $partido->fecha->format('d/m/Y'),
+            'match_time'        => $partido->hora,
+            'court_name'        => $partido->pista,
+            'court_address'     => $partido->club ? $partido->club->direccion : 'Dirección no disponible',
+            'price'             => number_format($partido->precio_individual, 2) . '€',
+            'available_spots'   => $partido->plazas_disponibles,
+            'cancellation_date' => date('d/m/Y'),
+            'cancellation_time' => date('H:i'),
+            'match_details_url' => 'https://tupadelmatch.es/partido/' . $partido->id,
+        ];
+
+        return $this->sendGeneralNotificationWithTemplate(
+            $organizadorEmail,
+            'jugador_eliminado.html',
+            $data
+        );
+    }
+
+    /**
+     * Enviar confirmación al usuario que cancela su inscripción
+     */
+    public function sendCancellationConfirmationToUser($partido, $usuario, $inscripcion)
+    {
+        $data = [
+            'player_name'        => $usuario->nombre ?? $usuario->username,
+            'cancellation_code'  => 'CAN-' . str_pad($inscripcion->id, 6, '0', STR_PAD_LEFT),
+            'match_date'         => $partido->fecha->format('d/m/Y'),
+            'match_time'         => $partido->hora,
+            'court_name'         => $partido->pista,
+            'court_address'      => $partido->club ? $partido->club->direccion : 'Dirección no disponible',
+            'price'              => number_format($partido->precio_individual, 2) . '€',
+            'skill_level'        => $partido->categoria,
+            'cancellation_policy' => 'Cancelación gratuita hasta 24h antes del partido',
+            'penalty_applied'    => null,
+            'cancellation_date'  => date('d/m/Y H:i'),
+        ];
+
+        return $this->sendGeneralNotificationWithTemplate(
+            $usuario->email,
+            'cancelacion_usuario_confirmacion.html',
+            $data
+        );
+    }
+
+    /**
+     * Notificar a jugadores cuando se libera una plaza en partido completo
+     */
+    public function sendSpotAvailableNotification($partido, $jugadorQueSeBaja, $jugadoresEnEspera)
+    {
+        $baseData = [
+            'match_date'         => $partido->fecha->format('d/m/Y'),
+            'match_time'         => $partido->hora,
+            'court_name'         => $partido->pista,
+            'court_address'      => $partido->club ? $partido->club->direccion : 'Dirección no disponible',
+            'price'              => number_format($partido->precio_individual, 2),
+            'skill_level'        => $partido->categoria,
+            'current_players'    => $partido->jugadoresConfirmados()->count(),
+            'max_players'        => $partido->tipo === 'individual' ? 2 : 4,
+            'quick_join_url'     => 'https://tupadelmatch.es/partido/' . $partido->id,
+            'expiration_time'    => date('H:i', strtotime('+2 hours')),
+            'available_matches_url' => 'https://tupadelmatch.es/partidos',
+        ];
+
+        $success = true;
+        foreach ($jugadoresEnEspera as $jugador) {
+            $data = $baseData;
+            $data['player_name'] = $jugador->fullName ?? $jugador->username;
+            $result = $this->sendGeneralNotificationWithTemplate(
+                $jugador->email,
+                'completoBajaPartido.html',
+                $data
+            );
+            if (!$result) $success = false;
+        }
+
+        return $success;
     }
 
     public function sendPlayerConfirmationEmail($partido, $usuario, $inscripcion)
@@ -456,7 +585,29 @@ class NotificationService
         );
     }
 
-    // ... (todos los demás métodos existentes se mantienen igual) ...
+    /**
+     * Renderiza un item de jugador para el template (soporte para {{#players}}...{{/players}})
+     */
+    private function renderPlayerItem($player)
+    {
+        $item  = '<div class="player-item">';
+        $item .= '    <div class="player-avatar">' . htmlspecialchars($player['initials'] ?? '??') . '</div>';
+        $item .= '    <div>';
+        $item .= '        <strong>' . htmlspecialchars($player['name'] ?? 'Jugador') . '</strong><br>';
+        $item .= '        <small>Nivel: ' . htmlspecialchars($player['skill_level'] ?? 'N/A') . ' | Tel: ' . htmlspecialchars($player['phone'] ?? 'No disponible') . '</small>';
+        $item .= '    </div>';
+        $item .= '</div>';
+
+        return $item;
+    }
+
+    /**
+     * Genera un token para cancelar inscripción
+     */
+    private function generateCancelToken($inscripcionId)
+    {
+        return bin2hex(random_bytes(16)) . '-' . $inscripcionId;
+    }
 
     private function generatePlainText($htmlContent)
     {

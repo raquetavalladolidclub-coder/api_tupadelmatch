@@ -117,6 +117,9 @@ class AuthController
                 'is_active' => true
             ]);
 
+            // Enviar email de bienvenida
+            $this->sendWelcomeEmailAsync($user, $data['password']);
+
             // Generar JWT
             $jwtToken = JWTUtils::generateToken($user->id, $user->email);
 
@@ -189,13 +192,9 @@ class AuthController
      */
     private function sendWelcomeEmailAsync(User $user, $plainPassword)
     {
-        // Puedes usar diferentes estrategias para enviar en segundo plano:
-        // 1. Usar un queue system (Redis, RabbitMQ)
-        // 2. Usar procesos en background
-        // 3. Para desarrollo, enviar directamente
-        
         try {
-            $this->notificationService->sendWelcomeEmail($user, $plainPassword);
+            $userName = $user->fullName ?? $user->nombre ?? $user->username ?? 'Usuario';
+            $this->notificationService->sendWelcomeEmail($user->email, $userName, $plainPassword);
         } catch (\Exception $e) {
             // Registrar error pero no fallar el registro
             error_log('Error enviando email de bienvenida: ' . $e->getMessage());
