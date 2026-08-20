@@ -95,4 +95,9 @@ class Partido extends Model
         return $this->belongsTo(Club::class, 'idClub');
     }
 
+    public function pistaDetalle(): BelongsTo
+    {
+        return $this->belongsTo(Pista::class, 'pista', 'id');
+    }
+
 }

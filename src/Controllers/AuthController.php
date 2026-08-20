@@ -114,7 +114,7 @@ class AuthController
                 'nombre'    => $data['nombre'] ?? "",
                 'apellidos' => $data['apellidos'] ?? "",
                 'password'  => $hashedPassword,
-                'categoria' => $data['categoria'] != "" ? $data['categoria'] : 'promesas',
+                'categoria' => !empty($data['categoria']) ? $data['categoria'] : 'promesas',
                 'codLiga'   => $data['codLiga'] ?? '',
                 'is_active' => true
             ]);

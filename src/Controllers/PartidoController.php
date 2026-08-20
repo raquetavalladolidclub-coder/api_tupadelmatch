@@ -23,7 +23,7 @@ class PartidoController
         try {
             $userId = $request->getAttribute('user_id'); // o desde token / sesión
 
-            $query = Partido::with(['creador', 'jugadoresConfirmados.usuario', 'club:id,nombre,url_logo,url_imagen'])
+            $query = Partido::with(['creador', 'jugadoresConfirmados.usuario', 'club:id,nombre,url_logo,url_imagen', 'pistaDetalle'])
                 ->whereHas('inscripciones', function ($q) use ($userId) {
                     $q->where('user_id', $userId);
                 });
@@ -84,7 +84,8 @@ class PartidoController
             $query = Partido::with([
                 'creador',
                 'jugadoresConfirmados.usuario',
-                'club:id,nombre,url_logo,url_imagen'
+                'club:id,nombre,url_logo,url_imagen',
+                'pistaDetalle'
             ]);
             
             // Filtros
@@ -141,7 +142,7 @@ class PartidoController
         try {
             $userId = $request->getAttribute('user_id'); // o desde token / sesión
 
-            $query = Partido::with(['creador', 'jugadoresConfirmados.usuario'])
+            $query = Partido::with(['creador', 'jugadoresConfirmados.usuario', 'pistaDetalle'])
                 ->whereHas('inscripciones', function ($q) use ($userId) {
                     $q->where('user_id', $userId);
                 });
@@ -186,7 +187,7 @@ class PartidoController
             $partidoId = $args['id'];
             $userId    = $request->getAttribute('user_id');
             
-            $partido = Partido::with(['creador', 'inscripciones.usuario'])
+            $partido = Partido::with(['creador', 'inscripciones.usuario', 'pistaDetalle'])
                             ->find($partidoId);
             
             if (!$partido) {
@@ -446,7 +447,7 @@ class PartidoController
             $userId = $request->getAttribute('user_id');
             $filters = $request->getQueryParams();
             
-            $query = InscripcionPartido::with(['partido.creador', 'partido.jugadoresConfirmados'])
+            $query = InscripcionPartido::with(['partido.creador', 'partido.jugadoresConfirmados', 'partido.pistaDetalle'])
                                      ->where('user_id', $userId);
             
             // Filtrar por estado de inscripción
@@ -498,7 +499,7 @@ class PartidoController
             'fecha'                 => $partido->fecha->format('Y-m-d'),
             'hora'                  => $partido->hora,
             'duracion'              => $partido->duracion,
-            'pista'                 => $partido->pista,
+            'pista'                 => $partido->pistaDetalle?->numero ?? $partido->pista,
             'tipo'                  => $partido->tipo,
             'tipoReserva'           => $partido->tipoReserva,
             'categoria'             => $partido->categoria,
