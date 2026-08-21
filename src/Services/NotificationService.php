@@ -383,6 +383,25 @@ class NotificationService
      * ==============================================
      */
 
+    /**
+     * Obtener el número real de la pista (no el ID)
+     * Consulta la tabla pistas vía la relación pistaDetalle del partido
+     */
+    private function getCourtName($partido)
+    {
+        try {
+            if (!empty($partido->pista)) {
+                $pista = \PadelClub\Models\Pista::find($partido->pista);
+                if ($pista && $pista->numero !== null && $pista->numero !== '') {
+                    return (int) $pista->numero;
+                }
+            }
+        } catch (\Exception $e) {
+            error_log("getCourtName error: " . $e->getMessage());
+        }
+        return $partido->pista;
+    }
+
     public function sendPlayerJoinedNotification($partido, $jugador, $organizadorEmail)
     {
         $data = [
@@ -390,7 +409,7 @@ class NotificationService
             'organizer_name'    => $organizadorEmail,
             'match_date'        => $partido->fecha->format('d/m/Y'),
             'match_time'        => $partido->hora,
-            'court_name'        => $partido->pista,
+            'court_name'        => $this->getCourtName($partido),
             'court_address'     => $partido->club ? $partido->club->direccion : 'Dirección no disponible',
             'skill_level'       => $partido->categoria,
             'price'             => $partido->precio_individual,
@@ -421,7 +440,7 @@ class NotificationService
         $baseData = [
             'match_date'    => $partido->fecha->format('d/m/Y'),
             'match_time'    => $partido->hora,
-            'court_name'    => $partido->pista,
+            'court_name'    => $this->getCourtName($partido),
             'court_address' => $partido->club ? $partido->club->direccion : 'Dirección no disponible',
             'club_phone'    => $partido->club ? $partido->club->telefono : 'No disponible',
             'skill_level'   => $partido->categoria,
@@ -458,7 +477,7 @@ class NotificationService
             'player_name'       => $jugador->fullName ?? $jugador->username,
             'match_date'        => $partido->fecha->format('d/m/Y'),
             'match_time'        => $partido->hora,
-            'court_name'        => $partido->pista,
+            'court_name'        => $this->getCourtName($partido),
             'court_address'     => $partido->club ? $partido->club->direccion : 'Dirección no disponible',
             'price'             => number_format($partido->precio_individual, 2) . '€',
             'available_spots'   => $partido->plazas_disponibles,
@@ -484,7 +503,7 @@ class NotificationService
             'cancellation_code'  => 'CAN-' . str_pad($inscripcion->id, 6, '0', STR_PAD_LEFT),
             'match_date'         => $partido->fecha->format('d/m/Y'),
             'match_time'         => $partido->hora,
-            'court_name'         => $partido->pista,
+            'court_name'         => $this->getCourtName($partido),
             'court_address'      => $partido->club ? $partido->club->direccion : 'Dirección no disponible',
             'price'              => number_format($partido->precio_individual, 2) . '€',
             'skill_level'        => $partido->categoria,
@@ -508,7 +527,7 @@ class NotificationService
         $baseData = [
             'match_date'         => $partido->fecha->format('d/m/Y'),
             'match_time'         => $partido->hora,
-            'court_name'         => $partido->pista,
+            'court_name'         => $this->getCourtName($partido),
             'court_address'      => $partido->club ? $partido->club->direccion : 'Dirección no disponible',
             'price'              => number_format($partido->precio_individual, 2),
             'skill_level'        => $partido->categoria,
@@ -558,7 +577,7 @@ class NotificationService
             
             'match_date'      => $partido->fecha->format('d/m/Y'),
             'match_time'      => $partido->hora,
-            'court_name'      => $partido->pista,
+            'court_name'      => $this->getCourtName($partido),
             'court_address'   => $partido->club ? $partido->club->direccion : 'Dirección no disponible',
             'club_phone'      => $partido->club ? $partido->club->telefono : 'No disponible',
             'skill_level'     => $partido->categoria,
