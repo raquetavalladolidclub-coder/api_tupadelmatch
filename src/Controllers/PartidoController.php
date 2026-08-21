@@ -499,7 +499,7 @@ class PartidoController
             'fecha'                 => $partido->fecha->format('Y-m-d'),
             'hora'                  => $partido->hora,
             'duracion'              => $partido->duracion,
-            'pista'                 => $partido->pistaDetalle?->numero ?? $partido->pista,
+            'pista'                 => (int) ($partido->pistaDetalle?->numero ?? $partido->pista),
             'tipo'                  => $partido->tipo,
             'tipoReserva'           => $partido->tipoReserva,
             'categoria'             => $partido->categoria,
