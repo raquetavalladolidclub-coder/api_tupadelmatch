@@ -156,7 +156,7 @@
         .availability-badge {
             display: inline-block;
             padding: 12px 25px;
-            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            background: linear-gradient(135deg, #53abc1 0%, #006b8f 100%);
             color: white;
             border-radius: 25px;
             font-weight: bold;
@@ -204,11 +204,11 @@
             border-radius: 12px;
             padding: 25px;
             margin: 25px 0;
-            border: 2px solid #4CAF50;
+            border: 2px solid #53abc1;
         }
         
         .info-notice h4 {
-            color: #2E7D32;
+            color: #006b8f;
             margin-bottom: 15px;
             display: flex;
             align-items: center;
@@ -256,7 +256,7 @@
         }
         
         .button-secondary {
-            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            background: linear-gradient(135deg, #53abc1 0%, #006b8f 100%);
             box-shadow: 0 6px 20px rgba(33, 150, 243, 0.3);
         }
         
@@ -363,7 +363,7 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <img src="https://admin.tupadelmatch.es/assets/images/logo.png" alt="TuPadelMatch" class="logo">
+            <img src="{{logo_url}}" alt="TuPadelMatch" class="logo">
             <h1>⚠️ JUGADOR CANCELADO</h1>
             <p>Un jugador ha cancelado su participación en tu partido</p>
         </div>
@@ -517,7 +517,7 @@
                     navigator.clipboard.writeText(text).then(() => {
                         const originalText = this.textContent;
                         this.textContent = '¡Copiado al portapapeles!';
-                        this.style.background = '#4CAF50';
+                        this.style.background = '#53abc1';
                         this.style.color = 'white';
                         
                         setTimeout(() => {
