@@ -215,25 +215,6 @@ class NotificationService
             $data['user_full_name'] = $data['user_name'];
         }
 
-        // Opciones de seguridad adicionales
-        $data['security_options'] = [
-            [
-                'title' => 'Autenticación de Dos Factores',
-                'description' => 'Protege tu cuenta con un código adicional',
-                'url' => 'https://tupadelmatch.es/perfil/2fa'
-            ],
-            [
-                'title' => 'Revisar Actividad',
-                'description' => 'Verifica los inicios de sesión recientes',
-                'url' => 'https://tupadelmatch.es/perfil/actividad'
-            ],
-            [
-                'title' => 'Dispositivos Conectados',
-                'description' => 'Gestiona los dispositivos autorizados',
-                'url' => 'https://tupadelmatch.es/perfil/dispositivos'
-            ]
-        ];
-
         return $this->sendGeneralNotificationWithTemplate(
             $user->email,
             'password_changed.html',
