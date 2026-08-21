@@ -9,7 +9,7 @@ class NotificationService
 {
     private $mailer;
     private $templatesPath;
-    private $appName = 'Club Raqueta Pádel';
+    private $appName = 'PADEL MATCH';
     private $supportEmail = 'club@raquetapadel.es';
     private $logoUrl      = 'https://admin.tupadelmatch.es/assets/images/logo.png';
 
