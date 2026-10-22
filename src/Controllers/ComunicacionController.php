@@ -38,10 +38,17 @@ class ComunicacionController
             ->orderByDesc('created_at')
             ->get();
 
+        // Una comunicación sin título, texto ni imagen no se muestra.
+        $visibles = $items->filter(function (Comunicacion $c) {
+            return trim((string) $c->titulo) !== ''
+                || trim((string) ($c->texto ?? '')) !== ''
+                || trim((string) ($c->imagen ?? '')) !== '';
+        });
+
         return $this->successResponse($response, [
-            'comunicaciones' => $items->map(function (Comunicacion $c) {
+            'comunicaciones' => $visibles->map(function (Comunicacion $c) {
                 return $this->serialize($c);
-            })->all(),
+            })->values()->all(),
         ]);
     }
 
