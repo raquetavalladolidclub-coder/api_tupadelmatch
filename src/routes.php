@@ -9,12 +9,17 @@ use PadelClub\Controllers\PartidoController;
 use PadelClub\Controllers\LigaController;
 use PadelClub\Controllers\SurveyController;
 use PadelClub\Controllers\AdminController;
+use PadelClub\Controllers\SupportController;
 use PadelClub\Middleware\AuthMiddleware;
 
 return function (App $app) {
     // Rutas del sistema (públicas)
     $app->get('/version', [SystemController::class, 'getVersion']);
     $app->get('/health', [SystemController::class, 'healthCheck']);
+
+    // Ayuda y soporte
+    $app->get('/soporte', [SupportController::class, 'info']);
+    $app->post('/soporte/contacto', [SupportController::class, 'contacto'])->add(new AuthMiddleware());
     
     // Endpoint de debug temporal
     $app->get('/debug-headers', function (Request $request, Response $response) {

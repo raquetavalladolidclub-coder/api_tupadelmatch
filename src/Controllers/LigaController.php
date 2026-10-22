@@ -212,7 +212,14 @@ class LigaController
         
         $estadistica->puntos_ranking = $nuevosPuntos;
         $estadistica->save();
-        
+
+        // Reflejar el partido jugado en las estadísticas del perfil.
+        $usuario = User::find($usuarioId);
+        if ($usuario) {
+            $usuario->asistencias = ((int) ($usuario->asistencias ?? 0)) + 1;
+            $usuario->save();
+        }
+
         // Registrar en historial usando query builder directo
         $pdo = \PadelClub\Models\Partido::getConnectionResolver()->connection()->getPdo();
         
@@ -774,9 +781,10 @@ class LigaController
                 // Partido finalizado y de liga
                 // ->where('estado', 'finalizado')
                 ->whereNotNull('codLiga')
+                ->where('codLiga', '!=', '')
 
                 // Sin resultados aún
-                // ->whereDoesntHave('resultados')
+                ->whereDoesntHave('resultados')
 
                 /* // Mínimo 2 jugadores confirmados
                 // ->whereHas('inscripciones', function ($q) {

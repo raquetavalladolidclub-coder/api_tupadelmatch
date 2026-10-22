@@ -402,7 +402,10 @@ class AuthController
                     'ausencias'   => $user->ausencias,
                     'codLiga'     => $user->codLiga,
                     'role'        => $user->role ?? 'user',
-                    'phone'       => $user->phone ?? ''
+                    'phone'       => $user->phone ?? '',
+                    'encuesta'    => $user->encuesta ?? 0,
+                    'notificacionesPush'  => $user->notificacionesPush,
+                    'notificacionesEmail' => $user->notificacionesEmail
                 ]
             ]);
             
@@ -475,17 +478,26 @@ class AuthController
             return $this->successResponse($response, [
                 'message' => 'Perfil actualizado correctamente',
                 'user' => [
-                    'id' => $user->id,
-                    'nombre' => $user->nombre,
-                    'apellidos' => $user->apellidos,
-                    'email' => $user->email,
-                    'phone' => $user->phone,
-                    'genero' => $user->genero,
-                    'categoria' => $user->categoria,
-                    'liga' => $user->liga,
-                    'codLiga' => $user->codLiga,
-                    'imagePath' => $user->imagePath,
-                    'nivel_puntuacion' => $user->nivel_puntuacion
+                    'id'          => $user->id,
+                    'email'       => $user->email,
+                    'username'    => $user->username ?? null,
+                    'fullName'    => $user->fullName,
+                    'nombre'      => $user->nombre,
+                    'apellidos'   => $user->apellidos,
+                    'phone'       => $user->phone ?? '',
+                    'genero'      => $user->genero,
+                    'categoria'   => $user->categoria,
+                    'liga'        => $user->liga,
+                    'codLiga'     => $user->codLiga,
+                    'imagePath'   => $user->imagePath,
+                    'nivel'       => $user->nivel,
+                    'fiabilidad'  => $user->fiabilidad,
+                    'asistencias' => $user->asistencias,
+                    'ausencias'   => $user->ausencias,
+                    'encuesta'    => $user->encuesta ?? 0,
+                    'role'        => $user->role ?? 'user',
+                    'notificacionesPush'  => $user->notificacionesPush,
+                    'notificacionesEmail' => $user->notificacionesEmail
                 ]
             ]);
             

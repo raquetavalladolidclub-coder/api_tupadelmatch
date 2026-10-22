@@ -42,6 +42,26 @@ class NotificationService
     }
 
     /**
+     * Respeta la preferencia "notificacionesEmail" del destinatario.
+     * Nunca bloquea emails transaccionales (contraseña, bienvenida, soporte).
+     */
+    private function aceptaNotificacionesEmail($destinatario): bool
+    {
+        if ($destinatario instanceof User) {
+            return (int) ($destinatario->notificacionesEmail ?? 1) === 1;
+        }
+
+        if (is_string($destinatario) && $destinatario !== '') {
+            $user = User::where('email', $destinatario)->first();
+            if ($user) {
+                return (int) ($user->notificacionesEmail ?? 1) === 1;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Envía una notificación general usando un template
      */
     public function sendGeneralNotificationWithTemplate($to, $template, $data = [])
@@ -404,6 +424,10 @@ class NotificationService
 
     public function sendPlayerJoinedNotification($partido, $jugador, $organizadorEmail)
     {
+        if (!$this->aceptaNotificacionesEmail($organizadorEmail)) {
+            return true;
+        }
+
         $data = [
             'player_name'       => $jugador->fullName ?? $jugador->username,
             'organizer_name'    => $organizadorEmail,
@@ -452,6 +476,10 @@ class NotificationService
 
         $success = true;
         foreach ($jugadores as $jugador) {
+            if (!$this->aceptaNotificacionesEmail($jugador)) {
+                continue;
+            }
+
             $data = $baseData;
             $data['player_name'] = $jugador->fullName ?? $jugador->username;
             $result = $this->sendGeneralNotificationWithTemplate(
@@ -470,6 +498,10 @@ class NotificationService
      */
     public function sendPlayerLeftNotification($partido, $jugador, $organizadorEmail)
     {
+        if (!$this->aceptaNotificacionesEmail($organizadorEmail)) {
+            return true;
+        }
+
         $organizador = $partido->creador;
 
         $data = [
@@ -498,6 +530,10 @@ class NotificationService
      */
     public function sendCancellationConfirmationToUser($partido, $usuario, $inscripcion)
     {
+        if (!$this->aceptaNotificacionesEmail($usuario)) {
+            return true;
+        }
+
         $data = [
             'player_name'        => $usuario->nombre ?? $usuario->username,
             'cancellation_code'  => 'CAN-' . str_pad($inscripcion->id, 6, '0', STR_PAD_LEFT),
@@ -540,6 +576,10 @@ class NotificationService
 
         $success = true;
         foreach ($jugadoresEnEspera as $jugador) {
+            if (!$this->aceptaNotificacionesEmail($jugador)) {
+                continue;
+            }
+
             $data = $baseData;
             $data['player_name'] = $jugador->fullName ?? $jugador->username;
             $result = $this->sendGeneralNotificationWithTemplate(
@@ -555,6 +595,10 @@ class NotificationService
 
     public function sendPlayerConfirmationEmail($partido, $usuario, $inscripcion)
     {
+        if (!$this->aceptaNotificacionesEmail($usuario)) {
+            return true;
+        }
+
         // Obtener lista de jugadores confirmados
         $jugadores = $partido->jugadoresConfirmados()
             ->with('usuario')
@@ -692,5 +736,26 @@ class NotificationService
         </html>';
         
         return $html;
+    }
+
+    /**
+     * Envía un mensaje del formulario de Ayuda y Soporte.
+     */
+    public function sendSupportMessage(string $to, string $fromEmail, string $message): bool
+    {
+        $this->mailer->clearAllRecipients();
+        $this->mailer->clearReplyTos();
+        $this->mailer->addAddress($to);
+        $this->mailer->addReplyTo($fromEmail);
+
+        $this->mailer->Subject = 'Soporte app - ' . $fromEmail;
+        $this->mailer->isHTML(true);
+        $this->mailer->Body = '
+            <h2>Nuevo mensaje de soporte</h2>
+            <p><strong>De:</strong> ' . htmlspecialchars($fromEmail) . '</p>
+            <p>' . nl2br(htmlspecialchars($message)) . '</p>';
+        $this->mailer->AltBody = "De: {$fromEmail}\n\n{$message}";
+
+        return $this->mailer->send();
     }
 }

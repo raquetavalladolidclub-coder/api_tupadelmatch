@@ -18,7 +18,12 @@ class JWTUtils
     public static function generateToken($userId, $email)
     {
         $issuedAt = time();
-        $expire = $issuedAt + $_ENV['JWT_EXPIRE'];
+
+        // Sesión mínima de 30 días. Antes, con JWT_EXPIRE=3600 (1 hora),
+        // la app obligaba a volver a iniciar sesión continuamente.
+        $segundos = (int) ($_ENV['JWT_EXPIRE'] ?? 0);
+        $segundos = max($segundos, 60 * 60 * 24 * 30);
+        $expire = $issuedAt + $segundos;
         
         $payload = [
             'iat'   => $issuedAt,

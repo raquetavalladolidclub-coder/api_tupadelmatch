@@ -329,6 +329,11 @@ class PartidoController
                 $inscripcion->update(['estado' => 'confirmado']);
             }
 
+            // El primero en inscribirse pasa a ser el creador del partido.
+            if ($partido->jugadoresConfirmados()->count() == 1) {
+                $partido->update(['creador_id' => $userId]);
+            }
+
             // $partido = Partido::find($partidoId);
 
             /////////////////////////////////////////////////////////////////////////////////
@@ -431,7 +436,19 @@ class PartidoController
 
             // Actualizar estado del partido
             $this->actualizarEstadoPartido($partido, $userId);
-            
+
+            // Si el creador se da de baja, el siguiente inscrito pasa a serlo.
+            if ((int) $partido->creador_id === (int) $userId) {
+                $siguiente = InscripcionPartido::where('partido_id', $partido->id)
+                    ->where('estado', 'confirmado')
+                    ->orderBy('id', 'asc')
+                    ->first();
+
+                if ($siguiente) {
+                    $partido->update(['creador_id' => $siguiente->user_id]);
+                }
+            }
+
             return $this->successResponse($response, [
                 'message' => 'Inscripción cancelada correctamente'
             ]);
@@ -507,9 +524,10 @@ class PartidoController
             'estado'                => $partido->estado,
             'plazas_disponibles'    => $partido->plazas_disponibles,
             'esta_completo'         => $partido->esta_completo,
+            'tiene_resultados'      => $partido->resultados()->exists(),
             'codLiga'               => $partido->codLiga,
-            'precio_individual'     => number_format($partido->precio_individual, 2),
-            'precio_pista_completa' => number_format($partido->precio_pista_completa, 2),
+            'precio_individual'     => number_format((float) ($partido->precio_individual ?? 0), 2),
+            'precio_pista_completa' => number_format((float) ($partido->precio_pista_completa ?? 0), 2),
             'club' => [
                 'logoClub'              => $partido->club?->url_logo ?? 'https://admin.tupadelmatch.es/assets/images/logo.png',
                 'imagenClub'            => $partido->club?->url_imagen ?? 'https://admin.tupadelmatch.es/assets/images/logo.png',
@@ -558,9 +576,10 @@ class PartidoController
             $partido->update(['estado' => 'completo']);
         } else {
             if($partido->jugadoresConfirmados->count() == 1){
-                $partido->update(['creador_id' => $userId, 'categoria' => "$categoria", 'estado' => 'disponible']);
+                // El creador se asigna en inscribirsePartido (primero en apuntarse).
+                $partido->update(['categoria' => "$categoria", 'estado' => 'disponible']);
             }elseif($partido->jugadoresConfirmados->count() >= 4){
-                $partido->update(['creador_id' => $userId, 'estado' => 'completo']);
+                $partido->update(['estado' => 'completo']);
             }else{
                 $partido->update(['estado' => 'disponible']);
             }
