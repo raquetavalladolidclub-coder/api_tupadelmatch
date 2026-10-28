@@ -246,7 +246,10 @@ class PartidoController
                 }
             }
             
+            $creador = User::find($userId);
+
             $partido = Partido::create([
+                'categoria' => $data['categoria'] ?? ($creador->categoria ?? ''),
                 'fecha' => $data['fecha'],
                 'hora' => $data['hora'],
                 'duracion' => $data['duracion'] ?? 60,
@@ -311,8 +314,15 @@ class PartidoController
             $nivelNumerico = $this->convertirNivelANumero($nivelUsuario);
             $nivelPartido  = $this->convertirNivelANumero($partido->categoria);
             
-            if ($nivelNumerico < $nivelPartido) {
-                return $this->errorResponse($response, 'Tu nivel no coincide con los requisitos del partido');
+            // Un partido sin nivelar (0) lo puede abrir cualquiera; en cuanto
+            // tiene nivel, solo entran jugadores de ese nivel o superior.
+            if ($nivelPartido > 0 && $nivelNumerico < $nivelPartido) {
+                return $this->errorResponse($response, sprintf(
+                    'Este partido es de nivel %s y tu nivel es %s. Solo pueden apuntarse jugadores de nivel %s o superior.',
+                    $this->nombreNivel($nivelPartido),
+                    $this->nombreNivel($nivelNumerico),
+                    $this->nombreNivel($nivelPartido)
+                ));
             }
             
             // Crear inscripción
@@ -556,18 +566,41 @@ class PartidoController
         ];
     }
     
+    /**
+     * Orden real de los niveles del club (de menor a mayor).
+     * 'sin_nivel' / vacío = 0: el partido aún no está nivelado.
+     */
     private function convertirNivelANumero($nivel)
     {
         $niveles = [
-            'promesas' => 1,
-            'cobre'    => 1,
-            'bronce'   => 1,
-            'plata'    => 1,
-            'oro'      => 1,
-            'diamante' => 1
+            'sin_nivel' => 0,
+            'sin nivel' => 0,
+            'promesas'  => 1,
+            'cobre'     => 2,
+            'bronce'    => 3,
+            'plata'     => 4,
+            'diamante'  => 5,
+            'oro'       => 6,
+            'pro'       => 7,
         ];
-        
-        return $niveles[$nivel] ?? 1;
+
+        return $niveles[strtolower(trim((string) $nivel))] ?? 0;
+    }
+
+    private function nombreNivel($numero)
+    {
+        $nombres = [
+            0 => 'Sin nivel',
+            1 => 'Promesas',
+            2 => 'Cobre',
+            3 => 'Bronce',
+            4 => 'Plata',
+            5 => 'Diamante',
+            6 => 'Oro',
+            7 => 'Pro',
+        ];
+
+        return $nombres[$numero] ?? 'Sin nivel';
     }
 
     private function actualizarEstadoPartido($partido, $userId, $categoria="promesas", $tipoReserva="individual")
@@ -575,8 +608,10 @@ class PartidoController
         if ($partido->esta_completo) {
             $partido->update(['estado' => 'completo']);
         } else {
-            if($partido->jugadoresConfirmados->count() == 1){
-                // El creador se asigna en inscribirsePartido (primero en apuntarse).
+            if($partido->jugadoresConfirmados->count() == 1
+                && $this->convertirNivelANumero($partido->categoria) === 0){
+                // El primero en apuntarse fija el nivel del partido (solo si
+                // el partido se creó sin nivel).
                 $partido->update(['categoria' => "$categoria", 'estado' => 'disponible']);
             }elseif($partido->jugadoresConfirmados->count() >= 4){
                 $partido->update(['estado' => 'completo']);
