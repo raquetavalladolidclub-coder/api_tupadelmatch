@@ -299,7 +299,7 @@ class PartidoController
             }
             
             // Validar que no esté completo
-            if ($partido->esta_completo) {
+            if ($this->estaCompleto($partido)) {
                 return $this->errorResponse($response, 'El partido ya está completo');
             }
             
@@ -366,7 +366,7 @@ class PartidoController
             );
             
             // Si el partido se completó, enviar notificación a todos
-            if ($partido->esta_completo) {
+            if ($this->estaCompleto($partido)) {
                 $jugadores = $partido->jugadoresConfirmados()->with('usuario')->get()->pluck('usuario');
                 $this->notificationService->sendMatchFullNotification($partido, $jugadores);
             }
@@ -532,8 +532,8 @@ class PartidoController
             'categoria'             => $partido->categoria,
             'genero'                => $partido->genero,
             'estado'                => $partido->estado,
-            'plazas_disponibles'    => $partido->plazas_disponibles,
-            'esta_completo'         => $partido->esta_completo,
+            'plazas_disponibles'    => $this->plazasDisponibles($partido),
+            'esta_completo'         => $this->estaCompleto($partido),
             'tiene_resultados'      => $partido->resultados()->exists(),
             'codLiga'               => $partido->codLiga,
             'precio_individual'     => number_format((float) ($partido->precio_individual ?? 0), 2),
@@ -570,6 +570,20 @@ class PartidoController
      * Orden real de los niveles del club (de menor a mayor).
      * 'sin_nivel' / vacío = 0: el partido aún no está nivelado.
      */
+    /** Jugadores por partido (pádel dobles). */
+    private const MAX_JUGADORES = 4;
+
+    /** ¿Está lleno? Se calcula con las inscripciones reales. */
+    private function estaCompleto($partido): bool
+    {
+        return $partido->jugadoresConfirmados()->count() >= self::MAX_JUGADORES;
+    }
+
+    private function plazasDisponibles($partido): int
+    {
+        return max(0, self::MAX_JUGADORES - $partido->jugadoresConfirmados()->count());
+    }
+
     private function convertirNivelANumero($nivel)
     {
         $niveles = [
