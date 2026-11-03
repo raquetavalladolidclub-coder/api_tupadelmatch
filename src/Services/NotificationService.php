@@ -14,9 +14,13 @@ class NotificationService
     private $logoUrl      = 'https://admin.tupadelmatch.es/assets/images/logo.png';
     private $emailLogoUrl = 'https://admin.tupadelmatch.es/assets/images/logo_pm_email.png';
 
+    /** Ruta local del logo para incrustarlo en el correo (cid), así se ve siempre. */
+    private $logoPath;
+
     public function __construct()
     {
         $this->templatesPath = __DIR__ . '/../Templates/Emails/';
+        $this->logoPath      = __DIR__ . '/../../public/assets/images/logo.png';
         
         // Configurar PHPMailer (ajusta con tus credenciales)
         $this->mailer = new PHPMailer(true);
@@ -82,6 +86,12 @@ class NotificationService
             
             if (!$templateContent) {
                 throw new \Exception("Template '$template' no encontrado");
+            }
+
+            // Logo incrustado: los clientes que bloquean imágenes remotas lo siguen viendo
+            $this->mailer->clearAttachments();
+            if (is_file($this->logoPath)) {
+                $this->mailer->addEmbeddedImage($this->logoPath, 'logo_pm', 'logo.png', 'base64', 'image/png');
             }
 
             // Configurar el email
