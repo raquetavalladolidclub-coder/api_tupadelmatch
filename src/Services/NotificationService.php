@@ -349,6 +349,12 @@ class NotificationService
                         $content = str_replace('{{' . $key . '}}', $listContent, $content);
                     }
                 } else {
+                    // Bloque de club: llega ya como HTML seguro desde clubEmailData().
+                    if ($key === 'club_block') {
+                        $content = str_replace('{{club_block}}', (string) $value, $content);
+                        continue;
+                    }
+
                     // Reemplazar variables simples
                     $content = str_replace('{{' . $key . '}}', htmlspecialchars($value ?? '', ENT_QUOTES), $content);
                     // También soportar formato sin llaves por si acaso
@@ -407,6 +413,68 @@ class NotificationService
      * Obtener el número real de la pista (no el ID)
      * Consulta la tabla pistas vía la relación pistaDetalle del partido
      */
+    /**
+     * Datos completos del club donde se juega el partido, listos para el email.
+     * Devuelve los campos sueltos y un bloque HTML ya montado ({{club_block}}).
+     */
+    private function clubEmailData($partido): array
+    {
+        $club = $partido->club;
+
+        $nombre      = trim((string) ($club->nombre ?? ''));
+        $direccion   = trim((string) ($club->direccion ?? ''));
+        $telefono    = trim((string) ($club->telefono ?? ''));
+        $email       = trim((string) ($club->email ?? ''));
+        $responsable = trim((string) ($club->responsable ?? ''));
+        $logo        = trim((string) ($club->url_logo ?? ''));
+
+        if ($logo !== '' && !preg_match('#^https?://#i', $logo)) {
+            $logo = 'https://admin.tupadelmatch.es/' . ltrim($logo, '/');
+        }
+
+        $esc = function ($valor) {
+            return htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
+        };
+
+        $filas = '';
+        if ($nombre !== '') {
+            $filas .= '<p style="margin:0 0 4px;"><strong>🏟️ Club:</strong> ' . $esc($nombre) . '</p>';
+        }
+        if ($direccion !== '') {
+            $filas .= '<p style="margin:0 0 4px;"><strong>📍 Dirección:</strong> ' . $esc($direccion) . '</p>';
+        }
+        if ($telefono !== '') {
+            $filas .= '<p style="margin:0 0 4px;"><strong>📞 Teléfono:</strong> ' . $esc($telefono) . '</p>';
+        }
+        if ($email !== '') {
+            $filas .= '<p style="margin:0 0 4px;"><strong>✉️ Email:</strong> '
+                . '<a href="mailto:' . $esc($email) . '" style="color:#05496a;">' . $esc($email) . '</a></p>';
+        }
+        if ($responsable !== '') {
+            $filas .= '<p style="margin:0;"><strong>👤 Responsable:</strong> ' . $esc($responsable) . '</p>';
+        }
+
+        if ($filas === '') {
+            $filas = '<p style="margin:0;">Datos del club no disponibles.</p>';
+        }
+
+        $logoHtml = $logo !== ''
+            ? '<img src="' . $esc($logo) . '" alt="' . $esc($nombre) . '" style="max-height:56px;max-width:160px;display:block;margin-bottom:8px;">'
+            : '';
+
+        $bloque = '<div style="margin:16px 0;padding:12px 14px;background:#f8f8f6;border-left:4px solid #05496a;border-radius:8px;text-align:left;font-size:14px;color:#2c3e50;">'
+            . $logoHtml . $filas . '</div>';
+
+        return [
+            'club_name'        => $nombre,
+            'club_address'     => $direccion,
+            'club_phone'       => $telefono,
+            'club_email'       => $email,
+            'club_responsable' => $responsable,
+            'club_block'       => $bloque,
+        ];
+    }
+
     private function getCourtName($partido)
     {
         try {
@@ -439,6 +507,7 @@ class NotificationService
             'price'             => $partido->precio_individual,
             'match_details_url' => 'https://tupadelmatch.es/partido/' . $partido->id
         ];
+        $data = array_merge($data, $this->clubEmailData($partido));
 
         return $this->sendGeneralNotificationWithTemplate(
             $organizadorEmail,
@@ -473,6 +542,7 @@ class NotificationService
             'max_players'   => $partido->tipo === 'individual' ? 2 : 4,
             'players'       => $jugadoresArray,
         ];
+        $baseData = array_merge($baseData, $this->clubEmailData($partido));
 
         $success = true;
         foreach ($jugadores as $jugador) {
@@ -517,6 +587,7 @@ class NotificationService
             'cancellation_time' => date('H:i'),
             'match_details_url' => 'https://tupadelmatch.es/partido/' . $partido->id,
         ];
+        $data = array_merge($data, $this->clubEmailData($partido));
 
         return $this->sendGeneralNotificationWithTemplate(
             $organizadorEmail,
@@ -547,6 +618,7 @@ class NotificationService
             'penalty_applied'    => null,
             'cancellation_date'  => date('d/m/Y H:i'),
         ];
+        $data = array_merge($data, $this->clubEmailData($partido));
 
         return $this->sendGeneralNotificationWithTemplate(
             $usuario->email,
@@ -573,6 +645,7 @@ class NotificationService
             'expiration_time'    => date('H:i', strtotime('+2 hours')),
             'available_matches_url' => 'https://tupadelmatch.es/partidos',
         ];
+        $baseData = array_merge($baseData, $this->clubEmailData($partido));
 
         $success = true;
         foreach ($jugadoresEnEspera as $jugador) {
@@ -639,6 +712,7 @@ class NotificationService
             'cancel_url'        => 'https://tupadelmatch.es/partido/' . $partido->id . '/cancel?token=' . $this->generateCancelToken($inscripcion->id),
             'share_url'         => 'https://tupadelmatch.es/partido/' . $partido->id . '/share',
         ];
+        $data = array_merge($data, $this->clubEmailData($partido));
         
         return $this->sendGeneralNotificationWithTemplate(
             $usuario->email,
