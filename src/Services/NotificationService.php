@@ -295,6 +295,12 @@ class NotificationService
             // Primero procesar bloques condicionales: {{#key}}...{{/key}}
             // Si la clave NO existe o está vacía/ausente, eliminar el bloque completo
             foreach ($data as $key => $value) {
+                // 'players' se renderiza más abajo con renderPlayerItem(); si se
+                // procesa aquí, el bloque se vacía y los jugadores desaparecen.
+                if ($key === 'players') {
+                    continue;
+                }
+
                 $pattern = '/\{\{#' . preg_quote($key, '/') . '\}\}(.*?)\{\{\/' . preg_quote($key, '/') . '\}\}/s';
                 if (empty($value) || (is_array($value) && empty($value))) {
                     // Eliminar bloque completo
