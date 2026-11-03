@@ -525,9 +525,20 @@ class NotificationService
             return true;
         }
 
+        $jugadores = $partido->jugadoresConfirmados()->with('usuario')->get()->map(function ($insc) {
+            return [
+                'name'        => $insc->usuario->fullName ?? $insc->usuario->username,
+                'skill_level' => $insc->usuario->categoria ?? 'N/A',
+                'phone'       => $insc->usuario->phone ?? 'No disponible',
+                'image'       => $this->urlFotoUsuario($insc->usuario->imagePath ?? ''),
+                'initials'    => $this->getInitials($insc->usuario->fullName ?? $insc->usuario->username),
+            ];
+        })->toArray();
+
         $data = [
             'player_name'       => $jugador->fullName ?? $jugador->username,
             'organizer_name'    => $organizadorEmail,
+            'players'           => $jugadores,
             'match_date'        => $partido->fecha->format('d/m/Y'),
             'match_time'        => $partido->hora,
             'court_name'        => $this->getCourtName($partido),
