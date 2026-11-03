@@ -90,7 +90,7 @@ class NotificationService
 
             // Logo incrustado: los clientes que bloquean imágenes remotas lo siguen viendo
             $this->mailer->clearAttachments();
-            if (is_file($this->logoPath)) {
+            if (strpos($templateContent, 'cid:logo_pm') !== false && is_file($this->logoPath)) {
                 $this->mailer->addEmbeddedImage($this->logoPath, 'logo_pm', 'logo.png', 'base64', 'image/png');
             }
 
