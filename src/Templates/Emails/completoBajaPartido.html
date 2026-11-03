@@ -1,122 +1,64 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>¡Plaza Disponible! - TuPadelMatch</title>
+    <title>Plaza libre en tu partido</title>
     <style>
-        body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
-        .header { background-color: #53abc0; padding: 14px; text-align: center; }
-        .logo { max-width: 200px; height: auto; margin-bottom: 15px; }
-        .content { padding: 16px; }
-        .urgent-badge { background: #FF5722; color: white; padding: 12px 25px; 
-                       border-radius: 25px; display: inline-block; margin: 10px 0; 
-                       font-weight: bold; font-size: 13px; text-transform: uppercase; }
-        .opportunity-card { background: linear-gradient(135deg, #FFF3E0 0%, #FFECB3 100%); 
-                           border-radius: 12px; padding: 16px; margin: 12px 0; 
-                           border: 3px dashed #53abc0; text-align: center; }
-        .match-info { background: white; padding: 12px; border-radius: 10px; margin: 10px 0; 
-                     box-shadow: 0 4px 12px rgba(255, 152, 0, 0.1); }
-        .countdown { font-size: 14px; font-weight: bold; color: #FF5722; margin: 10px 0; }
-        .button { display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #53abc0 0%, #FF5722 100%); 
-                  color: white; text-decoration: none; border-radius: 10px; font-weight: bold; 
-                  margin: 10px 0; font-size: 13px; transition: all 0.3s; 
-                  box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3); }
-        .button:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4); }
-        .footer { text-align: center; padding: 14px; color: #666; font-size: 12px; 
-                  background-color: #f8f9fa; border-top: 1px solid #ddd; }
-        .warning-box { background: #FFEBEE; border: 2px solid #FF5252; padding: 12px; 
-                      border-radius: 8px; margin: 12px 0; }
-    </style>
+    body { margin:0; padding:0; background:#eef2f4; -webkit-font-smoothing:antialiased; }
+    .wrap { width:100%; padding:24px 12px; background:#eef2f4; }
+    .card { max-width:560px; margin:0 auto; background:#ffffff; border:1px solid #e2e8ea; border-radius:14px; overflow:hidden;
+            font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#2c3e50; }
+    .head { background:#05496a; background-image:linear-gradient(135deg,#05496a 0%,#1d6f8c 100%); padding:20px 24px; }
+    .head h1 { margin:0; font-size:18px; line-height:1.25; color:#ffffff; font-weight:700; }
+    .head p { margin:4px 0 0; font-size:12.5px; color:#d3eefc; }
+    .body { padding:20px 24px 8px; }
+    .lead { margin:0 0 14px; font-size:14px; line-height:1.45; color:#34495e; }
+    table.grid { width:100%; border-collapse:collapse; margin:0 0 6px; }
+    table.grid td { padding:8px 10px; border-bottom:1px solid #edf1f2; vertical-align:top; font-size:13px; }
+    table.grid td.k { width:26%; color:#7f8c8d; font-size:11px; text-transform:uppercase; letter-spacing:.5px; font-weight:600; }
+    table.grid td.v { color:#2c3e50; font-weight:600; }
+    .btn { display:inline-block; padding:11px 20px; border-radius:9px; background:#05496a; color:#ffffff !important;
+           text-decoration:none; font-size:13.5px; font-weight:600; }
+    .btn-ghost { display:inline-block; margin-left:10px; font-size:12.5px; color:#5d6d7e; text-decoration:underline; }
+    .note { margin:14px 0 6px; padding:10px 12px; background:#f7fbf2; border-left:3px solid #d3ee55;
+            border-radius:8px; font-size:12.5px; line-height:1.45; color:#4a5a63; }
+    .sub { margin:18px 0 6px; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#95a5a6; font-weight:700; }
+    .player-item { display:block; padding:7px 10px; border-bottom:1px solid #edf1f2; font-size:13px; }
+    .player-avatar { display:inline-block; width:24px; height:24px; line-height:24px; text-align:center; border-radius:12px;
+                     background:#e3f8fc; color:#05496a; font-weight:700; font-size:10px; margin-right:8px; }
+    .foot { padding:14px 24px; border-top:1px solid #edf1f2; font-size:10.5px; line-height:1.5; color:#95a5a6; text-align:center; }
+    .foot a { color:#95a5a6; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <img src="{{logo_url}}" alt="TuPadelMatch" class="logo">
-            <h1 style="color: white; margin: 0; font-size: 13px;">🚨 ¡OPORTUNIDAD ÚNICA!</h1>
-            <p style="color: white; margin: 10px 0 0; font-size: 13px;">Se ha liberado una plaza</p>
+<div class="wrap">
+    <div class="card">
+        <div class="head">
+            <h1>Plaza libre en tu partido</h1>
+            <p>{{match_date}} · {{match_time}} · {{court_name}}</p>
         </div>
-        
-        <div class="content">
-            <div class="urgent-badge">⚠️ PLAZA DISPONIBLE INMEDIATAMENTE</div>
-            
-            <h2>¡Hola {{player_name}}!</h2>
-            
-            <p><strong>¡Atención!</strong> Se ha liberado una plaza en un partido <strong>completo</strong> 
-               en el que estabas interesado. ¡Esta es tu oportunidad!</p>
-            
-            <div class="opportunity-card">
-                <h3 style="margin: 0; color: #FF5722; font-size: 15px;">🎯 ¡RESERVA RÁPIDO!</h3>
-                <p style="font-size: 13px; margin: 15px 0;">Solo hay <strong>1 plaza disponible</strong> y otros jugadores también han recibido esta notificación.</p>
-                
-                <div class="countdown">
-                    ⏳ TIEMPO LIMITADO
-                </div>
-            </div>
-            
-            <div class="match-info">
-                <h3 style="color: #53abc0; margin-top: 0;">📋 Detalles del partido</h3>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 10px 0;">
-                    <div style="background: #FFF8E1; padding: 15px; border-radius: 6px;">
-                        <strong>📅 Fecha:</strong><br>
-                        <span style="font-size: 13px; font-weight: bold;">{{match_date}}</span><br>
-                        <small>({{days_until_match}} días)</small>
-                    </div>
-                    <div style="background: #FFF8E1; padding: 15px; border-radius: 6px;">
-                        <strong>🕒 Hora:</strong><br>
-                        <span style="font-size: 13px; font-weight: bold;">{{match_time}}</span>
-                    </div>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;">
-                    <div style="background: #FFF8E1; padding: 15px; border-radius: 6px;">
-                        <strong>🎾 Pista:</strong><br>{{court_name}}
-                    </div>
-                    <div style="background: #FFF8E1; padding: 15px; border-radius: 6px;">
-                        <strong>💰 Precio:</strong><br>{{price}}€
-                    </div>
-                </div>
-                
-                {{club_block}}
-                <p><strong>📊 Nivel:</strong> {{skill_level}}</p>
-                <p><strong>👥 Jugadores actuales:</strong> {{current_players}}/{{max_players}} (¡Falta 1!)</p>
-            </div>
-            
-            <div class="warning-box">
-                <h4 style="margin: 0 0 10px; color: #D32F2F;">⚠️ IMPORTANTE SABER:</h4>
-                <ul style="margin: 0; padding-left: 20px;">
-                    <li>Esta plaza es para el <strong>PRIMER jugador</strong> que la reserve</li>
-                    <li>El enlace de reserva es <strong>personal e intransferible</strong></li>
-                    <li><strong>Caduca en 2 horas</strong> o cuando alguien más la reserve</li>
-                    <li>Al ser un partido completo, el nivel de juego está garantizado</li>
-                </ul>
-            </div>
-            
-            <div style="text-align: center; margin: 14px 0;">
-                <a href="{{quick_join_url}}" class="button">✅ ¡QUIERO ESA PLAZA!</a>
-            </div>
-            
-            <p style="text-align: center; font-style: italic; color: #666;">
-                Enlace exclusivo para ti • Caduca a las {{expiration_time}}
+        <div class="body">
+            <p class="lead">Se ha liberado una plaza en un partido completo. Si te interesa, apúntate antes de las {{expiration_time}}.</p>
+
+            <table class="grid">
+                <tr><td class="k">Fecha</td><td class="v">{{{{match_date}}}}</td><td class="k">Hora</td><td class="v">{{{{match_time}}}}</td></tr>
+                <tr><td class="k">Pista</td><td class="v">{{{{court_name}}}}</td><td class="k">Nivel</td><td class="v">{{{{skill_level}}}}</td></tr>
+                <tr><td class="k">Jugadores</td><td class="v">{{{{current_players}}}}/{{{{max_players}}}}</td><td class="k">Precio</td><td class="v">{{{{price}}}}€</td></tr>
+            </table>
+
+            {{club_block}}
+
+            <p style="text-align:center;margin:20px 0 22px;">
+                <a class="btn" href="{{quick_join_url}}">Apuntarme</a>
+                <a class="btn-ghost" href="{{available_matches_url}}">Ver más partidos</a>
             </p>
-            
-            <div style="text-align: center; margin: 14px 0;">
-                <p><strong>¿No te interesa esta plaza?</strong></p>
-                <a href="{{available_matches_url}}" style="color: #53abc0; text-decoration: none; font-weight: bold;">
-                    👉 Ver otros partidos disponibles
-                </a>
-            </div>
-            
-            <p>El equipo de <strong>TuPadelMatch</strong> 🎾</p>
         </div>
-        
-        <div class="footer">
-            <p>Este es un email automático de TuPadelMatch. Por favor, no respondas a este mensaje.</p>
-            <p>¿Problemas con el enlace? Contacta con nosotros: <a href="mailto:soporte@tupadelmatch.es" style="color: #53abc0;">soporte@tupadelmatch.es</a></p>
-            <p>&copy; {{current_year}} TuPadelMatch. Todos los derechos reservados.</p>
+        <div class="foot">
+            Email automático de {{app_name}} &middot; No respondas a este mensaje.<br>
+            &copy; {{current_year}} {{app_name}}
         </div>
     </div>
+</div>
 </body>
 </html>

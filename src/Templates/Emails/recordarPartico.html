@@ -1,84 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recordatorio: Tu partido mañana - TuPadelMatch</title>
+    <title>Tu partido es mañana</title>
     <style>
-        body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
-        .header { background-color: #53abc0; padding: 12px; text-align: center; }
-        .logo { max-width: 200px; height: auto; margin-bottom: 15px; }
-        .content { padding: 16px; }
-        .info-card { background: #e8eaf6; border-radius: 8px; padding: 12px; margin: 10px 0; border-left: 4px solid #53abc0; }
-        .weather-card { background: #e3f2fd; border-radius: 8px; padding: 12px; margin: 10px 0; }
-        .button { display: inline-block; padding: 12px 24px; text-decoration: none; border-radius: 6px; 
-                  font-weight: bold; margin: 10px 5px; transition: opacity 0.3s; }
-        .primary-btn { background-color: #53abc0; color: white; }
-        .danger-btn { background-color: #f44336; color: white; }
-        .button:hover { opacity: 0.9; }
-        .footer { text-align: center; padding: 12px; color: #666; font-size: 12px; 
-                  background-color: #f8f9fa; border-top: 1px solid #ddd; }
-        .checklist { background: #f1f8e9; padding: 15px; border-radius: 6px; margin: 10px 0; }
-    </style>
+    body { margin:0; padding:0; background:#eef2f4; -webkit-font-smoothing:antialiased; }
+    .wrap { width:100%; padding:24px 12px; background:#eef2f4; }
+    .card { max-width:560px; margin:0 auto; background:#ffffff; border:1px solid #e2e8ea; border-radius:14px; overflow:hidden;
+            font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#2c3e50; }
+    .head { background:#05496a; background-image:linear-gradient(135deg,#05496a 0%,#1d6f8c 100%); padding:20px 24px; }
+    .head h1 { margin:0; font-size:18px; line-height:1.25; color:#ffffff; font-weight:700; }
+    .head p { margin:4px 0 0; font-size:12.5px; color:#d3eefc; }
+    .body { padding:20px 24px 8px; }
+    .lead { margin:0 0 14px; font-size:14px; line-height:1.45; color:#34495e; }
+    table.grid { width:100%; border-collapse:collapse; margin:0 0 6px; }
+    table.grid td { padding:8px 10px; border-bottom:1px solid #edf1f2; vertical-align:top; font-size:13px; }
+    table.grid td.k { width:26%; color:#7f8c8d; font-size:11px; text-transform:uppercase; letter-spacing:.5px; font-weight:600; }
+    table.grid td.v { color:#2c3e50; font-weight:600; }
+    .btn { display:inline-block; padding:11px 20px; border-radius:9px; background:#05496a; color:#ffffff !important;
+           text-decoration:none; font-size:13.5px; font-weight:600; }
+    .btn-ghost { display:inline-block; margin-left:10px; font-size:12.5px; color:#5d6d7e; text-decoration:underline; }
+    .note { margin:14px 0 6px; padding:10px 12px; background:#f7fbf2; border-left:3px solid #d3ee55;
+            border-radius:8px; font-size:12.5px; line-height:1.45; color:#4a5a63; }
+    .sub { margin:18px 0 6px; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#95a5a6; font-weight:700; }
+    .player-item { display:block; padding:7px 10px; border-bottom:1px solid #edf1f2; font-size:13px; }
+    .player-avatar { display:inline-block; width:24px; height:24px; line-height:24px; text-align:center; border-radius:12px;
+                     background:#e3f8fc; color:#05496a; font-weight:700; font-size:10px; margin-right:8px; }
+    .foot { padding:14px 24px; border-top:1px solid #edf1f2; font-size:10.5px; line-height:1.5; color:#95a5a6; text-align:center; }
+    .foot a { color:#95a5a6; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <img src="{{logo_url}}" alt="TuPadelMatch" class="logo">
-            <h1 style="color: white; margin: 0;">⏰ Recordatorio de partido</h1>
+<div class="wrap">
+    <div class="card">
+        <div class="head">
+            <h1>Tu partido es mañana</h1>
+            <p>{{match_date}} · {{match_time}} · {{court_name}}</p>
         </div>
-        
-        <div class="content">
-            <h2>Hola {{player_name}},</h2>
-            
-            <p>Este es un recordatorio de tu partido de pádel <strong>mañana</strong>. ¡Prepárate para un gran juego! 🎾</p>
-            
-            <div class="info-card">
-                <h3 style="margin-top: 0; color: #53abc0;">📅 Información del partido:</h3>
-                <p><strong>📅 Fecha:</strong> Mañana, {{match_date}}</p>
-                <p><strong>🕒 Hora:</strong> {{match_time}} (llegar 10 min antes)</p>
-                <p><strong>🎾 Pista:</strong> {{court_name}}</p>
-                {{club_block}}
-                <p><strong>👤 Organizador:</strong> {{organizer_name}} ({{organizer_phone}})</p>
-                <p><strong>💰 Precio:</strong> {{price}}€ por persona</p>
+        <div class="body">
+            <p class="lead">Tu partido es mañana. Revisa los datos y llega con tiempo.</p>
+
+            <table class="grid">
+                <tr><td class="k">Fecha</td><td class="v">{{{{match_date}}}}</td><td class="k">Hora</td><td class="v">{{{{match_time}}}}</td></tr>
+                <tr><td class="k">Pista</td><td class="v">{{{{court_name}}}}</td><td class="k">Precio</td><td class="v">{{{{price}}}}€</td></tr>
+                <tr><td class="k">Organizador</td><td class="v">{{{{organizer_name}}}}</td><td class="k">Teléfono</td><td class="v">{{{{organizer_phone}}}}</td></tr>
+            </table>
+
+            {{club_block}}
+
+            <div class="note">
+                El pago se realizará <strong>en la recepción del club</strong>. Trae ropa deportiva, bebida y toalla.
             </div>
-            
-            {{#weather_available}}
-            <div class="weather-card">
-                <h3 style="margin-top: 0; color: #0288d1;">🌤️ Previsión meteorológica:</h3>
-                <p><strong>🌡️ Temperatura:</strong> {{temperature}}°C</p>
-                <p><strong>💧 Humedad:</strong> {{humidity}}%</p>
-                <p><strong>☁️ Condiciones:</strong> {{weather_condition}}</p>
-                <p><strong>💡 Recomendación:</strong> {{weather_recommendation}}</p>
-            </div>
-            {{/weather_available}}
-            
-            <div class="checklist">
-                <h3 style="margin-top: 0; color: #689f38;">✅ Checklist para el partido:</h3>
-                <ul>
-                    <li>🎾 Pala de pádel</li>
-                    <li>👟 Calzado deportivo (¡para pista de pádel!)</li>
-                    <li>👕 Ropa deportiva cómoda</li>
-                    <li>💧 Bebida y toalla</li>
-                    <li>💳 El pago se realizará en la recepción del club</li>
-                </ul>
-            </div>
-        
-            <p><strong>Recuerda:</strong> Si no puedes asistir, cancela tu plaza lo antes posible para dar oportunidad a otros jugadores.</p>
-            
-            <p style="margin-top: 30px; font-size: 13px; text-align: center;">
-                <strong>¡Que tengas un gran partido! 🏆</strong>
-            </p>
-            
-            <p>El equipo de <strong>TuPadelMatch</strong></p>
         </div>
-        
-        <div class="footer">
-            <p>Este es un email automático de TuPadelMatch. Por favor, no respondas a este mensaje.</p>
-            <p>¿Necesitas ayuda? Contacta con nosotros: <a href="mailto:soporte@tupadelmatch.es">soporte@tupadelmatch.es</a></p>
-            <p>&copy; {{current_year}} TuPadelMatch. Todos los derechos reservados.</p>
+        <div class="foot">
+            Email automático de {{app_name}} &middot; No respondas a este mensaje.<br>
+            &copy; {{current_year}} {{app_name}}
         </div>
     </div>
+</div>
 </body>
 </html>

@@ -1,164 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confirmación de inscripción - PadelMatch</title>
+    <title>Inscripción confirmada</title>
     <style>
-        body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
-        .header { background: #53abc0; padding: 16px; text-align: center; }
-        .logo { max-width: 180px; height: auto; margin-bottom: 15px; }
-        .content { padding: 18px; }
-        .confirmation-badge { background: white; color: #53abc0; padding: 12px 30px; 
-                             border-radius: 25px; display: inline-block; margin: 10px 0; 
-                             font-weight: bold; font-size: 14px; border: 2px solid #53abc0; }
-        .match-card { background: #E8F5E9; border-radius: 12px; padding: 16px; margin: 14px 0; 
-                     border: 3px solid #53abc0; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.1); }
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
-        .info-box { background: white; padding: 12px; border-radius: 10px; text-align: center; 
-                   border: 1px solid #C8E6C9; }
-        .icon { font-size: 15px; margin-bottom: 10px; }
-        .player-list { background: white; border-radius: 10px; padding: 12px; margin: 12px 0; 
-                      border: 1px solid #ddd; }
-        .player-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
-        .player-item:last-child { border-bottom: none; }
-        .player-avatar { width: 45px; height: 45px; border-radius: 50%; background: #53abc0; 
-                        color: white; display: flex; align-items: center; justify-content: center; 
-                        margin-right: 15px; font-weight: bold; font-size: 13px; }
-        .button { display: inline-block; padding: 10px 22px; background: linear-gradient(135deg, #53abc0 0%, #53abc0 100%); 
-                  color: white; text-decoration: none; border-radius: 10px; font-weight: bold; 
-                  font-size: 13px; margin: 12px 0; transition: all 0.3s;
-                  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3); }
-        .button:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4); }
-        .footer { text-align: center; padding: 14px; color: #666; font-size: 13px; 
-                  background-color: #f8f9fa; border-top: 1px solid #ddd; }
-        .reminder-box { background: #FFF3E0; padding: 12px; border-radius: 10px; margin: 12px 0; 
-                       border-left: 5px solid #FF9800; }
-        .qr-code { text-align: center; margin: 10px 0; }
-        .qr-code img { max-width: 150px; height: auto; }
-    </style>
+    body { margin:0; padding:0; background:#eef2f4; -webkit-font-smoothing:antialiased; }
+    .wrap { width:100%; padding:24px 12px; background:#eef2f4; }
+    .card { max-width:560px; margin:0 auto; background:#ffffff; border:1px solid #e2e8ea; border-radius:14px; overflow:hidden;
+            font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#2c3e50; }
+    .head { background:#05496a; background-image:linear-gradient(135deg,#05496a 0%,#1d6f8c 100%); padding:20px 24px; }
+    .head h1 { margin:0; font-size:18px; line-height:1.25; color:#ffffff; font-weight:700; }
+    .head p { margin:4px 0 0; font-size:12.5px; color:#d3eefc; }
+    .body { padding:20px 24px 8px; }
+    .lead { margin:0 0 14px; font-size:14px; line-height:1.45; color:#34495e; }
+    table.grid { width:100%; border-collapse:collapse; margin:0 0 6px; }
+    table.grid td { padding:8px 10px; border-bottom:1px solid #edf1f2; vertical-align:top; font-size:13px; }
+    table.grid td.k { width:26%; color:#7f8c8d; font-size:11px; text-transform:uppercase; letter-spacing:.5px; font-weight:600; }
+    table.grid td.v { color:#2c3e50; font-weight:600; }
+    .btn { display:inline-block; padding:11px 20px; border-radius:9px; background:#05496a; color:#ffffff !important;
+           text-decoration:none; font-size:13.5px; font-weight:600; }
+    .btn-ghost { display:inline-block; margin-left:10px; font-size:12.5px; color:#5d6d7e; text-decoration:underline; }
+    .note { margin:14px 0 6px; padding:10px 12px; background:#f7fbf2; border-left:3px solid #d3ee55;
+            border-radius:8px; font-size:12.5px; line-height:1.45; color:#4a5a63; }
+    .sub { margin:18px 0 6px; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#95a5a6; font-weight:700; }
+    .player-item { display:block; padding:7px 10px; border-bottom:1px solid #edf1f2; font-size:13px; }
+    .player-avatar { display:inline-block; width:24px; height:24px; line-height:24px; text-align:center; border-radius:12px;
+                     background:#e3f8fc; color:#05496a; font-weight:700; font-size:10px; margin-right:8px; }
+    .foot { padding:14px 24px; border-top:1px solid #edf1f2; font-size:10.5px; line-height:1.5; color:#95a5a6; text-align:center; }
+    .foot a { color:#95a5a6; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <img src="{{logo_url}}" alt="PadelMatch" class="logo">
-            <h1 style="color: white; margin: 0; font-size: 14px;">✅ ¡INSCRIPCIÓN CONFIRMADA!</h1>
-            <p style="color: white; margin: 10px 0 0; font-size: 13px; opacity: 0.9;">Tu plaza está reservada</p>
+<div class="wrap">
+    <div class="card">
+        <div class="head">
+            <h1>Inscripción confirmada</h1>
+            <p>{{match_date}} · {{match_time}} · {{court_name}}</p>
         </div>
-        
-        <div class="content">
-            <div class="confirmation-badge">🎾 INSCRIPCIÓN CONFIRMADA #{{inscription_id}}</div>
-            
-            <h2 style="color: #53abc0;">¡Hola {{player_name}}!</h2>
-            
-            <p>Tu inscripción en el partido de pádel ha sido <strong>confirmada exitosamente</strong>. 
-               Aquí tienes todos los detalles de tu reserva:</p>
-            
-            <div class="match-card">
-                <h3 style="margin-top: 0; color: #53abc0; font-size: 15px; text-align: center;">
-                    📋 DETALLES DEL PARTIDO
-                </h3>
-                
-                <div class="info-grid">
-                    <div class="info-box">
-                        <div class="icon">📅</div>
-                        <div>
-                            <strong>FECHA</strong><br>
-                            <span style="font-size: 13px; font-weight: bold; color: #53abc0;">
-                                {{match_date}}
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="info-box">
-                        <div class="icon">🕒</div>
-                        <div>
-                            <strong>HORA</strong><br>
-                            <span style="font-size: 13px; font-weight: bold; color: #53abc0;">
-                                {{match_time}}
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="info-box">
-                        <div class="icon">🎾</div>
-                        <div>
-                            <strong>PISTA</strong><br>
-                            <span style="font-size: 13px; font-weight: bold; color: #53abc0;">
-                                {{court_name}}
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="info-box">
-                        <div class="icon">💰</div>
-                        <div>
-                            <strong>PRECIO</strong><br>
-                            <span style="font-size: 13px; font-weight: bold; color: #53abc0;">
-                                {{price}}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="background: white; padding: 12px; border-radius: 8px; margin: 10px 0;">
-                    {{club_block}}
-                    <p><strong>👤 Organizador:</strong> {{organizer_name}} ({{organizer_phone}})</p>
-                    <p><strong>📊 Nivel:</strong> {{skill_level}}</p>
-                    <p><strong>👥 Jugadores:</strong> {{current_players}}/{{max_players}} confirmados</p>
-                </div>
+        <div class="body">
+            <p class="lead">Hola <strong>{{player_name}}</strong>, tu plaza está confirmada. Te esperamos en la pista.</p>
+
+            <table class="grid">
+                <tr><td class="k">Fecha</td><td class="v">{{{{match_date}}}}</td><td class="k">Hora</td><td class="v">{{{{match_time}}}}</td></tr>
+                <tr><td class="k">Pista</td><td class="v">{{{{court_name}}}}</td><td class="k">Nivel</td><td class="v">{{{{skill_level}}}}</td></tr>
+                <tr><td class="k">Jugadores</td><td class="v">{{{{current_players}}}}/{{{{max_players}}}}</td><td class="k">Precio</td><td class="v">{{{{price}}}}</td></tr>
+                <tr><td class="k">Reserva</td><td class="v">{{{{reservation_code}}}}</td><td class="k">Organizador</td><td class="v">{{{{organizer_name}}}}</td></tr>
+            </table>
+
+            {{club_block}}
+
+            <p class="sub">Jugadores apuntados</p>
+            {{#players}}{{/players}}
+
+            <div class="note">
+                Llega <strong>15 minutos antes</strong> y trae calzado de pista. Cancelación gratuita hasta 24 h antes.
             </div>
-            
-            <div class="player-list">
-                <h3 style="color: #53abc0; margin-top: 0;">👥 JUGADORES CONFIRMADOS</h3>
-                
-                {{#players}}
-                <div class="player-item">
-                    <div class="player-avatar">{{initials}}</div>
-                    <div>
-                        <strong>{{name}}</strong><br>
-                        <small style="color: #666;">Nivel: {{skill_level}} • Tel: {{phone}}</small>
-                    </div>
-                </div>
-                {{/players}}
-                
-                {{^players}}
-                <p style="text-align: center; color: #666; font-style: italic;">
-                    Eres el primer jugador en confirmarse. ¡Pronto se unirán más!
-                </p>
-                {{/players}}
-            </div>
-            
-            <div class="reminder-box">
-                <h4 style="margin: 0 0 15px; color: #FF9800;">⚠️ IMPORTANTE - LEE CON ATENCIÓN</h4>
-                <ul style="margin: 0; padding-left: 20px;">
-                    <li><strong>Llega 15 minutos antes</strong> del inicio del partido</li>
-                    <li>El pago se realizará <strong>en la recepción del club</strong></li>
-                    <li><strong>Calzado específico</strong> para pista de pádel (obligatorio)</li>
-                    <li><strong>Cancela con 24h de antelación</strong> si no puedes asistir</li>
-                    <li>Trae tu <strong>pala, bebida y toalla</strong></li>
-                </ul>
-            </div>
-            
-            <p style="text-align: center; font-size: 14px; font-weight: bold; color: #53abc0; margin: 14px 0;">
-                ¡Que tengas un excelente partido! 🏆
-            </p>
-            
-            <p style="text-align: center;">
-                El equipo de <strong style="color: #53abc0;">PadelMatch</strong> 🎾
+
+            <p style="text-align:center;margin:20px 0 22px;">
+                <a class="btn" href="{{match_details_url}}">Ver el partido</a>
+                <a class="btn-ghost" href="{{cancel_url}}">Cancelar inscripción</a>
             </p>
         </div>
-        
-        <div class="footer">
-            <p>Este es un email automático de confirmación. Por favor, no respondas a este mensaje.</p>
-            <p>¿Tienes preguntas sobre tu reserva? Contacta con nosotros: 
-               <a href="mailto:{{support_email}}" style="color: #53abc0;">{{support_email}}</a> | 
-               <a href="tel:{{support_phone}}" style="color: #53abc0;">{{support_phone}}</a>
-            </p>
-            <p><strong>Reserva #{{reservation_code}}</strong> • Confirmado el {{confirmation_date}}</p>
-            <p>&copy; {{current_year}} {{app_name}}. Todos los derechos reservados.</p>
+        <div class="foot">
+            Email automático de {{app_name}} &middot; No respondas a este mensaje.<br>
+            &copy; {{current_year}} {{app_name}}
         </div>
     </div>
+</div>
 </body>
 </html>

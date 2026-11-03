@@ -1,114 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cancelación confirmada - TuPadelMatch</title>
+    <title>Cancelación confirmada</title>
     <style>
-        body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
-        .header { background-color: #53abc1; padding: 14px; text-align: center; }
-        .logo { max-width: 180px; height: auto; margin-bottom: 15px; }
-        .content { padding: 16px; }
-        .confirmation-badge { background: white; color: #53abc1; padding: 12px 30px; 
-                             border-radius: 25px; display: inline-block; margin: 10px 0; 
-                             font-weight: bold; font-size: 14px; border: 2px solid #53abc1; }
-        .info-card { background: #FFF3E0; border-radius: 12px; padding: 14px; margin: 12px 0; 
-                     border-left: 5px solid #53abc1; }
-        .penalty-box { background: #FFEBEE; border-radius: 10px; padding: 12px; margin: 10px 0; 
-                      border: 2px solid #F44336; }
-        .button { display: inline-block; padding: 9px 20px; background-color: #2196F3; 
-                  color: white; text-decoration: none; border-radius: 10px; font-weight: bold; 
-                  font-size: 13px; margin: 10px 0; transition: all 0.3s;
-                  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3); }
-        .button:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4); }
-        .footer { text-align: center; padding: 14px; color: #666; font-size: 13px; 
-                  background-color: #f8f9fa; border-top: 1px solid #ddd; }
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 10px 0; }
-        .info-item { background: white; padding: 15px; border-radius: 8px; text-align: center; }
-    </style>
+    body { margin:0; padding:0; background:#eef2f4; -webkit-font-smoothing:antialiased; }
+    .wrap { width:100%; padding:24px 12px; background:#eef2f4; }
+    .card { max-width:560px; margin:0 auto; background:#ffffff; border:1px solid #e2e8ea; border-radius:14px; overflow:hidden;
+            font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#2c3e50; }
+    .head { background:#05496a; background-image:linear-gradient(135deg,#05496a 0%,#1d6f8c 100%); padding:20px 24px; }
+    .head h1 { margin:0; font-size:18px; line-height:1.25; color:#ffffff; font-weight:700; }
+    .head p { margin:4px 0 0; font-size:12.5px; color:#d3eefc; }
+    .body { padding:20px 24px 8px; }
+    .lead { margin:0 0 14px; font-size:14px; line-height:1.45; color:#34495e; }
+    table.grid { width:100%; border-collapse:collapse; margin:0 0 6px; }
+    table.grid td { padding:8px 10px; border-bottom:1px solid #edf1f2; vertical-align:top; font-size:13px; }
+    table.grid td.k { width:26%; color:#7f8c8d; font-size:11px; text-transform:uppercase; letter-spacing:.5px; font-weight:600; }
+    table.grid td.v { color:#2c3e50; font-weight:600; }
+    .btn { display:inline-block; padding:11px 20px; border-radius:9px; background:#05496a; color:#ffffff !important;
+           text-decoration:none; font-size:13.5px; font-weight:600; }
+    .btn-ghost { display:inline-block; margin-left:10px; font-size:12.5px; color:#5d6d7e; text-decoration:underline; }
+    .note { margin:14px 0 6px; padding:10px 12px; background:#f7fbf2; border-left:3px solid #d3ee55;
+            border-radius:8px; font-size:12.5px; line-height:1.45; color:#4a5a63; }
+    .sub { margin:18px 0 6px; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#95a5a6; font-weight:700; }
+    .player-item { display:block; padding:7px 10px; border-bottom:1px solid #edf1f2; font-size:13px; }
+    .player-avatar { display:inline-block; width:24px; height:24px; line-height:24px; text-align:center; border-radius:12px;
+                     background:#e3f8fc; color:#05496a; font-weight:700; font-size:10px; margin-right:8px; }
+    .foot { padding:14px 24px; border-top:1px solid #edf1f2; font-size:10.5px; line-height:1.5; color:#95a5a6; text-align:center; }
+    .foot a { color:#95a5a6; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <img src="{{logo_url}}" alt="TuPadelMatch" class="logo">
-            <h1 style="color: white; margin: 0; font-size: 13px;">✅ CANCELACIÓN CONFIRMADA</h1>
-            <p style="color: white; margin: 10px 0 0; font-size: 13px;">Tu inscripción ha sido cancelada</p>
+<div class="wrap">
+    <div class="card">
+        <div class="head">
+            <h1>Cancelación confirmada</h1>
+            <p>{{match_date}} · {{match_time}} · {{court_name}}</p>
         </div>
-        
-        <!-- Content -->
-        <div class="content">
-            <div class="confirmation-badge">CANCELACIÓN #{{cancellation_code}}</div>
-            
-            <h2 style="color: #53abc1;">Hola {{player_name}},</h2>
-            
-            <p>Tu inscripción en el partido de pádel ha sido <strong>cancelada exitosamente</strong>. 
-               Aquí tienes un resumen de la operación:</p>
-            
-            <div class="info-card">
-                <h3 style="margin-top: 0; color: #53abc1;">📋 Partido cancelado</h3>
-                
-                <div class="info-grid">
-                    <div class="info-item">
-                        <strong>📅 Fecha</strong><br>
-                        {{match_date}}
-                    </div>
-                    <div class="info-item">
-                        <strong>🕒 Hora</strong><br>
-                        {{match_time}}
-                    </div>
-                    <div class="info-item">
-                        <strong>🎾 Pista</strong><br>
-                        {{court_name}}
-                    </div>
-                    <div class="info-item">
-                        <strong>💰 Precio</strong><br>
-                        {{price}}
-                    </div>
-                </div>
-                
-                {{club_block}}
-                <p><strong>📊 Nivel:</strong> {{skill_level}}</p>
-            </div>
-            
-            <div class="penalty-box">
-                <h4 style="margin: 0 0 10px; color: #F44336;">
-                    <i class="fas fa-exclamation-triangle"></i> Información de penalización
-                </h4>
-                <p><strong>Política aplicada:</strong> {{cancellation_policy}}</p>
-                <p><strong>Penalización estimada:</strong> 
-                   {{#penalty_applied}}
-                   <span style="color: #F44336; font-weight: bold;">{{penalty_applied}}€</span>
-                   {{/penalty_applied}}
-                   {{^penalty_applied}}
-                   <span style="color: #43a047; font-weight: bold;">Sin penalización</span>
-                   {{/penalty_applied}}
-                </p>
-                <p style="font-size: 0.9rem; margin-top: 10px;">
-                    <em>Nota: Las penalizaciones se aplican en tu próxima reserva o se procesan como reembolso parcial.</em>
-                </p>
-            </div>
-            
-            <p><strong>📅 Fecha de cancelación:</strong> {{cancellation_date}}</p>
-            <p><strong>📧 Email de contacto:</strong> soporte@tupadelmatch.es</p>
-            
-            <p style="margin: 12px 0; font-style: italic;">
-                ¡Esperamos verte en otro partido pronto! Tu plaza ha quedado disponible para otros jugadores.
-            </p>
-            
-            <p style="margin-top: 30px;">
-                El equipo de <strong style="color: #53abc1;">PadelMatch</strong>
-            </p>
+        <div class="body">
+            <p class="lead">Hola <strong>{{player_name}}</strong>, tu inscripción se ha cancelado correctamente.</p>
+
+            <table class="grid">
+                <tr><td class="k">Fecha</td><td class="v">{{{{match_date}}}}</td><td class="k">Hora</td><td class="v">{{{{match_time}}}}</td></tr>
+                <tr><td class="k">Pista</td><td class="v">{{{{court_name}}}}</td><td class="k">Nivel</td><td class="v">{{{{skill_level}}}}</td></tr>
+                <tr><td class="k">Código</td><td class="v">{{{{cancellation_code}}}}</td><td class="k">Precio</td><td class="v">{{{{price}}}}</td></tr>
+            </table>
+
+            {{club_block}}
+
+            <div class="note">{{cancellation_policy}}</div>
         </div>
-        
-        <!-- Footer -->
-        <div class="footer">
-            <p>Este es un email automático de confirmación de cancelación.</p>
-            <p>Si no has solicitado esta cancelación, por favor contacta con nosotros inmediatamente.</p>
-            <p><strong>Referencia:</strong> {{cancellation_code}} | {{cancellation_date}}</p>
-            <p>&copy; {{current_year}} {{app_name}}. Todos los derechos reservados.</p>
+        <div class="foot">
+            Email automático de {{app_name}} &middot; No respondas a este mensaje.<br>
+            &copy; {{current_year}} {{app_name}}
         </div>
     </div>
+</div>
 </body>
 </html>
