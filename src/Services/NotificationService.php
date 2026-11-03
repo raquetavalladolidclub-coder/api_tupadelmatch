@@ -709,7 +709,6 @@ class NotificationService
             
             'match_details_url' => 'https://tupadelmatch.es/partido/' . $partido->id,
             'calendar_url'      => 'https://tupadelmatch.es/partido/' . $partido->id . '/calendar',
-            'cancel_url'        => 'https://tupadelmatch.es/partido/' . $partido->id . '/cancel?token=' . $this->generateCancelToken($inscripcion->id),
             'share_url'         => 'https://tupadelmatch.es/partido/' . $partido->id . '/share',
         ];
         $data = array_merge($data, $this->clubEmailData($partido));
@@ -740,11 +739,6 @@ class NotificationService
     /**
      * Genera un token para cancelar inscripción
      */
-    private function generateCancelToken($inscripcionId)
-    {
-        return bin2hex(random_bytes(16)) . '-' . $inscripcionId;
-    }
-
     private function generatePlainText($htmlContent)
     {
         // Fuera head/estilos: antes el texto plano empezaba con todo el CSS.
