@@ -413,8 +413,14 @@ class PartidoController
             $inscripcion->delete();
 
             /////////////////////////////////////////////////////////////////////////////////
-            // Notificar al organizador
+            // ¿Estaba el partido completo antes de la baja?
+            $estabaCompleto = ($partido->estado === 'completo');
+
+            // Jugadores que siguen apuntados
+            $restantes = $partido->jugadoresConfirmados()->with('usuario')->get()->pluck('usuario');
             $organizador = User::find($partido->creador_id);
+
+            // 1) Aviso al organizador
             if ($organizador) {
                 $this->notificationService->sendPlayerLeftNotification(
                     $partido,
@@ -423,24 +429,38 @@ class PartidoController
                 );
             }
 
-            // Enviar email de CONFIRMACIÓN AL USUARIO que canceló
+            // 2) Aviso al resto de jugadores (sin repetir al organizador ni al que se baja)
+            foreach ($restantes as $jugador) {
+                if ((int) $jugador->id === (int) $usuario->id) {
+                    continue;
+                }
+                if ($organizador && (int) $jugador->id === (int) $organizador->id) {
+                    continue;
+                }
+                if (!$this->aceptaEmail($jugador)) {
+                    continue;
+                }
+                $this->notificationService->sendPlayerLeftNotification(
+                    $partido,
+                    $usuario,
+                    $jugador->email
+                );
+            }
+
+            // 3) Confirmación al usuario que se da de baja
             $this->notificationService->sendCancellationConfirmationToUser(
                 $partido,
                 $usuario,
                 $inscripcion
             );
-            
-            // Si el partido estaba completo, notificar a lista de espera
-            if ($partido->estado == 'completo') {
-                // Obtener jugadores en lista de espera
-                $jugadores = $partido->jugadoresConfirmados()->with('usuario')->get()->pluck('usuario');
-                if ($jugadores->count() > 0) {
-                    $this->notificationService->sendSpotAvailableNotification(
-                        $partido,
-                        $usuario,
-                        $jugadores
-                    );
-                }
+
+            // 4) Si el partido estaba completo, avisar de que ya no lo está
+            if ($estabaCompleto && $restantes->count() > 0) {
+                $this->notificationService->sendSpotAvailableNotification(
+                    $partido,
+                    $usuario,
+                    $restantes
+                );
             }
             /////////////////////////////////////////////////////////////////////////////////
 
@@ -574,6 +594,12 @@ class PartidoController
     private const MAX_JUGADORES = 4;
 
     /** ¿Está lleno? Se calcula con las inscripciones reales. */
+    /** ¿El usuario quiere recibir emails? (0 = desactivado) */
+    private function aceptaEmail($usuario): bool
+    {
+        return (int) ($usuario->notificacionesEmail ?? 1) === 1;
+    }
+
     private function estaCompleto($partido): bool
     {
         return $partido->jugadoresConfirmados()->count() >= self::MAX_JUGADORES;
