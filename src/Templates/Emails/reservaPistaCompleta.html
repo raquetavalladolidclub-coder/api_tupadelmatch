@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pista reservada</title>
+    <style>
+    body { margin:0; padding:0; background:#eef2f4; -webkit-font-smoothing:antialiased; }
+    .wrap { width:100%; padding:24px 12px; background:#eef2f4; }
+    .card { max-width:560px; margin:0 auto; background:#ffffff; border:1px solid #e2e8ea; border-radius:14px; overflow:hidden;
+            font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#2c3e50; }
+    .head { background:#05496a; background-image:linear-gradient(135deg,#05496a 0%,#1d6f8c 100%); padding:20px 24px; }
+    .head h1 { margin:0; font-size:18px; line-height:1.25; color:#ffffff; font-weight:700; }
+    .head p { margin:4px 0 0; font-size:12.5px; color:#d3eefc; }
+    .body { padding:20px 24px 8px; }
+    .lead { margin:0 0 14px; font-size:14px; line-height:1.45; color:#34495e; }
+    table.grid { width:100%; border-collapse:collapse; margin:0 0 6px; }
+    table.grid td { padding:8px 10px; border-bottom:1px solid #edf1f2; vertical-align:top; font-size:13px; }
+    table.grid td.k { width:26%; color:#7f8c8d; font-size:11px; text-transform:uppercase; letter-spacing:.5px; font-weight:600; }
+    table.grid td.v { color:#2c3e50; font-weight:600; }
+    .note { margin:14px 0 6px; padding:10px 12px; background:#f7fbf2; border-left:3px solid #d3ee55;
+            border-radius:8px; font-size:12.5px; line-height:1.45; color:#4a5a63; }
+    .foot { padding:14px 24px; border-top:1px solid #edf1f2; font-size:10.5px; line-height:1.5; color:#95a5a6; text-align:center; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="card">
+        <div class="head">
+            <h1>🏟️ Pista completa reservada</h1>
+            <p>{{match_date}} · {{match_time}} · {{court_name}}</p>
+        </div>
+        <div class="body">
+            <p class="lead">Hola <strong>{{player_name}}</strong>, has reservado la pista entera. Es tuya para este tramo horario.</p>
+
+            <table class="grid">
+                <tr><td class="k">Fecha</td><td class="v">{{match_date}}</td><td class="k">Hora</td><td class="v">{{match_time}}</td></tr>
+                <tr><td class="k">Pista</td><td class="v">{{court_name}}</td><td class="k">Duración</td><td class="v">{{duration}} min</td></tr>
+                <tr><td class="k">Precio pista</td><td class="v">{{price_court}}</td><td class="k">Reserva</td><td class="v">{{reservation_code}}</td></tr>
+            </table>
+
+            {{club_block}}
+
+            <div class="note">
+                El pago se realizará <strong>en efectivo al organizador</strong>. Llega 15 minutos antes con calzado de pista.
+                Puedes invitar a quien quieras a jugar en tu pista.
+            </div>
+
+            <p style="text-align:center;margin:18px 0 20px;font-size:12.5px;color:#7f8c8d;">
+                Gestiona la reserva desde la app, en <strong>Mis partidos</strong>.
+            </p>
+        </div>
+        <div class="foot">
+            Email automático de {{app_name}} &middot; No respondas a este mensaje.<br>
+            &copy; {{current_year}} {{app_name}}
+        </div>
+    </div>
+</div>
+</body>
+</html>

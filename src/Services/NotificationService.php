@@ -386,6 +386,7 @@ class NotificationService
             'welcome.html'                      => '¡Bienvenido a ' . $this->appName . '!',
             'jugadorApuntado.html'              => 'Nuevo jugador en tu partido',
             'confirmacionInscripcionPartido.html' => '✅ Inscripción confirmada - ' . $this->appName,
+            'reservaPistaCompleta.html'         => '🏟️ Pista completa reservada - ' . $this->appName,
             'partido_completo.html'             => '🎉 ¡Tu partido está completo!',
             'jugador_eliminado.html'            => 'Un jugador ha cancelado su participación',
             'cancelacion_usuario_confirmacion.html' => '✅ Cancelación confirmada - ' . $this->appName,
@@ -714,6 +715,34 @@ class NotificationService
         }
 
         return $success;
+    }
+
+    /**
+     * Confirmación para quien reserva la pista entera (tipoReserva completo).
+     * Se envía en lugar de la confirmación normal de inscripción.
+     */
+    public function sendFullCourtConfirmation($partido, $usuario, $inscripcion)
+    {
+        if (!$this->aceptaNotificacionesEmail($usuario)) {
+            return true;
+        }
+
+        $data = [
+            'player_name'      => $usuario->nombre ?? $usuario->fullName ?? $usuario->username,
+            'reservation_code' => 'PIS-' . str_pad($inscripcion->id, 6, '0', STR_PAD_LEFT),
+            'match_date'       => $partido->fecha->format('d/m/Y'),
+            'match_time'       => $partido->hora,
+            'duration'         => (int) $partido->duracion,
+            'court_name'       => $this->getCourtName($partido),
+            'price_court'      => number_format((float) ($partido->precio_pista_completa ?? 0), 2) . '€',
+        ];
+        $data = array_merge($data, $this->clubEmailData($partido));
+
+        return $this->sendGeneralNotificationWithTemplate(
+            $usuario->email,
+            'reservaPistaCompleta.html',
+            $data
+        );
     }
 
     public function sendPlayerConfirmationEmail($partido, $usuario, $inscripcion)

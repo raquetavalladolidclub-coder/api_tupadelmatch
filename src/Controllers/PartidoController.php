@@ -358,12 +358,21 @@ class PartidoController
                 );
             }
 
-            // Enviar email de confirmación al usuario
-            $this->notificationService->sendPlayerConfirmationEmail(
-                $partido,
-                $usuario,
-                $inscripcion
-            );
+            // Confirmación al usuario: si reservó la pista entera, correo propio.
+            $tipoReservaEmail = strtolower(trim((string) ($data['tipoReserva'] ?? 'individual')));
+            if ($tipoReservaEmail === 'completo') {
+                $this->notificationService->sendFullCourtConfirmation(
+                    $partido,
+                    $usuario,
+                    $inscripcion
+                );
+            } else {
+                $this->notificationService->sendPlayerConfirmationEmail(
+                    $partido,
+                    $usuario,
+                    $inscripcion
+                );
+            }
             
             // Si el partido se completó, enviar notificación a todos
             if ($this->estaCompleto($partido)) {
