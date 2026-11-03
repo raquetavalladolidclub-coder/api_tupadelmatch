@@ -747,9 +747,22 @@ class NotificationService
 
     private function generatePlainText($htmlContent)
     {
-        $plain = strip_tags($htmlContent);
-        $plain = preg_replace('/\s+/', ' ', $plain);
+        // Fuera head/estilos: antes el texto plano empezaba con todo el CSS.
+        $html = preg_replace('/<head\b.*?<\/head>/is', '', $htmlContent);
+        $html = preg_replace('/<style\b.*?<\/style>/is', '', $html);
+        $html = preg_replace('/<script\b.*?<\/script>/is', '', $html);
+
+        // Convertir la estructura en saltos de línea legibles.
+        $html = preg_replace('/<br\s*\/?>/i', "\n", $html);
+        $html = preg_replace('/<\/t[dh]>/i', '  ', $html);
+        $html = preg_replace('/<\/(p|div|tr|h1|h2|h3|li|table|ul|ol)>/i', "\n", $html);
+
+        $plain = strip_tags($html);
         $plain = html_entity_decode($plain, ENT_QUOTES, 'UTF-8');
+        $plain = preg_replace('/[ \t]+/', ' ', $plain);
+        $plain = preg_replace('/ *\n */', "\n", $plain);
+        $plain = preg_replace('/\n{3,}/', "\n\n", $plain);
+
         return trim($plain);
     }
 
