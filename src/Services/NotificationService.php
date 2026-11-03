@@ -505,6 +505,8 @@ class NotificationService
             'court_address'     => $partido->club ? $partido->club->direccion : 'Dirección no disponible',
             'skill_level'       => $partido->categoria,
             'price'             => $partido->precio_individual,
+            'current_players'   => $partido->jugadoresConfirmados()->count(),
+            'max_players'       => $partido->tipo === 'individual' ? 2 : 4,
             'match_details_url' => 'https://tupadelmatch.es/partido/' . $partido->id
         ];
         $data = array_merge($data, $this->clubEmailData($partido));
