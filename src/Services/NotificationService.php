@@ -12,6 +12,7 @@ class NotificationService
     private $appName = 'PADEL MATCH';
     private $supportEmail = 'club@raquetapadel.es';
     private $logoUrl      = 'https://admin.tupadelmatch.es/assets/images/logo.png';
+    private $emailLogoUrl = 'https://admin.tupadelmatch.es/assets/images/logo_pm_email.png';
 
     public function __construct()
     {
@@ -72,6 +73,7 @@ class NotificationService
                 'app_name'      => $this->appName,
                 'support_email' => $this->supportEmail,
                 'logo_url'      => $this->logoUrl,
+                'email_logo_url' => $this->emailLogoUrl,
                 'current_year'  => date('Y')
             ]);
 
