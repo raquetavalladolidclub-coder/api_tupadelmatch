@@ -450,8 +450,14 @@ class NotificationService
     {
         $club = $partido->club;
 
+        // Muchos partidos no tienen club asignado: usamos el club activo.
+        if (!$club) {
+            $club = \PadelClub\Models\Club::where('activo', 1)->orderBy('id')->first();
+        }
+
         $nombre      = trim((string) ($club->nombre ?? ''));
         $direccion   = trim((string) ($club->direccion ?? ''));
+        $direccion   = trim(preg_replace('/\s*[\r\n]+\s*/', ', ', $direccion), ', ');
         $telefono    = trim((string) ($club->telefono ?? ''));
         $email       = trim((string) ($club->email ?? ''));
         $responsable = trim((string) ($club->responsable ?? ''));
@@ -687,6 +693,7 @@ class NotificationService
             'quick_join_url'     => 'https://tupadelmatch.es/partido/' . $partido->id,
             'expiration_time'    => date('H:i', strtotime('+2 hours')),
             'available_matches_url' => 'https://tupadelmatch.es/partidos',
+            'left_player_name'      => $jugadorQueSeBaja->fullName ?? $jugadorQueSeBaja->username ?? 'Un jugador',
         ];
         $baseData = array_merge($baseData, $this->clubEmailData($partido));
 
