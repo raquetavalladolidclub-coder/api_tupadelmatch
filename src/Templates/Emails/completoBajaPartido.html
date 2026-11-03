@@ -39,13 +39,13 @@
             <p>{{match_date}} · {{match_time}} · {{court_name}}</p>
         </div>
         <div class="body">
-            <p class="lead">Se ha liberado una plaza en un partido completo. Si te interesa, apúntate antes de las {{expiration_time}}.</p>
+            <p class="lead">Tu partido ya no está completo: queda <strong>una plaza libre</strong> ({{current_players}}/{{max_players}}). Puedes avisar a alguien o esperar a que se apunte.</p>
 
             <table class="grid">
                 <tr><td class="k">Fecha</td><td class="v">{{match_date}}</td><td class="k">Hora</td><td class="v">{{match_time}}</td></tr>
                 <tr><td class="k">Pista</td><td class="v">{{court_name}}</td><td class="k">Nivel</td><td class="v">{{skill_level}}</td></tr>
                 <tr><td class="k">Jugadores</td><td class="v">{{current_players}}/{{max_players}}</td><td class="k">Precio</td><td class="v">{{price}}€</td></tr>
-                <tr><td class="k">Baja</td><td class="v">{{left_player_name}}</td><td class="k">Plaza libre</td><td class="v">Hasta las {{expiration_time}}</td></tr>
+                <tr><td class="k">Se ha dado de baja</td><td class="v">{{left_player_name}}</td><td class="k">Estado</td><td class="v">Plaza libre</td></tr>
             </table>
 
             {{club_block}}
