@@ -313,8 +313,9 @@ class NotificationService
                 }
             }
             
-            // Limpiar cualquier bloque condicional que haya quedado (para claves no definidas)
-            $content = preg_replace('/\{\{#([^}]+)\}\}.*?\{\{\/\1\}\}/s', '', $content);
+            // Limpiar los bloques condicionales que hayan quedado sin definir.
+            // 'players' se excluye: se renderiza después con renderPlayerItem().
+            $content = preg_replace('/\{\{#(?!players\})([^}]+)\}\}.*?\{\{\/\1\}\}/s', '', $content);
             
             // Reemplazar variables
             foreach ($data as $key => $value) {
