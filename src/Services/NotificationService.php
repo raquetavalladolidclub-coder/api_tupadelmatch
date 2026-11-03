@@ -414,6 +414,28 @@ class NotificationService
      * Consulta la tabla pistas vía la relación pistaDetalle del partido
      */
     /**
+     * URL pública de la foto de un jugador. Las rutas vienen en dos formatos:
+     * "/uploads/profiles/..." (API) y "uploads/imagenes/usuarios/..." (panel).
+     */
+    private function urlFotoUsuario($imagePath): string
+    {
+        $ruta = trim((string) $imagePath);
+        if ($ruta === '') {
+            return '';
+        }
+
+        if (preg_match('#^https?://#i', $ruta)) {
+            return $ruta;
+        }
+
+        $base = str_starts_with($ruta, '/')
+            ? 'https://api.tupadelmatch.es'
+            : 'https://admin.tupadelmatch.es/';
+
+        return rtrim($base, '/') . '/' . ltrim($ruta, '/');
+    }
+
+    /**
      * Datos completos del club donde se juega el partido, listos para el email.
      * Devuelve los campos sueltos y un bloque HTML ya montado ({{club_block}}).
      */
@@ -528,6 +550,7 @@ class NotificationService
                 'name'        => $user->fullName ?? $user->username,
                 'skill_level' => $user->categoria ?? 'N/A',
                 'phone'       => $user->phone ?? 'No disponible',
+                'image'       => $this->urlFotoUsuario($user->imagePath ?? ''),
                 'initials'    => $this->getInitials($user->fullName ?? $user->username)
             ];
         })->toArray();
@@ -683,6 +706,7 @@ class NotificationService
                     'name'        => $insc->usuario->fullName ?? $insc->usuario->username,
                     'skill_level' => $insc->usuario->categoria ?? 'N/A',
                     'phone'       => $insc->usuario->phone ?? 'No disponible',
+                    'image'       => $this->urlFotoUsuario($insc->usuario->imagePath ?? ''),
                     'initials'    => $this->getInitials($insc->usuario->fullName ?? $insc->usuario->username)
                 ];
             })
@@ -727,15 +751,25 @@ class NotificationService
      */
     private function renderPlayerItem($player)
     {
-        $item  = '<div class="player-item">';
-        $item .= '    <div class="player-avatar">' . htmlspecialchars($player['initials'] ?? '??') . '</div>';
-        $item .= '    <div>';
-        $item .= '        <strong>' . htmlspecialchars($player['name'] ?? 'Jugador') . '</strong><br>';
-        $item .= '        <small>Nivel: ' . htmlspecialchars($player['skill_level'] ?? 'N/A') . ' | Tel: ' . htmlspecialchars($player['phone'] ?? 'No disponible') . '</small>';
-        $item .= '    </div>';
-        $item .= '</div>';
+        $nombre = htmlspecialchars($player['name'] ?? 'Jugador', ENT_QUOTES, 'UTF-8');
+        $nivel  = htmlspecialchars(ucfirst($player['skill_level'] ?? 'N/A'), ENT_QUOTES, 'UTF-8');
+        $foto   = trim((string) ($player['image'] ?? ''));
+        if ($foto === '') {
+            $foto = $this->logoUrl; // sin foto: logo de Padel Match
+        }
+        $foto = htmlspecialchars($foto, ENT_QUOTES, 'UTF-8');
 
-        return $item;
+        return '<table role="presentation" class="player-item" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-bottom:1px solid #edf1f2;">'
+            . '<tr>'
+            . '<td width="44" style="padding:7px 6px 7px 10px;vertical-align:middle;">'
+            . '<img src="' . $foto . '" width="32" height="32" alt="' . $nombre . '" '
+            . 'style="display:block;width:32px;height:32px;border-radius:16px;object-fit:cover;background:#e3f8fc;border:1px solid #e2e8ea;">'
+            . '</td>'
+            . '<td style="padding:7px 10px 7px 2px;vertical-align:middle;font-size:13px;color:#2c3e50;">'
+            . '<strong>' . $nombre . '</strong><br>'
+            . '<span style="font-size:11.5px;color:#7f8c8d;">Nivel ' . $nivel . '</span>'
+            . '</td>'
+            . '</tr></table>';
     }
 
     /**
