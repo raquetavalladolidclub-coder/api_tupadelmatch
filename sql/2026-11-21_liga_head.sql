@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS `liga_head_parejas` (
   `confirmada_por` INT NULL,
   `confirmada_at`  DATETIME NULL,
   `created_at`     TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`     TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_pareja_liga` (`liga_id`, `estado`),
   KEY `idx_pareja_j1` (`liga_id`, `jugador1_id`),

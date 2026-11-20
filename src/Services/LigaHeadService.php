@@ -112,11 +112,13 @@ class LigaHeadService
             }
             $rondas[] = $ronda;
 
-            // Rotar dejando fija la primera posición.
+            // Rotar dejando fija la primera posición: la última pasa al segundo
+            // puesto. (Si solo se mueve al final, la rotación no avanza y se
+            // repiten los mismos emparejamientos.)
             $primera = array_shift($rotacion);
             $ultima = array_pop($rotacion);
             array_unshift($rotacion, $primera);
-            $rotacion[] = $ultima;
+            array_splice($rotacion, 1, 0, [$ultima]);
         }
 
         return $rondas;
