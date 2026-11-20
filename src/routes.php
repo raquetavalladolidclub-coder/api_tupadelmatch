@@ -12,6 +12,7 @@ use PadelClub\Controllers\AdminController;
 use PadelClub\Controllers\SupportController;
 use PadelClub\Controllers\ComunicacionController;
 use PadelClub\Controllers\FanaticController;
+use PadelClub\Controllers\LigaHeadController;
 use PadelClub\Middleware\AuthMiddleware;
 
 return function (App $app) {
@@ -22,6 +23,20 @@ return function (App $app) {
     // Comunicaciones del club (banner de la app)
     $app->get('/comunicaciones', [ComunicacionController::class, 'index'])
         ->add(new AuthMiddleware());
+
+    // LIGA HEAD (liga por parejas, todos contra todos)
+    $app->get('/liga-head', [LigaHeadController::class, 'index'])->add(new AuthMiddleware());
+    $app->post('/liga-head', [LigaHeadController::class, 'crear'])->add(new AuthMiddleware());
+    $app->get('/liga-head/{id:[0-9]+}', [LigaHeadController::class, 'detalle'])->add(new AuthMiddleware());
+    $app->post('/liga-head/{id:[0-9]+}/inscribir', [LigaHeadController::class, 'inscribir'])->add(new AuthMiddleware());
+    $app->get('/liga-head/{id:[0-9]+}/calendario', [LigaHeadController::class, 'calendario'])->add(new AuthMiddleware());
+    $app->get('/liga-head/{id:[0-9]+}/clasificacion', [LigaHeadController::class, 'clasificacion'])->add(new AuthMiddleware());
+    $app->get('/liga-head/{id:[0-9]+}/parejas', [LigaHeadController::class, 'parejas'])->add(new AuthMiddleware());
+    $app->post('/liga-head/{id:[0-9]+}/generar', [LigaHeadController::class, 'generar'])->add(new AuthMiddleware());
+    $app->post('/liga-head/partidos/{id:[0-9]+}/resultado', [LigaHeadController::class, 'proponerResultado'])->add(new AuthMiddleware());
+    $app->post('/liga-head/partidos/{id:[0-9]+}/validar', [LigaHeadController::class, 'validarResultado'])->add(new AuthMiddleware());
+    $app->post('/liga-head/partidos/{id:[0-9]+}/confirmar', [LigaHeadController::class, 'confirmarResultado'])->add(new AuthMiddleware());
+    $app->post('/liga-head/parejas/{id:[0-9]+}/estado', [LigaHeadController::class, 'cambiarEstadoPareja'])->add(new AuthMiddleware());
 
     // Ayuda y soporte
     $app->get('/soporte', [SupportController::class, 'info']);
