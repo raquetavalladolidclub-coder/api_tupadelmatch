@@ -64,9 +64,14 @@ class LigaHeadController
 
         $pareja = $liga->parejaDe($userId);
 
+        $parejas = $liga->parejas()->with(['jugador1', 'jugador2'])
+            ->whereIn('estado', ['confirmada', 'pendiente'])->orderBy('id')->get()
+            ->map(fn ($p) => $this->formatearPareja($p))->values();
+
         return $this->successResponse($response, [
             'liga'          => $this->formatearLiga($liga, $userId),
             'mi_pareja'     => $pareja ? $this->formatearPareja($pareja) : null,
+            'parejas'       => $parejas,
             'jornadas'      => $this->jornadas($liga),
             'clasificacion' => $this->service->clasificacion($liga),
         ]);
@@ -267,6 +272,45 @@ class LigaHeadController
             'message' => 'Resultado validado. Falta la confirmación del club.',
             'partido' => $this->formatearPartido($partido->fresh()),
         ]);
+    }
+
+
+    /** Jugadores de la categoría de la liga que aún no tienen pareja. */
+    public function companeros(Request $request, Response $response, $args)
+    {
+        $userId = (int) $request->getAttribute('user_id');
+        $liga   = LigaHead::find((int) $args['id']);
+
+        if (!$liga) {
+            return $this->errorResponse($response, 'Liga no encontrada', 404);
+        }
+
+        $ocupados = $liga->parejas()
+            ->whereIn('estado', ['pendiente', 'confirmada'])
+            ->get()
+            ->flatMap(fn ($p) => [(int) $p->jugador1_id, (int) $p->jugador2_id])
+            ->all();
+
+        $sql = User::query()
+            ->where('id', '!=', $userId)
+            ->where('categoria', $liga->categoria)
+            ->whereNotIn('id', $ocupados ?: [0]);
+
+        if ($liga->genero !== 'mixto') {
+            $sql->where('genero', $liga->genero);
+        }
+
+        $jugadores = $sql->orderBy('fullName')->get()->map(function (User $u) {
+            return [
+                'id'     => (int) $u->id,
+                'nombre' => $u->fullName ?: $u->username,
+                'categoria' => $u->categoria,
+                'genero' => $u->genero,
+                'foto'   => $u->imagePath,
+            ];
+        })->values();
+
+        return $this->successResponse($response, ['jugadores' => $jugadores]);
     }
 
     // ------------------------------------------------------------------
