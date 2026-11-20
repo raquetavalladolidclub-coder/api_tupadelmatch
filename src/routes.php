@@ -10,6 +10,7 @@ use PadelClub\Controllers\LigaController;
 use PadelClub\Controllers\SurveyController;
 use PadelClub\Controllers\AdminController;
 use PadelClub\Controllers\SupportController;
+use PadelClub\Controllers\ComunicacionController;
 use PadelClub\Controllers\FanaticController;
 use PadelClub\Middleware\AuthMiddleware;
 
@@ -17,6 +18,10 @@ return function (App $app) {
     // Rutas del sistema (públicas)
     $app->get('/version', [SystemController::class, 'getVersion']);
     $app->get('/health', [SystemController::class, 'healthCheck']);
+
+    // Comunicaciones del club (banner de la app)
+    $app->get('/comunicaciones', [ComunicacionController::class, 'index'])
+        ->add(new AuthMiddleware());
 
     // Ayuda y soporte
     $app->get('/soporte', [SupportController::class, 'info']);
