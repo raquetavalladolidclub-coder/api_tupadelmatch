@@ -13,6 +13,7 @@ use PadelClub\Controllers\SupportController;
 use PadelClub\Controllers\ComunicacionController;
 use PadelClub\Controllers\FanaticController;
 use PadelClub\Controllers\LigaHeadController;
+use PadelClub\Controllers\JugadorController;
 use PadelClub\Middleware\AuthMiddleware;
 
 return function (App $app) {
@@ -23,6 +24,9 @@ return function (App $app) {
     // Comunicaciones del club (banner de la app)
     $app->get('/comunicaciones', [ComunicacionController::class, 'index'])
         ->add(new AuthMiddleware());
+
+    // Ficha pública de un jugador (perfil y estadísticas)
+    $app->get('/jugadores/{id:[0-9]+}', [JugadorController::class, 'perfil'])->add(new AuthMiddleware());
 
     // LIGA HEAD (liga por parejas, todos contra todos)
     $app->get('/liga-head', [LigaHeadController::class, 'index'])->add(new AuthMiddleware());
