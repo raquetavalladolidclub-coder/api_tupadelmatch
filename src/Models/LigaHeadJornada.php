@@ -16,7 +16,7 @@ class LigaHeadJornada extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['liga_id', 'numero', 'fecha_desde', 'fecha_hasta'];
+    protected $fillable = ['liga_id', 'categoria', 'numero', 'fecha_desde', 'fecha_hasta'];
 
     protected $casts = [
         'numero' => 'integer',

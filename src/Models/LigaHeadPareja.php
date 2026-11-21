@@ -17,7 +17,7 @@ class LigaHeadPareja extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'liga_id', 'jugador1_id', 'jugador2_id', 'estado',
+        'liga_id', 'categoria', 'jugador1_id', 'jugador2_id', 'estado',
         'confirmada_por', 'confirmada_at',
     ];
 

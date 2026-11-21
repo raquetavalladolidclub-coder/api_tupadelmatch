@@ -31,6 +31,21 @@ class LigaHead extends Model
         'creado_por' => 'integer',
     ];
 
+    public function categorias()
+    {
+        return $this->hasMany(LigaHeadCategoria::class, 'liga_id')->orderBy('categoria');
+    }
+
+    /** Lista simple de categorías de la liga. */
+    public function categoriasLista(): array
+    {
+        $lista = $this->categorias()->pluck('categoria')->all();
+        if (empty($lista) && !empty($this->categoria)) {
+            $lista = [$this->categoria];
+        }
+        return $lista;
+    }
+
     public function jornadas()
     {
         return $this->hasMany(LigaHeadJornada::class, 'liga_id')->orderBy('numero');

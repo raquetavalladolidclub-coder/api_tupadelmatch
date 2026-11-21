@@ -3,6 +3,7 @@
 namespace PadelClub\Controllers;
 
 use PadelClub\Models\LigaHead;
+use PadelClub\Models\LigaHeadCategoria;
 use PadelClub\Models\LigaHeadJornada;
 use PadelClub\Models\LigaHeadPartido;
 use PadelClub\Models\LigaHeadPareja;
@@ -39,7 +40,11 @@ class LigaHeadController
             ->orderByDesc('inscripcion_desde');
 
         if (!empty($params['categoria'])) {
-            $query->where('categoria', strtolower(trim($params['categoria'])));
+            $cat = strtolower(trim($params['categoria']));
+            $query->where(function ($q) use ($cat) {
+                $q->where('categoria', $cat)
+                  ->orWhereHas('categorias', fn ($sub) => $sub->where('categoria', $cat));
+            });
         }
         if (!empty($params['genero'])) {
             $query->where('genero', strtolower(trim($params['genero'])));
@@ -64,16 +69,20 @@ class LigaHeadController
 
         $pareja = $liga->parejaDe($userId);
 
+        $categoria = $this->categoriaSolicitada($request, $liga);
+
         $parejas = $liga->parejas()->with(['jugador1', 'jugador2'])
+            ->where('categoria', $categoria)
             ->whereIn('estado', ['confirmada', 'pendiente'])->orderBy('id')->get()
             ->map(fn ($p) => $this->formatearPareja($p))->values();
 
         return $this->successResponse($response, [
             'liga'          => $this->formatearLiga($liga, $userId),
             'mi_pareja'     => $pareja ? $this->formatearPareja($pareja) : null,
+            'categoria_actual' => $categoria,
             'parejas'       => $parejas,
-            'jornadas'      => $this->jornadas($liga),
-            'clasificacion' => $this->clasificacionConFotos($liga),
+            'jornadas'      => $this->jornadas($liga, $categoria),
+            'clasificacion' => $this->clasificacionConFotos($liga, $categoria),
         ]);
     }
 
@@ -110,12 +119,15 @@ class LigaHeadController
             }
         }
 
-        // Categoría y género.
-        $categoriaLiga = strtolower((string) $liga->categoria);
-        foreach ([$jugador, $companero] as $jug) {
-            if (strtolower((string) ($jug->categoria ?? '')) !== $categoriaLiga) {
-                return $this->errorResponse($response, 'Los dos jugadores deben ser de la categoría ' . ucfirst($categoriaLiga));
-            }
+        // Categoría: la de los jugadores, y tiene que jugarse en esta liga.
+        $categoriaLiga = strtolower((string) ($jugador->categoria ?? ''));
+        $categorias = $liga->categoriasLista();
+
+        if ($categoriaLiga === '' || !in_array($categoriaLiga, $categorias, true)) {
+            return $this->errorResponse($response, 'Tu categoría no se juega en esta liga');
+        }
+        if (strtolower((string) ($companero->categoria ?? '')) !== $categoriaLiga) {
+            return $this->errorResponse($response, 'Los dos jugadores deben ser de la categoría ' . ucfirst($categoriaLiga));
         }
         if ($liga->genero !== 'mixto') {
             foreach ([$jugador, $companero] as $jug) {
@@ -125,14 +137,18 @@ class LigaHeadController
             }
         }
 
-        // Plazas.
-        $ocupadas = $liga->parejas()->whereIn('estado', ['pendiente', 'confirmada'])->count();
+        // Plazas de esa categoría.
+        $ocupadas = $liga->parejas()
+            ->where('categoria', $categoriaLiga)
+            ->whereIn('estado', ['pendiente', 'confirmada'])
+            ->count();
         if ($ocupadas >= (int) $liga->plazas_max) {
-            return $this->errorResponse($response, 'La liga está completa');
+            return $this->errorResponse($response, 'La categoría ' . ucfirst($categoriaLiga) . ' está completa');
         }
 
         $pareja = LigaHeadPareja::create([
             'liga_id'     => $liga->id,
+            'categoria'   => $categoriaLiga,
             'jugador1_id' => (int) $userId,
             'jugador2_id' => $companeroId,
             'estado'      => 'pendiente',
@@ -152,18 +168,25 @@ class LigaHeadController
             return $this->errorResponse($response, 'Liga no encontrada', 404);
         }
 
+        $categoria = $this->categoriaSolicitada($request, $liga);
+
         return $this->successResponse($response, [
-            'liga'     => $this->formatearLiga($liga, $request->getAttribute('user_id')),
-            'jornadas' => $this->jornadas($liga),
+            'liga'      => $this->formatearLiga($liga, $request->getAttribute('user_id')),
+            'categoria' => $categoria,
+            'jornadas'  => $this->jornadas($liga, $categoria),
         ]);
     }
 
     /** Añade las fotos de cada pareja a las filas de clasificación. */
-    private function clasificacionConFotos(LigaHead $liga): array
+    private function clasificacionConFotos(LigaHead $liga, ?string $categoria = null): array
     {
-        $filas = $this->service->clasificacion($liga);
+        $filas = $this->service->clasificacion($liga, $categoria);
         $fotos = [];
-        foreach ($liga->parejasConfirmadas()->with(['jugador1', 'jugador2'])->get() as $pareja) {
+        $parejas = $liga->parejasConfirmadas()
+            ->when($categoria, fn ($q) => $q->where('categoria', $categoria))
+            ->with(['jugador1', 'jugador2'])
+            ->get();
+        foreach ($parejas as $pareja) {
             $fotos[$pareja->id] = $this->fotosPareja($pareja);
         }
         foreach ($filas as &$fila) {
@@ -180,9 +203,12 @@ class LigaHeadController
             return $this->errorResponse($response, 'Liga no encontrada', 404);
         }
 
+        $categoria = $this->categoriaSolicitada($request, $liga);
+
         return $this->successResponse($response, [
             'liga'          => $this->formatearLiga($liga, $request->getAttribute('user_id')),
-            'clasificacion' => $this->clasificacionConFotos($liga),
+            'categoria'     => $categoria,
+            'clasificacion' => $this->clasificacionConFotos($liga, $categoria),
         ]);
     }
 
@@ -305,9 +331,11 @@ class LigaHeadController
             ->flatMap(fn ($p) => [(int) $p->jugador1_id, (int) $p->jugador2_id])
             ->all();
 
+        $categoria = $this->categoriaSolicitada($request, $liga);
+
         $sql = User::query()
             ->where('id', '!=', $userId)
-            ->where('categoria', $liga->categoria)
+            ->where('categoria', $categoria)
             ->whereNotIn('id', $ocupados ?: [0]);
 
         if ($liga->genero !== 'mixto') {
@@ -339,16 +367,28 @@ class LigaHeadController
         }
 
         $data = $request->getParsedBody() ?? [];
-        foreach (['nombre', 'categoria', 'inscripcion_desde', 'inscripcion_hasta', 'fecha_inicio'] as $campo) {
+        foreach (['nombre', 'inscripcion_desde', 'inscripcion_hasta', 'fecha_inicio'] as $campo) {
             if (empty($data[$campo])) {
                 return $this->errorResponse($response, 'Falta el campo ' . $campo);
             }
         }
 
+        $categorias = $data['categorias'] ?? ($data['categoria'] ?? []);
+        if (is_string($categorias)) {
+            $categorias = [$categorias];
+        }
+        $categorias = array_values(array_filter(array_map(
+            fn ($c) => strtolower(trim((string) $c)),
+            is_array($categorias) ? $categorias : []
+        )));
+        if (empty($categorias)) {
+            return $this->errorResponse($response, 'Indica al menos una categoría');
+        }
+
         $liga = LigaHead::create([
             'nombre'            => (string) $data['nombre'],
             'genero'            => in_array(($data['genero'] ?? 'mixto'), ['masculino', 'femenino', 'mixto'], true) ? $data['genero'] : 'mixto',
-            'categoria'         => strtolower((string) $data['categoria']),
+            'categoria'         => $categorias[0],
             'precio'            => (float) ($data['precio'] ?? 20),
             'plazas_max'        => (int) ($data['plazas_max'] ?? 16),
             'plazas_min'        => (int) ($data['plazas_min'] ?? 4),
@@ -361,9 +401,13 @@ class LigaHeadController
             'creado_por'        => (int) $request->getAttribute('user_id'),
         ]);
 
+        foreach ($categorias as $cat) {
+            LigaHeadCategoria::firstOrCreate(['liga_id' => $liga->id, 'categoria' => $cat]);
+        }
+
         return $this->successResponse($response, [
             'message' => 'Liga creada',
-            'liga'    => $this->formatearLiga($liga, null),
+            'liga'    => $this->formatearLiga($liga->fresh(), null),
         ], 201);
     }
 
@@ -379,16 +423,33 @@ class LigaHeadController
             return $this->errorResponse($response, 'Liga no encontrada', 404);
         }
 
-        try {
-            $resultado = $this->service->generarCalendario($liga);
-        } catch (\RuntimeException $e) {
-            return $this->errorResponse($response, $e->getMessage());
+        $data = $request->getParsedBody() ?? [];
+        $pedida = strtolower(trim((string) ($data['categoria'] ?? '')));
+        $categorias = $liga->categoriasLista();
+        $aGenerar = ($pedida !== '' && in_array($pedida, $categorias, true)) ? [$pedida] : $categorias;
+
+        $resumen = ['jornadas' => 0, 'partidos' => 0, 'categorias' => []];
+        foreach ($aGenerar as $categoria) {
+            try {
+                $resultado = $this->service->generarCalendario($liga, $categoria);
+                $resumen['jornadas'] = max($resumen['jornadas'], $resultado['jornadas']);
+                $resumen['partidos'] += $resultado['partidos'];
+                $resumen['categorias'][] = $categoria;
+            } catch (\RuntimeException $e) {
+                if (count($aGenerar) === 1) {
+                    return $this->errorResponse($response, $e->getMessage());
+                }
+            }
+        }
+
+        if (empty($resumen['categorias'])) {
+            return $this->errorResponse($response, 'No hay parejas confirmadas suficientes para generar el calendario');
         }
 
         return $this->successResponse($response, [
-            'message' => 'Calendario generado',
-            'jornadas' => $resultado['jornadas'],
-            'partidos' => $resultado['partidos'],
+            'message'  => 'Calendario generado',
+            'jornadas' => $resumen['jornadas'],
+            'partidos' => $resumen['partidos'],
             'liga'     => $this->formatearLiga($liga->fresh(), null),
         ]);
     }
@@ -471,7 +532,11 @@ class LigaHeadController
             return $this->errorResponse($response, 'Liga no encontrada', 404);
         }
 
-        $parejas = $liga->parejas()->with(['jugador1', 'jugador2'])->orderBy('id')->get()
+        $cat = strtolower(trim((string) ($request->getQueryParams()['categoria'] ?? '')));
+
+        $parejas = $liga->parejas()
+            ->when($cat !== '', fn ($q) => $q->where('categoria', $cat))
+            ->with(['jugador1', 'jugador2'])->orderBy('id')->get()
             ->map(fn ($p) => $this->formatearPareja($p))->values();
 
         return $this->successResponse($response, [
@@ -495,6 +560,7 @@ class LigaHeadController
             'nombre'            => $liga->nombre,
             'genero'            => $liga->genero,
             'categoria'         => $liga->categoria,
+            'categorias'        => $liga->categoriasLista(),
             'precio'            => number_format((float) $liga->precio, 2, ',', '.') . ' €',
             'plazas_max'        => (int) $liga->plazas_max,
             'plazas_min'        => (int) $liga->plazas_min,
@@ -520,6 +586,7 @@ class LigaHeadController
         return [
             'id'         => $pareja->id,
             'liga_id'    => $pareja->liga_id,
+            'categoria'  => $pareja->categoria,
             'nombre'     => $this->service->nombrePareja($pareja->load(['jugador1', 'jugador2'])),
             'jugador1'   => [
                 'id'     => $pareja->jugador1_id,
@@ -539,9 +606,11 @@ class LigaHeadController
         ];
     }
 
-    private function jornadas(LigaHead $liga): array
+    private function jornadas(LigaHead $liga, ?string $categoria = null): array
     {
-        $jornadas = $liga->jornadas()->with(['partidos.sets', 'partidos.parejaA.jugador1', 'partidos.parejaA.jugador2',
+        $jornadas = $liga->jornadas()
+            ->when($categoria, fn ($q) => $q->where('categoria', $categoria))
+            ->with(['partidos.sets', 'partidos.parejaA.jugador1', 'partidos.parejaA.jugador2',
             'partidos.parejaB.jugador1', 'partidos.parejaB.jugador2'])->get();
 
         return $jornadas->map(function (LigaHeadJornada $jornada) {
@@ -583,6 +652,18 @@ class LigaHeadController
             'validado_rival'  => (bool) $partido->validado_rival,
             'confirmado_club' => (bool) $partido->confirmado_club,
         ];
+    }
+
+    /** Categoría pedida en la URL (o la primera de la liga). */
+    private function categoriaSolicitada(Request $request, LigaHead $liga): ?string
+    {
+        $pedida = strtolower(trim((string) ($request->getQueryParams()['categoria'] ?? '')));
+        $lista = $liga->categoriasLista();
+
+        if ($pedida !== '' && in_array($pedida, $lista, true)) {
+            return $pedida;
+        }
+        return $lista[0] ?? $liga->categoria;
     }
 
     /** URL absoluta de la imagen de la liga. */

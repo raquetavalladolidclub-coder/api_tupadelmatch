@@ -20,9 +20,15 @@ class LigaHeadService
      *
      * @return array{jornadas:int, partidos:int}
      */
-    public function generarCalendario(LigaHead $liga): array
+    public function generarCalendario(LigaHead $liga, ?string $categoria = null): array
     {
-        $ids = $liga->parejasConfirmadas()->orderBy('id')->pluck('id')->all();
+        $categoria = $categoria ?: ($liga->categoriasLista()[0] ?? $liga->categoria);
+
+        $ids = $liga->parejasConfirmadas()
+            ->when($categoria, fn ($q) => $q->where('categoria', $categoria))
+            ->orderBy('id')
+            ->pluck('id')
+            ->all();
 
         if (count($ids) < 2) {
             throw new \RuntimeException('Hacen falta al menos 2 parejas confirmadas.');
@@ -47,13 +53,22 @@ class LigaHeadService
             $rondas = array_merge($rondas, $vuelta);
         }
 
-        // Se borra lo anterior (solo si no hay resultados confirmados).
-        $hayConfirmados = $liga->partidos()->where('confirmado_club', 1)->exists();
+        // Se borra solo lo de esta categoría (solo si no hay resultados confirmados).
+        $jornadasCategoria = $liga->jornadas()
+            ->when($categoria, fn ($q) => $q->where('categoria', $categoria))
+            ->pluck('id')
+            ->all();
+
+        $hayConfirmados = $liga->partidos()
+            ->whereIn('jornada_id', $jornadasCategoria ?: [0])
+            ->where('confirmado_club', 1)
+            ->exists();
         if ($hayConfirmados) {
             throw new \RuntimeException('Ya hay partidos con resultado confirmado: no se puede regenerar.');
         }
-        $liga->partidos()->delete();
-        $liga->jornadas()->delete();
+
+        \PadelClub\Models\LigaHeadPartido::whereIn('jornada_id', $jornadasCategoria ?: [0])->delete();
+        \PadelClub\Models\LigaHeadJornada::whereIn('id', $jornadasCategoria ?: [0])->delete();
 
         $inicio = new \DateTime($liga->fecha_inicio);
         $partidosCreados = 0;
@@ -64,6 +79,7 @@ class LigaHeadService
 
             $jornada = LigaHeadJornada::create([
                 'liga_id'     => $liga->id,
+                'categoria'   => $categoria,
                 'numero'      => $indice + 1,
                 'fecha_desde' => $desde->format('Y-m-d'),
                 'fecha_hasta' => $hasta->format('Y-m-d'),
@@ -81,12 +97,14 @@ class LigaHeadService
             }
         }
 
+        // Se guarda el máximo de jornadas entre las categorías ya generadas.
+        $maxJornadas = (int) LigaHeadJornada::where('liga_id', $liga->id)->max('numero');
         $liga->update([
-            'jornadas' => count($rondas),
+            'jornadas' => $maxJornadas,
             'estado'   => 'en_curso',
         ]);
 
-        return ['jornadas' => count($rondas), 'partidos' => $partidosCreados];
+        return ['jornadas' => count($rondas), 'partidos' => $partidosCreados, 'categoria' => $categoria];
     }
 
     /**
@@ -129,9 +147,12 @@ class LigaHeadService
      *
      * @return array<int, array<string, mixed>>
      */
-    public function clasificacion(LigaHead $liga): array
+    public function clasificacion(LigaHead $liga, ?string $categoria = null): array
     {
-        $parejas = $liga->parejasConfirmadas()->with(['jugador1', 'jugador2'])->get();
+        $parejas = $liga->parejasConfirmadas()
+            ->when($categoria, fn ($q) => $q->where('categoria', $categoria))
+            ->with(['jugador1', 'jugador2'])
+            ->get();
 
         $tabla = [];
         foreach ($parejas as $pareja) {
@@ -144,7 +165,13 @@ class LigaHeadService
             ];
         }
 
+        $jornadas = $liga->jornadas()
+            ->when($categoria, fn ($q) => $q->where('categoria', $categoria))
+            ->pluck('id')
+            ->all();
+
         $partidos = $liga->partidos()
+            ->whereIn('jornada_id', $jornadas ?: [0])
             ->where('confirmado_club', 1)
             ->with('sets')
             ->get();
