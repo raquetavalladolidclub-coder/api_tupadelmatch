@@ -10,6 +10,7 @@ use PadelClub\Models\LigaHeadPareja;
 use PadelClub\Models\LigaHeadSet;
 use PadelClub\Models\User;
 use PadelClub\Services\LigaHeadService;
+use PadelClub\Services\PushNotifier;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -19,10 +20,12 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class LigaHeadController
 {
     private $service;
+    private $push;
 
     public function __construct()
     {
         $this->service = new LigaHeadService();
+        $this->push = new PushNotifier();
     }
 
     // ------------------------------------------------------------------
@@ -270,6 +273,14 @@ class LigaHeadController
             'confirmado_at'     => null,
         ]);
 
+        $rival = ((int) $partido->pareja_a_id === (int) ($pareja->id ?? 0)) ? $parejaB : $pareja;
+        $this->push->aPareja(
+            $rival,
+            'Resultado pendiente de validar',
+            'Hay un resultado nuevo en tu partido de Liga Head. Revísalo en la app.',
+            ['liga_id' => (int) $partido->liga_id]
+        );
+
         return $this->successResponse($response, [
             'message' => 'Resultado enviado. La pareja rival tiene 2 horas para validarlo.',
             'partido' => $this->formatearPartido($partido->fresh()),
@@ -307,6 +318,13 @@ class LigaHeadController
             'validado_rival'    => 1,
             'validado_rival_at' => date('Y-m-d H:i:s'),
         ]);
+
+        $this->push->aUsuario(
+            (int) $partido->propuesto_por,
+            'Resultado validado',
+            'La pareja rival ha validado el resultado. Falta que el club lo confirme.',
+            ['liga_id' => (int) $partido->liga_id]
+        );
 
         return $this->successResponse($response, [
             'message' => 'Resultado validado. Falta la confirmación del club.',
@@ -444,6 +462,22 @@ class LigaHeadController
 
         if (empty($resumen['categorias'])) {
             return $this->errorResponse($response, 'No hay parejas confirmadas suficientes para generar el calendario');
+        }
+
+        foreach ($resumen['categorias'] as $categoriaGenerada) {
+            $jugadores = [];
+            foreach ($liga->parejasConfirmadas()->where('categoria', $categoriaGenerada)->get() as $pareja) {
+                $jugadores[] = (int) $pareja->jugador1_id;
+                $jugadores[] = (int) $pareja->jugador2_id;
+            }
+            if ($jugadores) {
+                $this->push->aUsuarios(
+                    $jugadores,
+                    'Calendario publicado',
+                    'Ya está el calendario de ' . ucfirst($categoriaGenerada) . ' en la Liga Head. Mira tu jornada en la app.',
+                    ['liga_id' => (int) $liga->id]
+                );
+            }
         }
 
         return $this->successResponse($response, [
