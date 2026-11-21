@@ -185,15 +185,18 @@ class LigaHeadController
     {
         $filas = $this->service->clasificacion($liga, $categoria);
         $fotos = [];
+        $ids = [];
         $parejas = $liga->parejasConfirmadas()
             ->when($categoria, fn ($q) => $q->where('categoria', $categoria))
             ->with(['jugador1', 'jugador2'])
             ->get();
         foreach ($parejas as $pareja) {
             $fotos[$pareja->id] = $this->fotosPareja($pareja);
+            $ids[$pareja->id] = [(int) $pareja->jugador1_id, (int) $pareja->jugador2_id];
         }
         foreach ($filas as &$fila) {
             $fila['fotos'] = $fotos[$fila['pareja_id']] ?? [];
+            $fila['jugadores_ids'] = $ids[$fila['pareja_id']] ?? [];
         }
         return $filas;
     }
