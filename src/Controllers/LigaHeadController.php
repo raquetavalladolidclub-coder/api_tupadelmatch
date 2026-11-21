@@ -490,6 +490,7 @@ class LigaHeadController
             'ida_vuelta'        => (bool) $liga->ida_vuelta,
             'jornadas'          => (int) ($liga->jornadas ?? 0),
             'reglamento'        => $liga->reglamento,
+            'imagen'            => $this->urlImagen($liga->imagen ?? ''),
             'estado'            => $liga->estado,
             'parejas_inscritas' => $ocupadas,
             'parejas_confirmadas' => $confirmadas,
@@ -509,10 +510,16 @@ class LigaHeadController
             'jugador1'   => [
                 'id'     => $pareja->jugador1_id,
                 'nombre' => $pareja->jugador1->fullName ?? $pareja->jugador1->username ?? '',
+                'foto'   => $this->urlFoto($pareja->jugador1->imagePath ?? ''),
             ],
             'jugador2'   => [
                 'id'     => $pareja->jugador2_id,
                 'nombre' => $pareja->jugador2->fullName ?? $pareja->jugador2->username ?? '',
+                'foto'   => $this->urlFoto($pareja->jugador2->imagePath ?? ''),
+            ],
+            'fotos'      => [
+                $this->urlFoto($pareja->jugador1->imagePath ?? ''),
+                $this->urlFoto($pareja->jugador2->imagePath ?? ''),
             ],
             'estado'     => $pareja->estado,
         ];
@@ -544,10 +551,12 @@ class LigaHeadController
             'pareja_a'       => [
                 'id'     => $partido->pareja_a_id,
                 'nombre' => $this->service->nombrePareja($partido->parejaA),
+                'fotos'  => $this->fotosPareja($partido->parejaA),
             ],
             'pareja_b'       => [
                 'id'     => $partido->pareja_b_id,
                 'nombre' => $this->service->nombrePareja($partido->parejaB),
+                'fotos'  => $this->fotosPareja($partido->parejaB),
             ],
             'fecha'          => $partido->fecha,
             'hora'           => $partido->hora,
@@ -559,6 +568,48 @@ class LigaHeadController
             ])->values(),
             'validado_rival'  => (bool) $partido->validado_rival,
             'confirmado_club' => (bool) $partido->confirmado_club,
+        ];
+    }
+
+    /** URL absoluta de la imagen de la liga. */
+    private function urlImagen($ruta): ?string
+    {
+        $ruta = trim((string) $ruta);
+        if ($ruta === '') {
+            return null;
+        }
+        if (preg_match('#^https?://#i', $ruta)) {
+            return $ruta;
+        }
+        $base = rtrim($_ENV['ADMIN_URL'] ?? 'https://admin.tupadelmatch.es', '/');
+        return $base . '/' . ltrim($ruta, '/');
+    }
+
+    /** URL absoluta de la foto de un jugador (API o panel). */
+    private function urlFoto($ruta): ?string
+    {
+        $ruta = trim((string) $ruta);
+        if ($ruta === '') {
+            return null;
+        }
+        if (preg_match('#^https?://#i', $ruta)) {
+            return $ruta;
+        }
+        $base = str_starts_with($ruta, '/')
+            ? 'https://api.tupadelmatch.es'
+            : 'https://admin.tupadelmatch.es/';
+        return rtrim($base, '/') . '/' . ltrim($ruta, '/');
+    }
+
+    /** Fotos de los dos jugadores de una pareja. */
+    private function fotosPareja($pareja): array
+    {
+        if (!$pareja) {
+            return [];
+        }
+        return [
+            $this->urlFoto($pareja->jugador1->imagePath ?? ''),
+            $this->urlFoto($pareja->jugador2->imagePath ?? ''),
         ];
     }
 
