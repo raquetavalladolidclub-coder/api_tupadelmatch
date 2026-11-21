@@ -701,7 +701,7 @@ class LigaHeadController
     private function fotosPareja($pareja): array
     {
         if (!$pareja) {
-            return [];
+            return [null, null];
         }
         return [
             $this->urlFoto($pareja->jugador1->imagePath ?? ''),

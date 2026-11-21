@@ -233,6 +233,11 @@ class LigaHeadService
 
     public function nombrePareja($pareja): string
     {
+        // Una pareja puede haberse dado de baja y dejar partidos huérfanos.
+        if (!$pareja) {
+            return 'Pareja pendiente';
+        }
+
         $j1 = $pareja->jugador1;
         $j2 = $pareja->jugador2;
         $n1 = $j1 ? ($j1->fullName ?: $j1->username) : 'Jugador';
