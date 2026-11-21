@@ -1,5 +1,7 @@
 <?php
 
+namespace PadelClub\Services;
+
 /**
  * Envío de push con Firebase Cloud Messaging (HTTP v1).
  * Si no hay cuenta de servicio, intenta el modo legado con server_key.
