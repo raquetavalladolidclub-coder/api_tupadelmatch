@@ -757,6 +757,41 @@ class NotificationService
         );
     }
 
+
+    /**
+     * Recordatorio del partido de mañana a los jugadores confirmados.
+     * Devuelve cuántos correos se enviaron.
+     */
+    public function sendMatchReminder($partido, $jugadores): int
+    {
+        $enviados = 0;
+
+        $base = [
+            'match_date'       => $partido->fecha->format('d/m/Y'),
+            'match_time'       => $partido->hora,
+            'court_name'       => $this->getCourtName($partido),
+            'price'            => number_format((float) $partido->precio_individual, 2) . '€',
+            'organizer_name'   => $partido->creador->fullName ?? $partido->creador->username ?? 'Organizador',
+            'organizer_phone'  => $partido->creador->phone ?? 'No disponible',
+        ];
+        $base = array_merge($base, $this->clubEmailData($partido));
+
+        foreach ($jugadores as $jugador) {
+            if (!$this->aceptaNotificacionesEmail($jugador) || empty($jugador->email)) {
+                continue;
+            }
+
+            $data = $base;
+            $data['player_name'] = $jugador->fullName ?? $jugador->username;
+
+            if ($this->sendGeneralNotificationWithTemplate($jugador->email, 'recordarPartico.html', $data)) {
+                $enviados++;
+            }
+        }
+
+        return $enviados;
+    }
+
     public function sendPlayerConfirmationEmail($partido, $usuario, $inscripcion)
     {
         if (!$this->aceptaNotificacionesEmail($usuario)) {
