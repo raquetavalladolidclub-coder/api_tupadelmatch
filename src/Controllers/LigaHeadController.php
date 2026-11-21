@@ -578,6 +578,7 @@ class LigaHeadController
             'inscripcion_abierta' => $liga->inscripcionesAbiertas(),
             'inscrito'          => $miPareja !== null,
             'mi_pareja_estado'  => $miPareja->estado ?? null,
+            'mi_categoria'      => $miPareja->categoria ?? null,
         ];
     }
 
