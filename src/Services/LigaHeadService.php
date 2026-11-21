@@ -159,6 +159,7 @@ class LigaHeadService
             $tabla[$pareja->id] = [
                 'pareja_id' => $pareja->id,
                 'pareja'    => $this->nombrePareja($pareja),
+                'jugadores' => $this->nombresJugadores($pareja),
                 'pj' => 0, 'pg' => 0, 'pp' => 0,
                 'sf' => 0, 'sc' => 0,
                 'puntos' => 0,
@@ -229,6 +230,28 @@ class LigaHeadService
         }
 
         return $filas;
+    }
+
+    /** Nombre corto de cada jugador de la pareja. */
+    public function nombresJugadores($pareja): array
+    {
+        if (!$pareja) {
+            return ['Jugador', 'Jugador'];
+        }
+
+        $corto = function ($user) {
+            $nombre = trim((string) ($user->fullName ?? '') ?: (string) ($user->username ?? ''));
+            if ($nombre === '') {
+                return 'Jugador';
+            }
+            $partes = preg_split('/\s+/', $nombre);
+            if (count($partes) >= 3) {
+                return $partes[0] . ' ' . $partes[2];
+            }
+            return $nombre;
+        };
+
+        return [$corto($pareja->jugador1), $corto($pareja->jugador2)];
     }
 
     public function nombrePareja($pareja): string
