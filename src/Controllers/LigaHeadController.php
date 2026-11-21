@@ -667,14 +667,16 @@ class LigaHeadController
             'id'             => $partido->id,
             'jornada_id'     => $partido->jornada_id,
             'pareja_a'       => [
-                'id'     => $partido->pareja_a_id,
-                'nombre' => $this->service->nombrePareja($partido->parejaA),
-                'fotos'  => $this->fotosPareja($partido->parejaA),
+                'id'       => $partido->pareja_a_id,
+                'nombre'   => $this->service->nombrePareja($partido->parejaA),
+                'fotos'    => $this->fotosPareja($partido->parejaA),
+                'jugadores' => $this->jugadoresPareja($partido->parejaA),
             ],
             'pareja_b'       => [
-                'id'     => $partido->pareja_b_id,
-                'nombre' => $this->service->nombrePareja($partido->parejaB),
-                'fotos'  => $this->fotosPareja($partido->parejaB),
+                'id'       => $partido->pareja_b_id,
+                'nombre'   => $this->service->nombrePareja($partido->parejaB),
+                'fotos'    => $this->fotosPareja($partido->parejaB),
+                'jugadores' => $this->jugadoresPareja($partido->parejaB),
             ],
             'fecha'          => $partido->fecha,
             'hora'           => $partido->hora,
@@ -729,6 +731,36 @@ class LigaHeadController
             ? 'https://api.tupadelmatch.es'
             : 'https://admin.tupadelmatch.es/';
         return rtrim($base, '/') . '/' . ltrim($ruta, '/');
+    }
+
+    /** Id, nombre y foto de cada jugador de la pareja. */
+    private function jugadoresPareja($pareja): array
+    {
+        if (!$pareja) {
+            return [];
+        }
+
+        $corto = function ($user) {
+            $nombre = trim((string) ($user->fullName ?? '') ?: (string) ($user->username ?? ''));
+            if ($nombre === '') {
+                return 'Jugador';
+            }
+            $partes = preg_split('/\s+/', $nombre);
+            return count($partes) >= 3 ? $partes[0] . ' ' . $partes[2] : $nombre;
+        };
+
+        $lista = [];
+        foreach (['jugador1', 'jugador2'] as $relacion) {
+            $user = $pareja->{$relacion};
+            if ($user) {
+                $lista[] = [
+                    'id'     => (int) $user->id,
+                    'nombre' => $corto($user),
+                    'foto'   => $this->urlFoto($user->imagePath ?? ''),
+                ];
+            }
+        }
+        return $lista;
     }
 
     /** Fotos de los dos jugadores de una pareja. */
