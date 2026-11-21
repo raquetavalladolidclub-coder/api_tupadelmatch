@@ -73,7 +73,7 @@ class LigaHeadController
             'mi_pareja'     => $pareja ? $this->formatearPareja($pareja) : null,
             'parejas'       => $parejas,
             'jornadas'      => $this->jornadas($liga),
-            'clasificacion' => $this->service->clasificacion($liga),
+            'clasificacion' => $this->clasificacionConFotos($liga),
         ]);
     }
 
@@ -158,6 +158,20 @@ class LigaHeadController
         ]);
     }
 
+    /** Añade las fotos de cada pareja a las filas de clasificación. */
+    private function clasificacionConFotos(LigaHead $liga): array
+    {
+        $filas = $this->service->clasificacion($liga);
+        $fotos = [];
+        foreach ($liga->parejasConfirmadas()->with(['jugador1', 'jugador2'])->get() as $pareja) {
+            $fotos[$pareja->id] = $this->fotosPareja($pareja);
+        }
+        foreach ($filas as &$fila) {
+            $fila['fotos'] = $fotos[$fila['pareja_id']] ?? [];
+        }
+        return $filas;
+    }
+
     /** Clasificación. */
     public function clasificacion(Request $request, Response $response, $args)
     {
@@ -168,7 +182,7 @@ class LigaHeadController
 
         return $this->successResponse($response, [
             'liga'          => $this->formatearLiga($liga, $request->getAttribute('user_id')),
-            'clasificacion' => $this->service->clasificacion($liga),
+            'clasificacion' => $this->clasificacionConFotos($liga),
         ]);
     }
 
