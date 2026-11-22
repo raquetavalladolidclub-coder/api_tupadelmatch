@@ -33,6 +33,8 @@ return function (App $app) {
     $app->post('/liga-head', [LigaHeadController::class, 'crear'])->add(new AuthMiddleware());
     $app->get('/liga-head/{id:[0-9]+}', [LigaHeadController::class, 'detalle'])->add(new AuthMiddleware());
     $app->post('/liga-head/{id:[0-9]+}/inscribir', [LigaHeadController::class, 'inscribir'])->add(new AuthMiddleware());
+    $app->get('/liga-head/partidos', [LigaHeadController::class, 'partidosConFecha'])->add(new AuthMiddleware());
+
     $app->get('/liga-head/{id:[0-9]+}/calendario', [LigaHeadController::class, 'calendario'])->add(new AuthMiddleware());
     $app->get('/liga-head/{id:[0-9]+}/clasificacion', [LigaHeadController::class, 'clasificacion'])->add(new AuthMiddleware());
     $app->get('/liga-head/{id:[0-9]+}/parejas', [LigaHeadController::class, 'parejas'])->add(new AuthMiddleware());

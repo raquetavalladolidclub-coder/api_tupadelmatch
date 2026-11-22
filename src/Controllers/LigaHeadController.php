@@ -164,6 +164,66 @@ class LigaHeadController
     }
 
     /** Calendario: jornadas con sus partidos. */
+    /**
+     * Partidos de liga con fecha, para mostrarlos en la agenda de partidos.
+     * GET /liga-head/partidos?fecha=YYYY-MM-DD
+     */
+    public function partidosConFecha(Request $request, Response $response)
+    {
+        $params = $request->getQueryParams();
+        $fecha = $params['fecha'] ?? null;
+
+        $consulta = LigaHeadPartido::with([
+                'liga',
+                'jornada',
+                'sets',
+                'parejaA.jugador1',
+                'parejaA.jugador2',
+                'parejaB.jugador1',
+                'parejaB.jugador2',
+            ])
+            ->whereNotNull('fecha')
+            ->whereNotIn('estado', ['cancelado']);
+
+        if ($fecha) {
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $fecha)) {
+                return $this->errorResponse($response, 'Fecha no válida (YYYY-MM-DD)');
+            }
+            $consulta->where('fecha', $fecha);
+        } else {
+            $consulta->where('fecha', '>=', date('Y-m-d'))->orderBy('fecha')->limit(50);
+        }
+
+        $partidos = $consulta->orderBy('hora')->get();
+
+        return $this->successResponse($response, [
+            'partidos' => $partidos->map(fn ($partido) => [
+                'id'             => (int) $partido->id,
+                'liga_id'        => (int) $partido->liga_id,
+                'liga'           => $partido->liga->nombre ?? 'Liga Head',
+                'jornada'        => (int) ($partido->jornada->numero ?? 0),
+                'categoria'      => $partido->categoria,
+                'fecha'          => $partido->fecha,
+                'hora'           => $partido->hora ? substr((string) $partido->hora, 0, 5) : null,
+                'confirmado'     => (bool) $partido->confirmado_club,
+                'pareja_a'       => [
+                    'id'        => (int) $partido->pareja_a_id,
+                    'nombre'    => $this->service->nombrePareja($partido->parejaA),
+                    'jugadores' => $this->jugadoresPareja($partido->parejaA),
+                ],
+                'pareja_b'       => [
+                    'id'        => (int) $partido->pareja_b_id,
+                    'nombre'    => $this->service->nombrePareja($partido->parejaB),
+                    'jugadores' => $this->jugadoresPareja($partido->parejaB),
+                ],
+                'sets'           => $partido->sets->map(fn ($set) => [
+                    'a' => (int) $set->games_a,
+                    'b' => (int) $set->games_b,
+                ])->values()->all(),
+            ])->values()->all(),
+        ]);
+    }
+
     public function calendario(Request $request, Response $response, $args)
     {
         $liga = LigaHead::find((int) $args['id']);
