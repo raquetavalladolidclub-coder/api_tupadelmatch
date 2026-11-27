@@ -25,7 +25,23 @@ $app->addBodyParsingMiddleware();
 // Manejo de errores: 404/500 en JSON y sin trazas al cliente.
 // Las trazas solo se muestran si APP_DEBUG está activo (nunca en producción).
 $displayErrorDetails = (bool) filter_var($_ENV['APP_DEBUG'] ?? false, FILTER_VALIDATE_BOOLEAN);
-$app->addErrorMiddleware($displayErrorDetails, true, true);
+$errorMiddleware = $app->addErrorMiddleware($displayErrorDetails, true, true);
+$errorMiddleware->setDefaultErrorHandler(function ($request, Throwable $exception) use ($app) {
+    $status = (int) $exception->getCode();
+    if ($status < 400 || $status > 599) {
+        $status = 500;
+    }
+
+    $payload = [
+        'success' => false,
+        'message' => $status === 404 ? 'Recurso no encontrado' : 'Error interno del servidor',
+    ];
+
+    $response = $app->getResponseFactory()->createResponse($status);
+    $response->getBody()->write(json_encode($payload, JSON_UNESCAPED_UNICODE));
+
+    return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
+});
 
 // Middleware CORS
 $app->add(function ($request, $handler) {
