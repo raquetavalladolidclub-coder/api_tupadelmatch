@@ -22,6 +22,11 @@ $app = AppFactory::create();
 // Middleware para parsing JSON
 $app->addBodyParsingMiddleware();
 
+// Manejo de errores: 404/500 en JSON y sin trazas al cliente.
+// Las trazas solo se muestran si APP_DEBUG está activo (nunca en producción).
+$displayErrorDetails = (bool) filter_var($_ENV['APP_DEBUG'] ?? false, FILTER_VALIDATE_BOOLEAN);
+$app->addErrorMiddleware($displayErrorDetails, true, true);
+
 // Middleware CORS
 $app->add(function ($request, $handler) {
     $response = $handler->handle($request);
